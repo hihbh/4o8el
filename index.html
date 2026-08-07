@@ -4,105 +4,163 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>بوصلة</title>
-<meta name="theme-color" content="#161C1A" />
+<meta name="theme-color" content="#10141A" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="بوصلة" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Amiri:wght@700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <script src="https://js.puter.com/v2/"></script>
 <style>
   :root{
-    --bg:#E5E2D8; --surface:#FBFAF6; --ink:#1D2420; --ink-soft:#5B6259;
-    --line:#D6D2C4; --teal:#2B6E63; --teal-soft:#DCE9E5;
-    --amber:#C1752E; --amber-soft:#F3E2CC; --indigo:#3C4FA0; --indigo-soft:#E1E3F3;
-    --red:#B3372F; --red-soft:#F3DEDC;
+    --bg:#EEEBE1; --surface:#FFFFFF; --ink:#161A20; --ink-soft:#5B6472;
+    --line:#DAD5C6; --teal:#2F5D50; --teal-soft:#DCE7E1;
+    --amber:#96742F; --amber-soft:#F0E7D0; --indigo:#1F3A5F; --indigo-soft:#E2E7EE;
+    --red:#8E3B33; --red-soft:#F1E1DE;
   }
   body.dark{
-    --bg:#161C1A; --surface:#202823; --ink:#EDEAE0; --ink-soft:#9AA39C;
-    --line:#2E3733; --teal:#5FB3A3; --teal-soft:#22322D;
-    --amber:#E0954D; --amber-soft:#3A2B1C; --indigo:#8C9AE8; --indigo-soft:#242A47;
-    --red:#E27C74; --red-soft:#3A2422;
+    --bg:#10141A; --surface:#1A2029; --ink:#EDEEEE; --ink-soft:#8B93A3;
+    --line:#2A323D; --teal:#6FAE9B; --teal-soft:#1C2A26;
+    --amber:#D3B36A; --amber-soft:#2C2517; --indigo:#8FA8CC; --indigo-soft:#1E2738;
+    --red:#C97C71; --red-soft:#302020;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     font-family:'IBM Plex Sans Arabic',sans-serif;
     background:var(--bg); color:var(--ink);
-    min-height:100vh; padding:24px 16px 110px;
-    transition:background .2s ease, color .2s ease;
+    min-height:100vh;
+    transition:background .25s ease, color .25s ease;
+    -webkit-font-smoothing:antialiased;
   }
+  .app-shell{display:flex; align-items:stretch; min-height:100vh;}
+  .main-content{flex:1; min-width:0; padding:24px 16px 116px;}
+  .sidebar{display:none;}
+  /* ---- Desktop dashboard layout ---- */
+  @media (min-width:920px){
+    .app-shell{align-items:flex-start;}
+    .sidebar{
+      display:flex; flex-direction:column; width:236px; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+      background:var(--surface); border-inline-end:1px solid var(--line);
+      padding:26px 20px 20px;
+    }
+    .sidebar-brand{display:flex; align-items:center; gap:8px; margin-bottom:2px;}
+    .sidebar-brand .app-title{font-size:22px;}
+    .sidebar-tagline{font-size:10.5px; color:var(--ink-soft); letter-spacing:.4px; margin:2px 0 22px;}
+    .sidebar-nav{display:flex; flex-direction:column; gap:2px; flex:1;}
+    .sidebar-nav.tab-rail{background:none; border:none; padding:0; border-radius:0; overflow:visible;}
+    .sidebar-nav .tab-btn{justify-content:flex-start; width:100%; padding:9px 11px; border-radius:8px;
+      font-size:12.8px; gap:10px; flex-shrink:1;}
+    .sidebar-nav .tab-btn .tab-badge{margin-inline-start:auto;}
+    .sidebar-footer{border-top:1px solid var(--line); padding-top:14px; margin-top:14px;
+      display:flex; align-items:center; justify-content:space-between;}
+    .mobile-tab-rail{display:none;}
+    .main-content{padding:30px 36px 60px;}
+    .main-content .shell{margin:0; max-width:760px;}
+    body.focus-mode .sidebar .tab-btn:not([data-tab="home"]):not([data-tab="settings"]){display:none;}
+  }
+  ::selection{background:var(--indigo); color:#fff;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes popIn{from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);}}
   body.focus-mode .tab-rail .tab-btn:not([data-tab="home"]):not([data-tab="settings"]){display:none;}
   body[dir="ltr"]{direction:ltr;}
   .shell{max-width:720px;margin:0 auto;}
-  .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
-  .brand-block{display:flex;align-items:baseline;gap:8px;}
-  .app-title{font-family:'Tajawal',sans-serif;font-weight:900;font-size:23px;}
+  @media (min-width:920px){
+    .header-row .brand-block{display:none;}
+    .header-row{justify-content:flex-end; margin-bottom:14px;}
+  }
+  .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;animation:fadeUp .4s ease;}
+  .brand-block{display:flex;align-items:baseline;gap:7px;}
+  .compass-mark{color:var(--amber);font-size:15px;transform:translateY(-1px);display:inline-block;}
+  .app-title{font-family:'Amiri',serif;font-weight:900;font-size:26px;letter-spacing:.2px;}
   .app-title span{color:var(--amber);}
-  .app-date{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
-  .theme-toggle{background:var(--surface);border:1px solid var(--line);border-radius:12px;
-    width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;}
-  .install-banner{background:var(--indigo-soft);color:var(--indigo);border-radius:12px;
-    padding:10px 14px;font-size:12px;margin-bottom:14px;line-height:1.6;}
-  .brief-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;
-    padding:16px 18px;display:flex;gap:12px;align-items:center;margin-bottom:12px;}
-  .brief-icon{width:40px;height:40px;border-radius:12px;background:var(--amber-soft);
+  .header-rule{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .header-rule::before,.header-rule::after{content:'';flex:1;height:1px;background:linear-gradient(90deg, transparent, var(--line) 25%, var(--line) 75%, transparent);}
+  .header-rule i{width:5px;height:5px;background:var(--amber);transform:rotate(45deg);flex-shrink:0;}
+  .app-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);letter-spacing:.3px;}
+  .theme-toggle{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;
+    transition:transform .15s ease, border-color .15s ease;}
+  .theme-toggle:hover{transform:translateY(-1px); border-color:var(--indigo);}
+  .theme-toggle:active{transform:scale(.92);}
+  .install-banner{background:var(--indigo-soft);color:var(--indigo);border-radius:10px;
+    padding:10px 14px;font-size:12px;margin-bottom:14px;line-height:1.6;animation:fadeUp .4s ease;}
+  .brief-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;display:flex;gap:12px;align-items:center;margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(20,24,29,.05); animation:fadeUp .45s ease;}
+  .brief-icon{width:40px;height:40px;border-radius:10px;background:var(--amber-soft);
     color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;}
   .brief-greeting{font-family:'Tajawal',sans-serif;font-weight:700;font-size:14.5px;margin:0 0 2px;}
   .brief-line{margin:0;font-size:13px;color:var(--ink-soft);}
-  .next-appt{background:var(--indigo-soft);color:var(--indigo);border-radius:12px;padding:9px 13px;
+  .next-appt{background:var(--indigo-soft);color:var(--indigo);border-radius:10px;padding:9px 13px;
     font-size:12.5px;margin-bottom:14px;display:none;}
   .next-appt.show{display:block;}
   .search-wrap{position:relative;margin-bottom:14px;}
-  .search-input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 14px;
+  .search-input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 14px;
     font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13.5px;background:var(--surface);color:var(--ink);}
+  .search-input:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px var(--indigo-soft);}
   .search-results{position:absolute;top:calc(100% + 6px);right:0;left:0;background:var(--surface);
-    border:1px solid var(--line);border-radius:14px;padding:8px;z-index:40;max-height:320px;overflow-y:auto;
-    box-shadow:0 10px 26px rgba(0,0,0,.15);display:none;}
+    border:1px solid var(--line);border-radius:12px;padding:8px;z-index:40;max-height:320px;overflow-y:auto;
+    box-shadow:0 10px 26px rgba(20,24,29,.14);display:none;}
   .search-results.show{display:block;}
-  .search-res-item{padding:8px 10px;border-radius:9px;cursor:pointer;font-size:13px;display:flex;
+  .search-res-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;
     justify-content:space-between;gap:8px;align-items:center;}
   .search-res-item:hover{background:var(--bg);}
   .search-res-kind{font-size:10px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
   .tab-rail{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);
-    border-radius:14px;padding:5px;margin-bottom:18px;overflow-x:auto;}
+    border-radius:11px;padding:5px;margin-bottom:18px;overflow-x:auto; scrollbar-width:none;}
+  .tab-rail::-webkit-scrollbar{display:none;}
   .tab-btn{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:5px;
-    padding:9px 12px;border-radius:10px;border:none;background:transparent;
+    padding:9px 12px;border-radius:8px;border:none;background:transparent;
     font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:12.5px;
-    color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
-  .tab-btn.active{background:var(--ink);color:var(--bg);}
+    color:var(--ink-soft);cursor:pointer;white-space:nowrap;transition:background .18s ease, color .18s ease, transform .12s ease;}
+  .tab-btn:hover:not(.active){background:var(--bg); color:var(--ink);}
+  .tab-btn.active{background:var(--indigo);color:#fff; box-shadow:0 2px 6px rgba(31,58,95,.25);}
+  .tab-btn:active{transform:scale(.96);}
   .tab-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;background:var(--amber);
     color:#fff;border-radius:999px;padding:1px 6px;}
   .panel{display:none;}
-  .panel.active{display:block;}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;}
-  .card-title{font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;margin:0 0 10px;}
-  .field{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+  .panel.active{display:block; animation:fadeUp .3s ease;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:17px 18px;margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(20,24,29,.04); transition:box-shadow .2s ease, border-color .2s ease;}
+  .card-title{font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;margin:0 0 12px;
+    padding-bottom:9px; border-bottom:1px solid var(--line); letter-spacing:.2px;}
+  .field{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;
     font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13.5px;background:var(--bg);
-    color:var(--ink);margin-bottom:8px;}
+    color:var(--ink);margin-bottom:8px;transition:border-color .15s ease, box-shadow .15s ease;}
+  .field:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px var(--indigo-soft);}
   textarea.field{min-height:70px;resize:vertical;}
   select.field{cursor:pointer;}
   input[type=color].field{padding:3px 5px;height:38px;cursor:pointer;}
   .field-row{display:flex;gap:8px;}
   .field-row .field{flex:1;}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-    background:var(--teal);color:#fff;border:none;border-radius:9px;padding:10px 14px;
-    font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;}
-  .btn:hover{opacity:.92;}
-  .btn:disabled{opacity:.5;cursor:default;}
-  .btn.secondary{background:var(--ink);color:var(--bg);}
+    background:var(--indigo);color:#fff;border:1px solid var(--indigo);border-radius:8px;padding:10px 14px;
+    font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;
+    transition:opacity .15s ease, transform .12s ease, box-shadow .15s ease;}
+  .btn:hover{opacity:.92; box-shadow:0 3px 10px rgba(20,24,29,.12);}
+  .btn:active{transform:scale(.97);}
+  .btn:disabled{opacity:.5;cursor:default; box-shadow:none;}
+  .btn.secondary{background:var(--ink);color:var(--bg);border-color:var(--ink);}
   .btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);}
-  .btn.danger{background:var(--red);}
-  .btn.sm{padding:6px 10px;font-size:12px;border-radius:8px;}
+  .btn.ghost:hover{border-color:var(--indigo); color:var(--indigo); box-shadow:none;}
+  .btn.danger{background:var(--red);border-color:var(--red);}
+  .btn.sm{padding:6px 10px;font-size:12px;border-radius:7px;}
   .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
   .list-item{display:flex;align-items:flex-start;gap:10px;background:var(--surface);
-    border:1px solid var(--line);border-inline-start:4px solid var(--line);border-radius:13px;padding:10px 12px;margin-bottom:8px;cursor:grab;}
+    border:1px solid var(--line);border-inline-start:3px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:grab;
+    transition:box-shadow .15s ease, transform .15s ease; animation:fadeUp .25s ease;}
+  .list-item:hover{box-shadow:0 3px 12px rgba(20,24,29,.07); transform:translateY(-1px);}
   .list-item.unread{border-color:var(--amber);background:var(--amber-soft);}
   .list-item.done .item-title{text-decoration:line-through;color:var(--ink-soft);}
   .list-item.prio-high{border-inline-start-color:var(--red);}
   .list-item.prio-medium{border-inline-start-color:var(--amber);}
   .list-item.prio-low{border-inline-start-color:var(--teal);}
-  .list-item.drag-over{outline:2px dashed var(--teal);}
+  .list-item.drag-over{outline:2px dashed var(--indigo);}
   .check-btn,.del-btn,.icon-btn{background:none;border:none;cursor:pointer;padding:2px;flex-shrink:0;font-size:17px;}
   .check-btn{color:var(--ink-soft);} .check-btn.done{color:var(--teal);}
   .del-btn{color:var(--ink-soft);} .del-btn:hover{color:var(--red);}
@@ -121,15 +179,27 @@
   .item-note{font-size:13px;margin:2px 0 0;line-height:1.5;color:var(--ink);}
   .empty-note{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
   .section-label{font-family:'Tajawal',sans-serif;font-weight:700;font-size:12.5px;
-    color:var(--ink-soft);margin:14px 0 6px;display:flex;align-items:center;gap:6px;}
+    color:var(--ink-soft);margin:16px 0 8px;display:flex;align-items:center;gap:7px;letter-spacing:.2px;}
+  .section-label::before{content:'';width:5px;height:5px;background:var(--amber);transform:rotate(45deg);flex-shrink:0;}
+  .stat-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+  .stat-card{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:14px 12px; text-align:center; box-shadow:0 1px 3px rgba(20,24,29,.04); animation:fadeUp .4s ease;}
+  .stat-value{display:block; font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--indigo);}
+  .stat-label{display:block; font-size:10.5px; color:var(--ink-soft); margin-top:3px;}
+  @media (max-width:420px){ .stat-value{font-size:18px;} .stat-label{font-size:9.5px;} }
   .pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--amber-soft);
     color:var(--amber);border-radius:999px;padding:1px 7px;}
   .chat-log{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;
     padding:4px 2px 10px;margin-bottom:8px;}
-  .bubble{max-width:85%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;}
+  .bubble{max-width:85%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;animation:popIn .2s ease;}
   .bubble.ai{align-self:flex-start;background:var(--teal-soft);border-bottom-left-radius:4px;}
   .bubble.user{align-self:flex-end;background:var(--ink);color:var(--bg);border-bottom-right-radius:4px;}
   .bubble.sys{align-self:center;background:transparent;color:var(--ink-soft);font-size:11.5px;}
+  .bubble.typing{display:flex;gap:4px;align-items:center;padding:11px 14px;}
+  .bubble.typing span{width:6px;height:6px;border-radius:50%;background:var(--teal);opacity:.5;animation:typingDot 1s infinite ease-in-out;}
+  .bubble.typing span:nth-child(2){animation-delay:.15s;}
+  .bubble.typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes typingDot{0%,60%,100%{opacity:.35; transform:translateY(0);}30%{opacity:1; transform:translateY(-3px);}}
   .out-box{background:var(--teal-soft);border-radius:12px;padding:12px 14px;font-size:13.5px;
     line-height:1.7;white-space:pre-wrap;margin-top:10px;display:none;}
   .out-box.show{display:block;}
@@ -144,14 +214,19 @@
   .mic-fab{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
     width:60px;height:60px;border-radius:50%;background:var(--ink);color:var(--bg);
     border:none;font-size:24px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;
-    display:flex;align-items:center;justify-content:center;z-index:50;}
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    transition:background .2s ease, transform .15s ease;}
+  .mic-fab:hover{transform:translateX(-50%) translateY(-2px);}
+  .mic-fab:active{transform:translateX(-50%) scale(.94);}
   .mic-fab.listening{background:var(--red);animation:pulse 1.2s infinite;}
+  .mic-fab.thinking{background:var(--amber);animation:spin 1s linear infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(179,55,47,.5);}70%{box-shadow:0 0 0 16px rgba(179,55,47,0);}100%{box-shadow:0 0 0 0 rgba(179,55,47,0);}}
-  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  @keyframes spin{from{filter:brightness(1);}50%{filter:brightness(1.25);}to{filter:brightness(1);}}
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(6px);
     background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;
-    font-size:13px;z-index:60;opacity:0;transition:opacity .3s ease;pointer-events:none;
-    display:flex;align-items:center;gap:10px;}
-  .toast.show{opacity:1;pointer-events:auto;}
+    font-size:13px;z-index:60;opacity:0;transition:opacity .25s ease, transform .25s ease;pointer-events:none;
+    display:flex;align-items:center;gap:10px; box-shadow:0 8px 20px rgba(0,0,0,.2); max-width:min(90vw,420px);}
+  .toast.show{opacity:1;pointer-events:auto; transform:translateX(-50%) translateY(0);}
   .toast button{background:var(--amber);color:#fff;border:none;border-radius:999px;padding:4px 10px;font-size:11.5px;cursor:pointer;}
   .checklist{margin:6px 0 0;display:flex;flex-direction:column;gap:4px;}
   .checklist-item{display:flex;align-items:center;gap:6px;font-size:12.5px;}
@@ -186,9 +261,36 @@
   <p class="hint" id="lockHint" style="text-align:center;"></p>
 </div>
 
+<div class="app-shell">
+<aside class="sidebar" id="sidebarNav">
+  <div class="sidebar-brand">
+    <span class="compass-mark">✦</span>
+    <p class="app-title">بوص<span>لة</span></p>
+  </div>
+  <p class="sidebar-tagline">استوديو إدارة البراندات</p>
+  <nav class="sidebar-nav tab-rail">
+    <button class="tab-btn active" data-tab="home">🏠 الرئيسية</button>
+    <button class="tab-btn" data-tab="brands">🏷️ البراندات</button>
+    <button class="tab-btn" data-tab="reminders">🔔 التذكيرات <span class="tab-badge" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="archive">🗄️ الأرشيف</button>
+    <button class="tab-btn" data-tab="time">⏱️ الوقت</button>
+    <button class="tab-btn" data-tab="analysis">📊 التحليل الأسبوعي</button>
+    <button class="tab-btn" data-tab="ideas">💡 أفكار</button>
+    <button class="tab-btn" data-tab="content">✍️ المحتوى</button>
+    <button class="tab-btn" data-tab="media">🖼️ الوسائط</button>
+    <button class="tab-btn" data-tab="assistant">✨ المساعد</button>
+    <button class="tab-btn" data-tab="settings">⚙️ الإعدادات</button>
+  </nav>
+  <div class="sidebar-footer">
+    <p class="app-date" id="todayDateSide"></p>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+  </div>
+</aside>
+<main class="main-content">
 <div class="shell">
   <div class="header-row">
     <div class="brand-block">
+      <span class="compass-mark">✦</span>
       <p class="app-title">بوص<span>لة</span></p>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -196,6 +298,7 @@
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙</button>
     </div>
   </div>
+  <div class="header-rule"><i></i></div>
 
   <div class="install-banner" id="installBanner">
     💡 للتثبيت كأيقونة: على اللاب دوس أيقونة التثبيت في شريط العنوان، وعلى آيفون Safari &gt; مشاركة &gt; إضافة إلى الشاشة الرئيسية. اختصارات لوحة المفاتيح: <span class="kbd-hint">/</span> بحث، <span class="kbd-hint">1-9</span> تبويبات، <span class="kbd-hint">Esc</span> إغلاق. الذكاء الاصطناعي هنا شغال مجانًا بالكامل (Puter.js) - أول مرة تستخدمه هيطلب منك تسجيل دخول مجاني بسيط.
@@ -215,7 +318,7 @@
     <div class="search-results" id="searchResults"></div>
   </div>
 
-  <div class="tab-rail" id="tabRail">
+  <div class="tab-rail mobile-tab-rail" id="tabRail">
     <button class="tab-btn active" data-tab="home">🏠 الرئيسية</button>
     <button class="tab-btn" data-tab="brands">🏷️ البراندات</button>
     <button class="tab-btn" data-tab="reminders">🔔 التذكيرات <span class="tab-badge" id="remBadge" style="display:none">0</span></button>
@@ -231,6 +334,20 @@
 
   <!-- HOME -->
   <div class="panel active" id="panel-home">
+    <div class="stat-strip" id="statStrip">
+      <div class="stat-card">
+        <span class="stat-value" id="statOpenCount">0</span>
+        <span class="stat-label">حاجة معلّقة</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statBrandsCount">0</span>
+        <span class="stat-label">براند نشط</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statDueCount">0</span>
+        <span class="stat-label">دفعة مستحقة قريب</span>
+      </div>
+    </div>
     <p class="section-label">لسه محتاج تتصرف فيه</p>
     <div id="homeList"></div>
     <div id="homePayments"></div>
@@ -441,6 +558,14 @@
       <p class="key-status ok" id="keyStatus">شغال مجانًا ✅</p>
     </div>
     <div class="card">
+      <p class="card-title">المساعد الصوتي</p>
+      <p class="hint">لما تكلم المساعد بالميكروفون، هو بيفهم قصدك الأول (تضيف تذكير، تضيف براند، ولا مجرد بتسأل)، ينفّذ اللي محتاج تنفيذ، ويرد عليك بصوت كمان مش نص بس.</p>
+      <div class="row">
+        <span style="font-size:13px;">الرد بصوت لما أكلمه بالميكروفون</span>
+        <button class="btn ghost sm" id="voiceReplyBtn" onclick="toggleVoiceReply()">تفعيل</button>
+      </div>
+    </div>
+    <div class="card">
       <p class="card-title">التنبيهات</p>
       <p class="hint">تنبيه بالمواعيد لما التطبيق مفتوح قدامك (مش بيشتغل في الخلفية بعد قفل الصفحة تمامًا - ده محتاج سيرفر push، والتطبيق ده شغال محليًا من غير سيرفر).</p>
       <button class="btn ghost" onclick="Notification.requestPermission().then(p=>alert(p==='granted'?'تمام، هتوصلك تنبيهات ✅':'مرفوض من إعدادات المتصفح'))">تفعيل التنبيهات</button>
@@ -485,6 +610,8 @@
     </div>
   </div>
 </div>
+</main>
+</div>
 
 <button class="mic-fab" id="micFab" onclick="toggleMic()">🎤</button>
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
@@ -501,7 +628,8 @@ let captions = load('bs_captions', []);
 let media = load('bs_media', []);
 let backups = load('bs_backups', []);
 let activity = load('bs_activity', []);
-let settings = load('bs_settings', {lang:'ar', focusMode:false});
+let settings = load('bs_settings', {lang:'ar', focusMode:false, voiceReply:true});
+if(settings.voiceReply===undefined) settings.voiceReply = true;
 let activeTimer = load('bs_activetimer', null);
 let aiModel = localStorage.getItem('bs_aimodel') || 'claude-sonnet-4-6';
 let pin = localStorage.getItem('bs_pin') || '';
@@ -592,6 +720,41 @@ function toggleFocusMode(){
   renderHome();
 }
 
+// ---------- Voice reply (text-to-speech) ----------
+function toggleVoiceReply(){
+  settings.voiceReply = !settings.voiceReply;
+  save('bs_settings', settings);
+  renderVoiceReplyBtn();
+  if(!settings.voiceReply && window.speechSynthesis) speechSynthesis.cancel();
+}
+function renderVoiceReplyBtn(){
+  const btn = document.getElementById('voiceReplyBtn');
+  if(!btn) return;
+  btn.textContent = settings.voiceReply ? 'مفعّل ✅' : 'تفعيل';
+}
+let arabicVoice = null;
+function pickArabicVoice(){
+  if(!window.speechSynthesis) return null;
+  const voices = speechSynthesis.getVoices();
+  arabicVoice = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('ar')) || null;
+  return arabicVoice;
+}
+if(window.speechSynthesis){
+  pickArabicVoice();
+  speechSynthesis.onvoiceschanged = pickArabicVoice;
+}
+function speak(text){
+  if(!settings.voiceReply || !window.speechSynthesis || !text) return;
+  try{
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = (arabicVoice && arabicVoice.lang) || 'ar-EG';
+    if(arabicVoice) utter.voice = arabicVoice;
+    utter.rate = 1;
+    speechSynthesis.speak(utter);
+  }catch(e){}
+}
+
 // ---------- PIN lock ----------
 function tryUnlock(){
   const val = document.getElementById('lockInput').value;
@@ -621,16 +784,20 @@ function checkLock(){
 // ---------- Header / brief ----------
 function renderHeader(){
   const now = new Date();
-  document.getElementById('todayDate').textContent = now.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+  const dateStr = now.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('todayDate').textContent = dateStr;
+  if(document.getElementById('todayDateSide')) document.getElementById('todayDateSide').textContent = dateStr;
   const h = now.getHours();
   document.getElementById('greetingText').textContent = h<12 ? 'صباح الخير' : (h<18 ? 'مساء الخير' : 'يعدّي عليك بخير');
   const open = reminders.filter(r=>!r.done);
   document.getElementById('briefLine').textContent = open.length===0
     ? 'كل حاجة متعمولة، مفيش حاجة معلّقة 🙌'
     : `عندك ${open.length} حاجة لسه محتاجة تتصرف فيها.`;
-  const badge = document.getElementById('remBadge');
-  if(open.length>0){ badge.style.display='inline-block'; badge.textContent=open.length; }
-  else{ badge.style.display='none'; }
+  const badges = document.querySelectorAll('.tab-btn[data-tab="reminders"] .tab-badge');
+  badges.forEach(badge=>{
+    if(open.length>0){ badge.style.display='inline-block'; badge.textContent=open.length; }
+    else{ badge.style.display='none'; }
+  });
 
   const appts = open.filter(r=>r.when).sort((a,b)=>new Date(a.when)-new Date(b.when));
   const nextEl = document.getElementById('nextAppt');
@@ -959,15 +1126,23 @@ function renderHome(){
     if(a.when) return -1; if(b.when) return 1;
     return (pw[a.priority]??1)-(pw[b.priority]??1) || b.ts - a.ts;
   });
+  const openCount = open.length;
   if(settings.focusMode) open = open.slice(0,1);
   else open = open.slice(0,6);
   if(open.length===0){ wrap.innerHTML='<p class="empty-note">مفيش حاجة معلّقة دلوقتي.</p>'; }
   open.forEach(r=>wrap.appendChild(reminderRow(r, false)));
 
-  const payWrap = document.getElementById('homePayments');
-  payWrap.innerHTML='';
   const soon = Date.now() + 3*24*3600*1000;
   const dueList = brands.filter(b=>b.dueDate && !b.pricePaid && new Date(b.dueDate).getTime()<=soon);
+  const statOpen = document.getElementById('statOpenCount');
+  const statBrands = document.getElementById('statBrandsCount');
+  const statDue = document.getElementById('statDueCount');
+  if(statOpen) statOpen.textContent = openCount;
+  if(statBrands) statBrands.textContent = brands.length;
+  if(statDue) statDue.textContent = dueList.length;
+
+  const payWrap = document.getElementById('homePayments');
+  payWrap.innerHTML='';
   if(dueList.length){
     const label = document.createElement('p'); label.className='section-label'; label.textContent='دفعات مستحقة';
     payWrap.appendChild(label);
@@ -1345,42 +1520,49 @@ async function maybeSummarizeChat(){
     chatHistory = [{role:'system', content:'📎 ملخص المحادثة السابقة: '+summary.trim()}, ...chatHistory.slice(chatHistory.length-8)];
   }catch(e){}
 }
-async function sendChat(){
-  if(!requireKey()) return;
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim(); if(!text) return;
-  chatHistory.push({role:'user', content:text}); input.value=''; renderChat();
-  const btn = document.getElementById('chatBtn'); btn.disabled=true;
-  try{
-    const open = reminders.filter(r=>!r.done);
-    const context = open.length ? open.map(r=>`- [${r.type}] ${r.title}${r.brand?' ('+r.brand+')':''}${r.when?' - '+fmtWhen(r.when):''}`).join('\n') : 'لا يوجد حاجة معلّقة.';
-    const now = new Date();
-    const pad = n=>String(n).padStart(2,'0');
-    const nowLocal = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const brandNames = brands.map(b=>b.name).join('، ') || 'مفيش براندات مسجلة لسه';
-    const sys = `إنت مساعد شخصي جوه تطبيق "بوصلة"، بتساعد مسوّق شغال في إدارة البراندات والمحتوى بتاعه. بترد باللهجة المصرية العامية، طبيعي وودود كإنك بتكلم حد قدامك، مش رسمي ومش جامد.
+function buildAssistantSystemPrompt(){
+  const open = reminders.filter(r=>!r.done);
+  const context = open.length ? open.map(r=>`- [${r.type}] ${r.title}${r.brand?' ('+r.brand+')':''}${r.when?' - '+fmtWhen(r.when):''}`).join('\n') : 'لا يوجد حاجة معلّقة.';
+  const now = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  const nowLocal = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const brandNames = brands.map(b=>b.name).join('، ') || 'مفيش براندات مسجلة لسه';
+  return `إنت مساعد شخصي جوه تطبيق "بوصلة"، بتساعد مسوّق شغال في إدارة البراندات والمحتوى بتاعه. بترد باللهجة المصرية العامية، طبيعي وودود كإنك بتكلم حد قدامك، مش رسمي ومش جامد. الكلام ده ممكن يوصلك مكتوب أو منطوق (المستخدم بيكلمك بصوته والرد ممكن يتقرأله بصوت عالي)، فخلي الـ"reply" قصير وواضح ومفهوم لو اتسمع بصوت.
 
 الوقت دلوقتي: ${nowLocal}
 البراندات المسجلة حاليًا: ${brandNames}
 التذكيرات المفتوحة:
 ${context}
 
-إنت مش بس بترد بالكلام، إنت كمان تقدر تنفّذ حاجات فعليًا جوه التطبيق. لما المستخدم يطلب منك تضيف تذكير/مهمة/موعد أو براند جديد، متردش عليه بس، نفّذ الطلب فعلًا عن طريق إنك ترجع رد بصيغة JSON بس (من غير أي نص أو code fences قبله أو بعده) بواحد من الأشكال دي بالظبط:
+إنت مش بس بترد بالكلام، إنت كمان تقدر تنفّذ حاجات فعليًا جوه التطبيق. مهم جدًا: منفّذش أي حاجة (تضيف تذكير أو براند) غير لو المستخدم فعلًا طالب إضافة أو تنفيذ حاجة بوضوح. لو هو بس بيسأل سؤال، بيدردش، بيستفسر، أو بيقول حاجة عامة من غير طلب تنفيذ صريح، ردّ عليه عادي من غير ما تضيف أي حاجة. رجّع ردك دايمًا بصيغة JSON بس (من غير أي نص أو code fences قبله أو بعده) بواحد من الأشكال دي بالظبط:
 
-لإضافة تذكير أو مهمة أو موعد:
+لإضافة تذكير أو مهمة أو موعد (بس لو طلب ده بوضوح):
 {"action":"add_reminder","data":{"title":"عنوان قصير وواضح","brand":"اسم براند من اللي فوق لو مذكور أو فاضي","type":"مهمة أو موعد أو ملاحظة","when":"YYYY-MM-DDTHH:mm لو فيه ميعاد محدد أو null لو مفيش","priority":"high أو medium أو low","note":"أي تفاصيل زيادة أو فاضي"},"reply":"جملة طبيعية قصيرة تأكدله إنك ضفتها، زي ما حد بيرد عليه فعلًا"}
 
-لإضافة براند جديد:
+لإضافة براند جديد (بس لو طلب ده بوضوح):
 {"action":"add_brand","data":{"name":"اسم البراند","note":"وصف مختصر أو فاضي"},"reply":"جملة طبيعية قصيرة تأكدله إنك ضفت البراند"}
 
-لو هو بس بيسأل سؤال أو بيدردش من غير طلب تنفيذ حاجة:
-{"action":"none","data":{},"reply":"ردك الطبيعي هنا زي ما إنت بترد عادي"}
+لأي حاجة تانية - سؤال، دردشة، استفسار، رأي، أو أي كلام مش طلب تنفيذ صريح:
+{"action":"none","data":{},"reply":"ردك الطبيعي هنا زي ما إنت بترد عادي على السؤال أو الكلام"}
 
 قواعد مهمة جدًا:
 - رجّع الـJSON ده بس دايمًا كرد، من غير أي حاجة تانية حواليه ولا code fences.
-- لو مش متأكد من تفاصيل زي التاريخ أو الوقت، حط أقرب تخمين منطقي بناءً على الوقت الحالي فوق، أو null لو مفيش أي إشارة.
-- لو الطلب مش واضح تمامًا بس فيه نية واضحة إنه عايز يضيف حاجة، نفّذها بأحسن تفسير بدل ما تسأله يأكد.
+- الافتراضي هو "none" - متستخدمش action تاني غير لو متأكد إن فيه نية واضحة وصريحة للإضافة أو التنفيذ.
+- لو مش متأكد من تفاصيل زي التاريخ أو الوقت لكنه طلب إضافة فعلًا، حط أقرب تخمين منطقي بناءً على الوقت الحالي فوق، أو null لو مفيش أي إشارة.
 - الـ"reply" لازم يكون طبيعي ومختصر وباللهجة المصرية، من غير ما تذكر كلمة JSON أو حاجة تقنية.`;
+}
+function showTypingBubble(){
+  const log = document.getElementById('chatLog'); if(!log) return;
+  const div = document.createElement('div');
+  div.className='bubble ai typing'; div.id='typingBubble';
+  div.innerHTML='<span></span><span></span><span></span>';
+  log.appendChild(div); log.scrollTop = log.scrollHeight;
+}
+async function runAssistantTurn(text, opts){
+  opts = opts || {};
+  chatHistory.push({role:'user', content:text}); renderChat(); showTypingBubble();
+  try{
+    const sys = buildAssistantSystemPrompt();
     const raw = await callClaude(sys, text);
     let replyText = raw;
     try{
@@ -1395,10 +1577,25 @@ ${context}
         if(added) showToast('✅ اتضاف براند: '+added.name);
       }
     }catch(e){ replyText = raw; }
-    chatHistory.push({role:'assistant', content: replyText || 'معلش مقدرتش أرد دلوقتي.'});
+    replyText = replyText || 'معلش مقدرتش أرد دلوقتي.';
+    chatHistory.push({role:'assistant', content: replyText});
+    if(opts.viaVoice) speak(replyText);
     await maybeSummarizeChat();
-  }catch(e){ chatHistory.push({role:'assistant', content:'حصل خطأ: '+e.message}); }
-  finally{ btn.disabled=false; renderChat(); }
+  }catch(e){
+    const errText = 'حصل خطأ: '+e.message;
+    chatHistory.push({role:'assistant', content: errText});
+    if(opts.viaVoice) speak('معلش، حصل خطأ ومقدرتش أنفّذ الطلب.');
+  }
+  renderChat();
+}
+async function sendChat(){
+  if(!requireKey()) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim(); if(!text) return;
+  input.value='';
+  const btn = document.getElementById('chatBtn'); btn.disabled=true;
+  try{ await runAssistantTurn(text, {viaVoice:false}); }
+  finally{ btn.disabled=false; }
 }
 async function organizeMyDay(){
   if(!requireKey()) return;
@@ -1429,53 +1626,39 @@ async function suggestReplies(){
 }
 
 // ---------- Voice mic ----------
-let recognition = null; let listening = false;
+// المساعد الصوتي بيستخدم نفس عقل الشات (runAssistantTurn): بيفهم قصدك الأول -
+// لو طلبت تضيف تذكير أو براند بوضوح، بينفّذه فعلًا. ولو مجرد بتسأل أو بتدردش، بيرد عليك بس من غير ما يحط أي حاجة في المهام.
+// وفي الحالتين بيرد عليك بصوت كمان (لو الرد الصوتي مفعّل من الإعدادات).
+let recognition = null; let listening = false; let micBusy = false;
 function toggleMic(){
   if(!requireKey()) return;
+  if(micBusy) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){ alert('متصفحك مش بيدعم التسجيل الصوتي، جرب Chrome.'); return; }
   const fab = document.getElementById('micFab');
   if(listening){ recognition && recognition.stop(); return; }
+  if(window.speechSynthesis) speechSynthesis.cancel();
   recognition = new SR();
   recognition.lang = 'ar-EG';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.onstart = ()=>{ listening=true; fab.classList.add('listening'); fab.textContent='⏺️'; };
-  recognition.onend = ()=>{ listening=false; fab.classList.remove('listening'); fab.textContent='🎤'; };
+  recognition.onend = ()=>{ listening=false; fab.classList.remove('listening'); if(!micBusy) fab.textContent='🎤'; };
   recognition.onerror = ()=>{ listening=false; fab.classList.remove('listening'); fab.textContent='🎤'; showToast('مقدرتش أسمعك، جرب تاني'); };
   recognition.onresult = async (ev)=>{
     const transcript = ev.results[0][0].transcript;
-    showToast('بيحلّل: '+transcript);
+    showToast('🎧 '+transcript);
     await processVoiceCommand(transcript);
   };
   recognition.start();
 }
 async function processVoiceCommand(transcript){
+  const fab = document.getElementById('micFab');
+  micBusy = true; fab.classList.add('thinking'); fab.textContent='🤔';
   try{
-    const brandNames = brands.map(b=>b.name).join('، ') || 'لا يوجد براندات مسجلة';
-    const sys = `إنت مساعد بيحول كلام المستخدم لتذكير. البراندات المتاحة: ${brandNames}.
-رجّع JSON فقط بدون أي نص إضافي وبدون code fences، بالشكل التالي بالظبط:
-{"type":"مهمة أو رسالة أو ميعاد","title":"عنوان قصير","brand":"اسم براند من القايمة لو اتقال، أو فاضي","note":"تفاصيل لو فيه، أو فاضي","when":"YYYY-MM-DDTHH:MM لو فيه ميعاد محدد، أو فاضي","priority":"high أو medium أو low"}
-التاريخ والوقت الحاليين: ${new Date().toISOString()}`;
-    const raw = await callClaude(sys, transcript);
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    const maxOrder = Math.max(0, ...reminders.filter(r=>!r.done).map(r=>r.order??0));
-    reminders.unshift({
-      id:uid(), type: parsed.type||'مهمة', brand: parsed.brand||'', title: parsed.title||transcript,
-      note: parsed.note||'', when: parsed.when||null, priority: parsed.priority||'medium',
-      category:'', checklist:[], repeat:'none', remindBefore:15, done:false, ts:Date.now(), doneTs:null, order:maxOrder+1
-    });
-    save('bs_reminders', reminders);
-    renderReminders();
-    showToast('✅ اتضافت: '+(parsed.title||transcript));
-  }catch(e){
-    const maxOrder = Math.max(0, ...reminders.filter(r=>!r.done).map(r=>r.order??0));
-    reminders.unshift({id:uid(), type:'مهمة', brand:'', title:transcript, note:'', when:null, priority:'medium',
-      category:'', checklist:[], repeat:'none', remindBefore:15, done:false, ts:Date.now(), doneTs:null, order:maxOrder+1});
-    save('bs_reminders', reminders);
-    renderReminders();
-    showToast('✅ اتضافت كمهمة: '+transcript);
+    await runAssistantTurn(transcript, {viaVoice:true});
+  }finally{
+    micBusy = false; fab.classList.remove('thinking'); fab.textContent='🎤';
   }
 }
 
@@ -1551,9 +1734,9 @@ setInterval(()=>{
 
 // ---------- Manifest ----------
 (function(){
-  const icon = 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1D2420"/><circle cx="50" cy="50" r="30" fill="none" stroke="#C1752E" stroke-width="6"/><circle cx="50" cy="50" r="4" fill="#C1752E"/><path d="M50 26 L58 50 L50 58 L42 50 Z" fill="#C1752E"/></svg>`);
+  const icon = 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#161A20"/><circle cx="50" cy="50" r="30" fill="none" stroke="#96742F" stroke-width="6"/><circle cx="50" cy="50" r="4" fill="#96742F"/><path d="M50 26 L58 50 L50 58 L42 50 Z" fill="#96742F"/></svg>`);
   const manifest = {name:'بوصلة', short_name:'بوصلة', start_url:'.', display:'standalone',
-    background_color:'#E5E2D8', theme_color:'#161C1A',
+    background_color:'#EEEBE1', theme_color:'#10141A',
     icons:[{src:icon, sizes:'192x192', type:'image/svg+xml'},{src:icon, sizes:'512x512', type:'image/svg+xml'}]};
   const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
   const link = document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(blob);
@@ -1602,6 +1785,7 @@ if(activeTimer){
   updateTimerDisplay();
 }
 if(document.getElementById('focusBtn')) document.getElementById('focusBtn').textContent = settings.focusMode ? 'إلغاء وضع التركيز' : 'تفعيل وضع التركيز';
+renderVoiceReplyBtn();
 renderHeader();
 renderBrands();
 renderReminders();
