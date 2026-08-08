@@ -1927,7 +1927,7 @@ async function suggestReplies(){
 // لو طلبت تضيف تذكير أو براند بوضوح، بينفّذه فعلًا. ولو مجرد بتسأل أو بتدردش، بيرد عليك بس من غير ما يحط أي حاجة في المهام.
 // وفي الحالتين بيرد عليك بصوت كمان (لو الرد الصوتي مفعّل من الإعدادات).
 let recognition = null; let listening = false; let micBusy = false;
-function toggleMic(){
+async function toggleMic(){
   if(!requireKey()) return;
   if(micBusy) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1935,19 +1935,51 @@ function toggleMic(){
   const fab = document.getElementById('micFab');
   if(listening){ recognition && recognition.stop(); return; }
   if(window.speechSynthesis) speechSynthesis.cancel();
+
+  // التعرف على الصوت محتاج صفحة متفتحة من رابط آمن (https) أو localhost، مش ملف مفتوح مباشرة من الجهاز
+  if(location.protocol === 'file:'){
+    showToast('المايك محتاج تفتح التطبيق من رابط (https) مش كملف على جهازك مباشرة');
+    return;
+  }
+
+  // نطلب إذن المايك بشكل صريح الأول عشان ياخد الإذن من المتصفح ويبان السبب لو اترفض
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>t.stop());
+    }catch(permErr){
+      showToast('المتصفح مش دايكلي إذن المايك. افتح إعدادات الموقع وسمح بالمايك وجرب تاني');
+      return;
+    }
+  }
+
   recognition = new SR();
   recognition.lang = 'ar-EG';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.onstart = ()=>{ listening=true; fab.classList.add('listening'); fab.textContent='⏺️'; };
   recognition.onend = ()=>{ listening=false; fab.classList.remove('listening'); if(!micBusy) fab.textContent='🎤'; };
-  recognition.onerror = ()=>{ listening=false; fab.classList.remove('listening'); fab.textContent='🎤'; showToast('مقدرتش أسمعك، جرب تاني'); };
+  recognition.onerror = (ev)=>{
+    listening=false; fab.classList.remove('listening'); fab.textContent='🎤';
+    let msg;
+    switch(ev.error){
+      case 'no-speech': msg='مسمعتش أي كلام، قرّب المايك منك وارفع صوتك شوية وجرب تاني'; break;
+      case 'audio-capture': msg='مفيش مايك متوصل أو المتصفح مش لاقيه، تأكد إن جهازك فيه مايك شغال'; break;
+      case 'not-allowed': case 'permission-denied': msg='المتصفح رافض إذن المايك. افتح إعدادات الموقع وسمح بالمايك وجرب تاني'; break;
+      case 'network': msg='في مشكلة اتصال بالإنترنت، التعرف على الصوت محتاج نت شغال'; break;
+      case 'service-not-allowed': msg='خدمة التعرف على الصوت مش متاحة، جرب من متصفح Chrome'; break;
+      case 'language-not-supported': msg='اللغة المختارة مش مدعومة على المتصفح ده'; break;
+      default: msg='مقدرتش أسمعك'+(ev.error?' ('+ev.error+')':'')+', جرب تاني';
+    }
+    showToast(msg);
+  };
   recognition.onresult = async (ev)=>{
     const transcript = ev.results[0][0].transcript;
     showToast('🎧 '+transcript);
     await processVoiceCommand(transcript);
   };
-  recognition.start();
+  try{ recognition.start(); }
+  catch(e){ showToast('مقدرتش أشغّل المايك، جرب تاني'); }
 }
 async function processVoiceCommand(transcript){
   const fab = document.getElementById('micFab');
