@@ -87,8 +87,6 @@
     transition:transform .15s ease, border-color .15s ease;}
   .theme-toggle:hover{transform:translateY(-1px); border-color:var(--indigo);}
   .theme-toggle:active{transform:scale(.92);}
-  .install-banner{background:var(--indigo-soft);color:var(--indigo);border-radius:10px;
-    padding:10px 14px;font-size:12px;margin-bottom:14px;line-height:1.6;animation:fadeUp .4s ease;}
   .brief-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
     padding:16px 18px;display:flex;gap:12px;align-items:center;margin-bottom:12px;
     box-shadow:0 1px 3px rgba(20,24,29,.05); animation:fadeUp .45s ease;}
@@ -277,6 +275,7 @@
     <button class="tab-btn" data-tab="analysis">📊 التحليل الأسبوعي</button>
     <button class="tab-btn" data-tab="ideas">💡 أفكار</button>
     <button class="tab-btn" data-tab="content">✍️ المحتوى</button>
+    <button class="tab-btn" data-tab="video">🎬 فيديو وإعلانات</button>
     <button class="tab-btn" data-tab="media">🖼️ الوسائط</button>
     <button class="tab-btn" data-tab="assistant">✨ المساعد</button>
     <button class="tab-btn" data-tab="settings">⚙️ الإعدادات</button>
@@ -299,10 +298,6 @@
     </div>
   </div>
   <div class="header-rule"><i></i></div>
-
-  <div class="install-banner" id="installBanner">
-    💡 للتثبيت كأيقونة: على اللاب دوس أيقونة التثبيت في شريط العنوان، وعلى آيفون Safari &gt; مشاركة &gt; إضافة إلى الشاشة الرئيسية. اختصارات لوحة المفاتيح: <span class="kbd-hint">/</span> بحث، <span class="kbd-hint">1-9</span> تبويبات، <span class="kbd-hint">Esc</span> إغلاق. الذكاء الاصطناعي هنا شغال مجانًا بالكامل (Puter.js) - أول مرة تستخدمه هيطلب منك تسجيل دخول مجاني بسيط.
-  </div>
 
   <div class="brief-card">
     <div class="brief-icon">☀️</div>
@@ -327,6 +322,7 @@
     <button class="tab-btn" data-tab="analysis">📊 التحليل الأسبوعي</button>
     <button class="tab-btn" data-tab="ideas">💡 أفكار</button>
     <button class="tab-btn" data-tab="content">✍️ المحتوى</button>
+    <button class="tab-btn" data-tab="video">🎬 فيديو وإعلانات</button>
     <button class="tab-btn" data-tab="media">🖼️ الوسائط</button>
     <button class="tab-btn" data-tab="assistant">✨ المساعد</button>
     <button class="tab-btn" data-tab="settings">⚙️ الإعدادات</button>
@@ -347,6 +343,13 @@
         <span class="stat-value" id="statDueCount">0</span>
         <span class="stat-label">دفعة مستحقة قريب</span>
       </div>
+    </div>
+    <div class="card" id="todayScheduleCard" style="display:none;">
+      <div class="row" style="margin-bottom:6px;">
+        <p class="card-title" style="margin:0;border:none;padding:0;">🗓️ شغلك النهاردة</p>
+        <button class="btn ghost sm" onclick="switchTab('time')">✏️ عدّل الجدول</button>
+      </div>
+      <div id="todayScheduleList"></div>
     </div>
     <p class="section-label">لسه محتاج تتصرف فيه</p>
     <div id="homeList"></div>
@@ -440,6 +443,11 @@
       </div>
     </div>
     <div class="card">
+      <p class="card-title">🗓️ جدول أيام الشغل</p>
+      <p class="hint">رتّب لكل يوم أي براند بتشتغل عليه ومن الساعة كام للساعة كام، وهيظهرلك تلقائي في الرئيسية "شغلك النهاردة" كل ما تفتح التطبيق.</p>
+      <div id="scheduleEditor"></div>
+    </div>
+    <div class="card">
       <p class="card-title">إجمالي الأسبوع لكل براند</p>
       <div id="weeklyHours"></div>
     </div>
@@ -513,6 +521,67 @@
     </div>
   </div>
 
+  <!-- VIDEO & ADS -->
+  <div class="panel" id="panel-video">
+    <div class="card">
+      <p class="card-title">💡 أفكار فيديوهات</p>
+      <select class="field" id="vidIdeasBrand"><option value="">اختر البراند (اختياري)</option></select>
+      <select class="field" id="vidIdeasPlatform">
+        <option>Reels / TikTok (قصير)</option><option>Instagram Feed</option><option>YouTube Shorts</option><option>فيديو طويل</option>
+      </select>
+      <input class="field" id="vidIdeasFocus" placeholder="ركز على إيه؟ (اختياري: منتج معين، عرض، ترند...)" />
+      <button class="btn" id="vidIdeasBtn" onclick="generateVideoIdeas()">💡 جيب أفكار فيديوهات</button>
+      <div class="out-box" id="vidIdeasOut"></div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">🎬 طريقة مونتاج بـ CapCut</p>
+      <p class="hint">اكتب فكرة الفيديو أو الصقها من فوق، وهيديك خطوات مونتاج عملية بالظبط جوه تطبيق CapCut (ترتيب، تقطيع، ترانزيشن، تأثيرات، تيكست، موسيقى).</p>
+      <textarea class="field" id="capcutIdea" placeholder="اكتب فكرة الفيديو أو وصف اللي اتصور (مثال: فيديو قبل/بعد لخدمة، أو فيديو منتج مع صوت تريند)"></textarea>
+      <div class="field-row">
+        <select class="field" id="capcutLength">
+          <option value="15-30 ثانية">قصير (15-30 ثانية)</option>
+          <option value="30-60 ثانية">متوسط (30-60 ثانية)</option>
+          <option value="1-3 دقايق">أطول (1-3 دقايق)</option>
+        </select>
+        <select class="field" id="capcutMood">
+          <option value="حماسي وسريع">حماسي وسريع</option>
+          <option value="هادي واحترافي">هادي واحترافي</option>
+          <option value="كوميدي خفيف">كوميدي خفيف</option>
+        </select>
+      </div>
+      <button class="btn" id="capcutBtn" onclick="generateCapcutSteps()">🎬 اديني خطوات المونتاج</button>
+      <div class="out-box" id="capcutOut"></div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">📣 خطط إعلان</p>
+      <p class="hint">اكتب فكرة الإعلان وهيقولك تعمل إيه بالظبط، تستهدف سن كام لكام، تشغّله كام يوم وبكام، ويكتبلك الكابشن والهاشتاجات المناسبة.</p>
+      <select class="field" id="adBrand"><option value="">اختر البراند (اختياري)</option></select>
+      <textarea class="field" id="adIdea" placeholder="اكتب فكرة الإعلان (مثال: عرض خصم 20% على المنتج X لمدة أسبوع)"></textarea>
+      <div class="field-row">
+        <select class="field" id="adPlatform">
+          <option>Instagram / Facebook</option><option>TikTok</option><option>Instagram + TikTok</option>
+        </select>
+        <select class="field" id="adGoal">
+          <option value="زيادة المبيعات">زيادة المبيعات</option>
+          <option value="زيادة الفولورز والوعي بالبراند">وعي بالبراند</option>
+          <option value="زيادة الرسايل والاستفسارات">استفسارات ورسايل</option>
+        </select>
+      </div>
+      <input class="field" id="adBudgetHint" type="number" placeholder="الميزانية المتاحة تقريبًا بالجنيه (اختياري)" />
+      <p class="hint" style="margin-bottom:6px;">ارفع صورة أو فيديو الإعلان (اختياري، بيتحفظ مع الخطة):</p>
+      <input class="field" id="adMediaFile" type="file" accept="image/*,video/*" />
+      <button class="btn" id="adPlanBtn" onclick="generateAdPlan()">📣 خطط الإعلان</button>
+      <div class="out-box" id="adPlanOut"></div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">أرشيف خطط الإعلانات</p>
+      <div id="adPlansArchive"></div>
+    </div>
+  </div>
+
   <!-- MEDIA -->
   <div class="panel" id="panel-media">
     <div class="card">
@@ -533,7 +602,7 @@
       </div>
       <div class="chat-log" id="chatLog"></div>
       <div style="display:flex;gap:8px;">
-        <input class="field" id="chatInput" placeholder="اسأله أي حاجة عن شغلك" style="margin:0;" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <input class="field" id="chatInput" placeholder="اكتبله أي حاجة، شغل أو كلام عادي" style="margin:0;" onkeydown="if(event.key==='Enter')sendChat()"/>
         <button class="btn" id="chatBtn" onclick="sendChat()">إرسال</button>
       </div>
     </div>
@@ -626,6 +695,8 @@ let timeLogs = load('bs_timelogs', []);
 let templates = load('bs_templates', []);
 let captions = load('bs_captions', []);
 let media = load('bs_media', []);
+let adPlans = load('bs_adplans', []);
+let schedule = load('bs_schedule', {});
 let backups = load('bs_backups', []);
 let activity = load('bs_activity', []);
 let settings = load('bs_settings', {lang:'ar', focusMode:false, voiceReply:true});
@@ -686,9 +757,11 @@ function toggleTheme(){
 const I18N = {
   ar:{tab_home:'🏠 الرئيسية',tab_brands:'🏷️ البراندات',tab_reminders:'🔔 التذكيرات',tab_archive:'🗄️ الأرشيف',
       tab_time:'⏱️ الوقت',tab_analysis:'📊 التحليل الأسبوعي',tab_ideas:'💡 أفكار',tab_content:'✍️ المحتوى',
+      tab_video:'🎬 فيديو وإعلانات',
       tab_media:'🖼️ الوسائط',tab_assistant:'✨ المساعد',tab_settings:'⚙️ الإعدادات', langBtn:'English'},
   en:{tab_home:'🏠 Home',tab_brands:'🏷️ Brands',tab_reminders:'🔔 Reminders',tab_archive:'🗄️ Archive',
       tab_time:'⏱️ Time',tab_analysis:'📊 Weekly Analysis',tab_ideas:'💡 Ideas',tab_content:'✍️ Content',
+      tab_video:'🎬 Video & Ads',
       tab_media:'🖼️ Media',tab_assistant:'✨ Assistant',tab_settings:'⚙️ Settings', langBtn:'عربي'}
 };
 function applyLang(){
@@ -888,7 +961,7 @@ function renderBrands(){
       <button class="del-btn" onclick="deleteBrand('${b.id}')">🗑️</button>`;
     wrap.appendChild(div);
   });
-  ['remBrand','contBrand','timeBrand','ideasBrand','filterBrand','mediaBrand'].forEach(id=>{
+  ['remBrand','contBrand','timeBrand','ideasBrand','filterBrand','mediaBrand','vidIdeasBrand','adBrand'].forEach(id=>{
     const sel = document.getElementById(id);
     const keep = sel.value;
     sel.innerHTML = id==='remBrand' ? '<option value="">بدون براند</option>' :
@@ -900,6 +973,7 @@ function renderBrands(){
     });
     sel.value = keep;
   });
+  renderScheduleEditor();
 }
 function addBrand(){
   const name = document.getElementById('brandName').value.trim();
@@ -1157,7 +1231,80 @@ function renderHome(){
   }
 }
 
-// ---------- Time tracking ----------
+// ---------- Work schedule (per day of week, per brand hours) ----------
+const SCHEDULE_DAYS = [
+  {idx:6, name:'السبت'}, {idx:0, name:'الأحد'}, {idx:1, name:'الاثنين'}, {idx:2, name:'الثلاثاء'},
+  {idx:3, name:'الأربعاء'}, {idx:4, name:'الخميس'}, {idx:5, name:'الجمعة'}
+];
+function renderScheduleEditor(){
+  const wrap = document.getElementById('scheduleEditor');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const brandOptions = brands.map(b=>`<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)}</option>`).join('');
+  SCHEDULE_DAYS.forEach(day=>{
+    const dayWrap = document.createElement('div');
+    dayWrap.style.marginBottom='14px';
+    const slots = (schedule[day.idx]||[]).slice().sort((a,b)=> (a.from||'').localeCompare(b.from||''));
+    let slotsHtml = '';
+    if(slots.length===0){
+      slotsHtml = '<p class="empty-note">مفيش مواعيد محددة.</p>';
+    } else {
+      slotsHtml = slots.map(s=>`
+        <div class="row" style="margin-bottom:4px;">
+          <span class="item-note">${escapeHtml(s.brand)}${s.note? ' - '+escapeHtml(s.note):''}</span>
+          <span style="display:flex;align-items:center;gap:6px;">
+            <span class="tag time">${escapeHtml(s.from)} - ${escapeHtml(s.to)}</span>
+            <button class="del-btn" onclick="deleteScheduleSlot(${day.idx},'${s.id}')">🗑️</button>
+          </span>
+        </div>`).join('');
+    }
+    dayWrap.innerHTML = `
+      <p class="section-label">${day.name}</p>
+      ${slotsHtml}
+      <div class="field-row" style="align-items:center;">
+        <select class="field" id="schedBrand_${day.idx}" style="flex:1.4;margin:0;"><option value="">اختر البراند</option>${brandOptions}</select>
+        <input class="field" id="schedFrom_${day.idx}" type="time" style="margin:0;" />
+        <input class="field" id="schedTo_${day.idx}" type="time" style="margin:0;" />
+        <button class="btn ghost sm" onclick="addScheduleSlot(${day.idx})">+ ضيف</button>
+      </div>`;
+    wrap.appendChild(dayWrap);
+  });
+}
+function addScheduleSlot(dayIdx){
+  const brand = document.getElementById('schedBrand_'+dayIdx).value;
+  const from = document.getElementById('schedFrom_'+dayIdx).value;
+  const to = document.getElementById('schedTo_'+dayIdx).value;
+  if(!brand){ alert('اختار البراند الأول'); return; }
+  if(!from || !to){ alert('حدد الوقت من ولحد'); return; }
+  if(!schedule[dayIdx]) schedule[dayIdx]=[];
+  schedule[dayIdx].push({id:uid(), brand, from, to});
+  save('bs_schedule', schedule);
+  renderScheduleEditor();
+  renderTodaySchedule();
+  showToast('اتضاف للجدول ✅');
+}
+function deleteScheduleSlot(dayIdx, id){
+  schedule[dayIdx] = (schedule[dayIdx]||[]).filter(s=>s.id!==id);
+  save('bs_schedule', schedule);
+  renderScheduleEditor();
+  renderTodaySchedule();
+}
+function renderTodaySchedule(){
+  const card = document.getElementById('todayScheduleCard');
+  const wrap = document.getElementById('todayScheduleList');
+  if(!card || !wrap) return;
+  const dayIdx = new Date().getDay();
+  const slots = (schedule[dayIdx]||[]).slice().sort((a,b)=> (a.from||'').localeCompare(b.from||''));
+  if(slots.length===0){ card.style.display='none'; return; }
+  card.style.display='block';
+  wrap.innerHTML='';
+  slots.forEach(s=>{
+    const div = document.createElement('div'); div.className='row'; div.style.marginBottom='6px';
+    div.innerHTML = `<span class="item-note">${escapeHtml(s.brand)}${s.note? ' - '+escapeHtml(s.note):''}</span>
+      <span class="tag time">${escapeHtml(s.from)} - ${escapeHtml(s.to)}</span>`;
+    wrap.appendChild(div);
+  });
+}
 function fmtDuration(sec){
   const h = String(Math.floor(sec/3600)).padStart(2,'0');
   const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
@@ -1416,6 +1563,156 @@ async function generateMonthIdeas(){
   finally{ btn.disabled=false; btn.textContent='🗓️ خطة شهر كامل'; }
 }
 
+// ---------- Video ideas generator ----------
+async function generateVideoIdeas(){
+  if(!requireKey()) return;
+  const brand = document.getElementById('vidIdeasBrand').value;
+  const platform = document.getElementById('vidIdeasPlatform').value;
+  const focus = document.getElementById('vidIdeasFocus').value.trim();
+  const btn = document.getElementById('vidIdeasBtn'); const out = document.getElementById('vidIdeasOut');
+  btn.disabled=true; btn.textContent='بيفكر...'; out.classList.remove('show');
+  try{
+    const brandInfo = brand ? brands.find(b=>b.name===brand) : null;
+    const sys = 'إنت مخرج محتوى فيديو محترف على السوشيال ميديا، بتقترح أفكار فيديوهات عملية وقابلة للتنفيذ بكاميرا موبايل عادية. رد باللهجة المصرية.';
+    const userText = `اقترح 6 أفكار فيديو لمنصة ${platform}${brand? ' لبراند '+brand:''}${brandInfo&&brandInfo.note? ' (وصف: '+brandInfo.note+')':''}${focus? '\nمع التركيز على: '+focus:''}.
+لكل فكرة اكتب:
+- عنوان الفيديو
+- الهوك (أول 3 ثواني هتقول إيه عشان تشد الناس)
+- وصف مختصر لمحتوى الفيديو (المشاهد اللي هتتصور)
+رقّمهم من 1 لـ 6.`;
+    out.textContent = await callClaude(sys, userText);
+    out.classList.add('show');
+  }catch(e){ out.textContent='حصل خطأ: '+e.message; out.classList.add('show'); }
+  finally{ btn.disabled=false; btn.textContent='💡 جيب أفكار فيديوهات'; }
+}
+
+// ---------- CapCut editing steps generator ----------
+async function generateCapcutSteps(){
+  if(!requireKey()) return;
+  const idea = document.getElementById('capcutIdea').value.trim();
+  if(!idea){ alert('اكتب فكرة الفيديو الأول'); return; }
+  const length = document.getElementById('capcutLength').value;
+  const mood = document.getElementById('capcutMood').value;
+  const btn = document.getElementById('capcutBtn'); const out = document.getElementById('capcutOut');
+  btn.disabled=true; btn.textContent='بيجهّز الخطوات...'; out.classList.remove('show');
+  try{
+    const sys = 'إنت خبير مونتاج فيديو محترف في تطبيق CapCut (النسخة المجانية على الموبايل)، وبتشرح خطوات المونتاج بالتفصيل وبالترتيب لحد يفتح التطبيق دلوقتي وينفذ وراك خطوة خطوة. رد باللهجة المصرية، بأسماء الأدوات والأزرار الحقيقية في CapCut (زي Cut، Split، Transition، Text، Overlay، Auto captions، Keyframes، Speed... إلخ).';
+    const userText = `فكرة الفيديو: ${idea}
+مدة الفيديو المستهدفة: ${length}
+الإحساس العام المطلوب: ${mood}
+
+اديني خطوات مونتاج عملية في CapCut بالترتيب، تغطي:
+1) ترتيب وتقطيع اللقطات (Cut/Split/Trim)
+2) الترانزيشنز المناسبة بين المشاهد
+3) التأثيرات والفلاتر المناسبة
+4) التيكست/الكابشنز على الشاشة (وتوقيتها)
+5) الموسيقى والصوت (نوع الموسيقى المناسب وإزاي تظبط اللاود)
+6) نصيحة أخيرة قبل ما تصدّر الفيديو (Export settings)
+رقّم كل خطوة.`;
+    out.textContent = await callClaude(sys, userText);
+    out.classList.add('show');
+  }catch(e){ out.textContent='حصل خطأ: '+e.message; out.classList.add('show'); }
+  finally{ btn.disabled=false; btn.textContent='🎬 اديني خطوات المونتاج'; }
+}
+
+// ---------- Ad plan generator ----------
+function renderAdPlans(){
+  const wrap = document.getElementById('adPlansArchive');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  if(adPlans.length===0){ wrap.innerHTML='<p class="empty-note">لسه مفيش خطط إعلانات محفوظة.</p>'; return; }
+  adPlans.slice(0,20).forEach(a=>{
+    const div = document.createElement('div'); div.className='list-item';
+    div.innerHTML = `<div class="item-body"><div class="item-top">
+      <span class="item-title">${escapeHtml(a.idea.slice(0,60))}${a.idea.length>60?'…':''}</span>
+      ${a.brand?`<span class="tag">${escapeHtml(a.brand)}</span>`:''}
+      <span class="tag time">${escapeHtml(a.ageFrom||'')}-${escapeHtml(a.ageTo||'')} سنة</span>
+      <span class="tag">${escapeHtml(String(a.days||''))} يوم</span>
+      </div>
+      <p class="item-note">${escapeHtml((a.whatToDo||'').slice(0,140))}${(a.whatToDo||'').length>140?'…':''}</p>
+      ${a.mediaDataUrl ? `<div class="media-grid" style="grid-template-columns:repeat(1,90px);margin-top:6px;"><div class="media-thumb">${a.mediaType&&a.mediaType.startsWith('video')?`<video src="${a.mediaDataUrl}" muted></video>`:`<img src="${a.mediaDataUrl}"/>`}</div></div>` : ''}
+      </div>
+      <div class="item-actions">
+        <button class="icon-btn" onclick="navigator.clipboard.writeText(${JSON.stringify('')}+document.getElementById('adplan-copy-${a.id}').textContent);showToast('اتنسخ ✅')">📋</button>
+        <button class="del-btn" onclick="deleteAdPlan('${a.id}')">🗑️</button>
+      </div>
+      <span id="adplan-copy-${a.id}" style="display:none;">${escapeHtml((a.caption||'')+'\n\n'+(a.hashtags||''))}</span>`;
+    wrap.appendChild(div);
+  });
+}
+function deleteAdPlan(id){ adPlans = adPlans.filter(a=>a.id!==id); save('bs_adplans', adPlans); renderAdPlans(); }
+
+async function generateAdPlan(){
+  if(!requireKey()) return;
+  const brand = document.getElementById('adBrand').value;
+  const idea = document.getElementById('adIdea').value.trim();
+  if(!idea){ alert('اكتب فكرة الإعلان الأول'); return; }
+  const platform = document.getElementById('adPlatform').value;
+  const goal = document.getElementById('adGoal').value;
+  const budgetHint = document.getElementById('adBudgetHint').value.trim();
+  const fileInput = document.getElementById('adMediaFile');
+  const file = fileInput.files[0];
+
+  const btn = document.getElementById('adPlanBtn'); const out = document.getElementById('adPlanOut');
+  btn.disabled=true; btn.textContent='بيخطط...'; out.classList.remove('show');
+
+  const finishWithMedia = async (mediaDataUrl, mediaType)=>{
+    try{
+      const brandInfo = brand ? brands.find(b=>b.name===brand) : null;
+      const sys = 'إنت خبير إعلانات ممولة على السوشيال ميديا (Meta Ads و TikTok Ads) للسوق المصري. رجّع الرد بصيغة JSON فقط بدون أي نص زيادة وبدون code fences بالمفاتيح دي بالظبط: {"whatToDo":"شرح مختصر وعملي هيعمل الإعلان إزاي خطوة بخطوة (نوع الإعلان، والصورة/الفيديو المستخدم، وزرار الدعوة لاتخاذ إجراء المناسب)","ageFrom":رقم,"ageTo":رقم,"genderHint":"الجنس المستهدف لو مهم أو all","days":رقم أيام مدة الحملة المقترحة,"budgetPerDay":رقم الميزانية اليومية المقترحة بالجنيه المصري,"budgetTotal":رقم إجمالي الميزانية المقترحة بالجنيه المصري,"caption":"نص كابشن الإعلان من غير هاشتاجات","hashtags":"الهاشتاجات فقط مفصولة بمسافة"}';
+      const userText = `فكرة الإعلان: ${idea}
+${brand? 'البراند: '+brand:''}${brandInfo&&brandInfo.note? ' (وصف: '+brandInfo.note+')':''}
+المنصة: ${platform}
+هدف الإعلان: ${goal}
+${budgetHint? 'الميزانية المتاحة تقريبًا: '+budgetHint+' جنيه':'مفيش ميزانية محددة، اقترح إنت رقم مناسب للسوق المصري'}
+حدد الفئة العمرية الأنسب بدقة على حسب فكرة الإعلان ومدة حملة منطقية وميزانية يومية وإجمالية مقترحة.`;
+      const raw = await callClaude(sys, userText);
+      let parsed;
+      try{
+        const clean = raw.replace(/```json|```/g,'').trim();
+        parsed = JSON.parse(clean);
+      }catch(e){ parsed = null; }
+
+      if(!parsed){
+        out.textContent = raw; out.classList.add('show');
+      } else {
+        out.innerHTML = `
+          <p><strong>🎯 اعمل إيه:</strong> ${escapeHtml(parsed.whatToDo||'')}</p>
+          <p><strong>👥 الفئة العمرية المستهدفة:</strong> من ${escapeHtml(String(parsed.ageFrom||''))} لـ ${escapeHtml(String(parsed.ageTo||''))} سنة${parsed.genderHint&&parsed.genderHint!=='all'?' ('+escapeHtml(parsed.genderHint)+')':''}</p>
+          <p><strong>🗓️ مدة الحملة:</strong> ${escapeHtml(String(parsed.days||''))} يوم</p>
+          <p><strong>💰 الميزانية المقترحة:</strong> ${escapeHtml(String(parsed.budgetPerDay||''))} ج.م/يوم (إجمالي تقريبًا ${escapeHtml(String(parsed.budgetTotal||''))} ج.م)</p>
+          <p><strong>✍️ الكابشن المقترح:</strong><br>${escapeHtml(parsed.caption||'')}</p>
+          <p><strong>#️⃣ الهاشتاجات:</strong> ${escapeHtml(parsed.hashtags||'')}</p>`;
+        out.classList.add('show');
+      }
+
+      adPlans.unshift({
+        id:uid(), brand, idea, platform, goal,
+        whatToDo: parsed? parsed.whatToDo : raw,
+        ageFrom: parsed? parsed.ageFrom : '', ageTo: parsed? parsed.ageTo : '',
+        days: parsed? parsed.days : '', budgetPerDay: parsed? parsed.budgetPerDay : '', budgetTotal: parsed? parsed.budgetTotal : '',
+        caption: parsed? parsed.caption : '', hashtags: parsed? parsed.hashtags : '',
+        mediaDataUrl: mediaDataUrl||null, mediaType: mediaType||null,
+        ts: Date.now()
+      });
+      try{ save('bs_adplans', adPlans); }
+      catch(e){ adPlans[0].mediaDataUrl=null; save('bs_adplans', adPlans); }
+      renderAdPlans();
+      fileInput.value='';
+    }catch(e){ out.textContent='حصل خطأ: '+e.message; out.classList.add('show'); }
+    finally{ btn.disabled=false; btn.textContent='📣 خطط الإعلان'; }
+  };
+
+  if(file){
+    if(file.size > 3*1024*1024){ alert('الملف كبير أوي، جرب ملف أصغر من 3MB.'); btn.disabled=false; btn.textContent='📣 خطط الإعلان'; return; }
+    const reader = new FileReader();
+    reader.onload = ()=> finishWithMedia(reader.result, file.type);
+    reader.readAsDataURL(file);
+  } else {
+    finishWithMedia(null, null);
+  }
+}
+
 // ---------- Weekly analysis ----------
 async function runWeeklyAnalysis(){
   if(!requireKey()) return;
@@ -1503,7 +1800,7 @@ function aiAddBrand(data){
 let chatHistory = [];
 function renderChat(){
   const log = document.getElementById('chatLog'); log.innerHTML='';
-  if(chatHistory.length===0){ chatHistory.push({role:'assistant', content:'أهلًا! اسألني عن رسايلك أو مهامك، أو قولي "رتّبلي يومي".'}); }
+  if(chatHistory.length===0){ chatHistory.push({role:'assistant', content:'أهلًا! إنت عادي تكلمني في أي حاجة، شغل أو دردشة عادية، مش شرط تطلب مني أنفّذ حاجة. اسألني أو قولي "رتّبلي يومي" لو حابب.'}); }
   chatHistory.forEach(m=>{
     const div=document.createElement('div');
     div.className='bubble '+(m.role==='user'?'user':(m.role==='system'?'sys':'ai'));
@@ -1527,7 +1824,7 @@ function buildAssistantSystemPrompt(){
   const pad = n=>String(n).padStart(2,'0');
   const nowLocal = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const brandNames = brands.map(b=>b.name).join('، ') || 'مفيش براندات مسجلة لسه';
-  return `إنت مساعد شخصي جوه تطبيق "بوصلة"، بتساعد مسوّق شغال في إدارة البراندات والمحتوى بتاعه. بترد باللهجة المصرية العامية، طبيعي وودود كإنك بتكلم حد قدامك، مش رسمي ومش جامد. الكلام ده ممكن يوصلك مكتوب أو منطوق (المستخدم بيكلمك بصوته والرد ممكن يتقرأله بصوت عالي)، فخلي الـ"reply" قصير وواضح ومفهوم لو اتسمع بصوت.
+  return `إنت مساعد شخصي جوه تطبيق "بوصلة"، بتساعد مسوّق شغال في إدارة البراندات والمحتوى بتاعه. إنت رفيق شغل بيتكلم مصري عامي طبيعي جدًا، ودود ومرن، وممكن المستخدم يكلمك في أي حاجة - سؤال شغل، دردشة عادية، رأيك في حاجة، حتى لو كلام مالوش علاقة بالشغل خالص. ردّ عليه طبيعي زي ما صاحبه بيرد عليه، مش شرط كل رسالة تبقى طلب تنفيذ حاجة جوه التطبيق. الكلام ده ممكن يوصلك مكتوب أو منطوق (المستخدم بيكلمك بصوته والرد ممكن يتقرأله بصوت عالي)، فخلي الـ"reply" قصير وواضح ومفهوم لو اتسمع بصوت.
 
 الوقت دلوقتي: ${nowLocal}
 البراندات المسجلة حاليًا: ${brandNames}
@@ -1542,12 +1839,12 @@ ${context}
 لإضافة براند جديد (بس لو طلب ده بوضوح):
 {"action":"add_brand","data":{"name":"اسم البراند","note":"وصف مختصر أو فاضي"},"reply":"جملة طبيعية قصيرة تأكدله إنك ضفت البراند"}
 
-لأي حاجة تانية - سؤال، دردشة، استفسار، رأي، أو أي كلام مش طلب تنفيذ صريح:
-{"action":"none","data":{},"reply":"ردك الطبيعي هنا زي ما إنت بترد عادي على السؤال أو الكلام"}
+لأي حاجة تانية - سؤال، دردشة عادية، كلام في أي موضوع، استفسار، رأي، أو أي كلام مش طلب تنفيذ صريح لحاجة جوه التطبيق:
+{"action":"none","data":{},"reply":"ردك الطبيعي هنا زي ما إنت بترد عادي على السؤال أو الكلام، من غير أي قيود على الموضوع"}
 
 قواعد مهمة جدًا:
 - رجّع الـJSON ده بس دايمًا كرد، من غير أي حاجة تانية حواليه ولا code fences.
-- الافتراضي هو "none" - متستخدمش action تاني غير لو متأكد إن فيه نية واضحة وصريحة للإضافة أو التنفيذ.
+- الافتراضي هو "none" - متستخدمش action تاني غير لو متأكد إن فيه نية واضحة وصريحة للإضافة أو التنفيذ جوه التطبيق. لو المستخدم بيدردش أو بيسأل عن أي حاجة عادية، ردّ عادي بـ"none" من غير قلق.
 - لو مش متأكد من تفاصيل زي التاريخ أو الوقت لكنه طلب إضافة فعلًا، حط أقرب تخمين منطقي بناءً على الوقت الحالي فوق، أو null لو مفيش أي إشارة.
 - الـ"reply" لازم يكون طبيعي ومختصر وباللهجة المصرية، من غير ما تذكر كلمة JSON أو حاجة تقنية.`;
 }
@@ -1664,7 +1961,7 @@ async function processVoiceCommand(transcript){
 
 // ---------- Backup (manual) ----------
 function exportData(){
-  const blob = new Blob([JSON.stringify({brands, reminders, timeLogs, templates, captions, media}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({brands, reminders, timeLogs, templates, captions, media, adPlans, schedule}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='boosla-backup.json'; a.click();
 }
 function importData(ev){
@@ -1679,9 +1976,13 @@ function importData(ev){
       if(data.templates) templates = data.templates;
       if(data.captions) captions = data.captions;
       if(data.media) media = data.media;
+      if(data.adPlans) adPlans = data.adPlans;
+      if(data.schedule) schedule = data.schedule;
       save('bs_brands', brands); save('bs_reminders', reminders); save('bs_timelogs', timeLogs);
       save('bs_templates', templates); save('bs_captions', captions); save('bs_media', media);
-      renderBrands(); renderReminders(); renderTime(); renderTemplates(); renderCaptionArchive(); renderMedia();
+      save('bs_adplans', adPlans);
+      save('bs_schedule', schedule);
+      renderBrands(); renderReminders(); renderTime(); renderTemplates(); renderCaptionArchive(); renderMedia(); renderAdPlans(); renderTodaySchedule();
       alert('اتم الاستيراد ✅');
     }catch(e){ alert('الملف مش صالح'); }
   };
@@ -1794,6 +2095,8 @@ renderChat();
 renderTemplates();
 renderCaptionArchive();
 renderMedia();
+renderAdPlans();
+renderTodaySchedule();
 renderActivityLog();
 renderAutoBackups();
 updateBestTime();
