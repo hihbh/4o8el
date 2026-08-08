@@ -826,8 +826,8 @@ if(window.speechSynthesis){
   pickArabicVoice();
   speechSynthesis.onvoiceschanged = pickArabicVoice;
 }
-function speak(text){
-  if(!settings.voiceReply || !window.speechSynthesis || !text) return;
+function speak(text, force){
+  if((!settings.voiceReply && !force) || !window.speechSynthesis || !text) return;
   try{
     speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
@@ -1861,7 +1861,18 @@ function renderChat(){
   chatHistory.forEach(m=>{
     const div=document.createElement('div');
     div.className='bubble '+(m.role==='user'?'user':(m.role==='system'?'sys':'ai'));
-    div.textContent=m.content; log.appendChild(div);
+    const textSpan = document.createElement('span');
+    textSpan.textContent = m.content;
+    div.appendChild(textSpan);
+    if(m.role==='assistant' && window.speechSynthesis){
+      const spkBtn = document.createElement('button');
+      spkBtn.textContent = '🔊';
+      spkBtn.title = 'اسمع الرد';
+      spkBtn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:13px;margin-inline-start:6px;padding:0;vertical-align:middle;opacity:.7;';
+      spkBtn.onclick = ()=> speak(m.content, true);
+      div.appendChild(spkBtn);
+    }
+    log.appendChild(div);
   });
   log.scrollTop = log.scrollHeight;
 }
@@ -1933,7 +1944,7 @@ async function runAssistantTurn(text, opts){
     }catch(e){ replyText = raw; }
     replyText = replyText || 'معلش مقدرتش أرد دلوقتي.';
     chatHistory.push({role:'assistant', content: replyText});
-    if(opts.viaVoice) speak(replyText);
+    speak(replyText);
     await maybeSummarizeChat();
   }catch(e){
     const errText = 'حصل خطأ: '+e.message;
