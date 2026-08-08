@@ -623,9 +623,18 @@
         <option value="claude-sonnet-4-6">Claude Sonnet (متوازن - افتراضي)</option>
         <option value="gpt-5.4-nano">GPT-5.4 Nano (أسرع)</option>
         <option value="openai/gpt-5.5">GPT-5.5 (الأقوى)</option>
-        <option value="google/gemini-3.6-flash">Gemini 3.6 Flash (من جوجل)</option>
+        <option value="google/gemini-3.6-flash">Gemini 3.6 Flash (من جوجل، عبر Puter)</option>
+        <option value="gemini-direct">Gemini (بمفتاحك الشخصي - مجاني 100% وبدون حدود رصيد)</option>
       </select>
       <p class="key-status ok" id="keyStatus">شغال مجانًا ✅</p>
+    </div>
+    <div class="card" id="geminiKeyCard" style="display:none;">
+      <p class="card-title">مفتاح Gemini الشخصي (مجاني تمامًا)</p>
+      <p class="hint">لو فضل يظهرلك "Low Balance" من Puter، الحل الأضمن إنك تاخد مفتاح API مجاني من جوجل مباشرة (من غير فيزا ولا دفع) وتحطه هنا؛ عندها هيكلم Gemini من غير ما يعدي على Puter خالص.<br>
+      اتبع الخطوات: افتح <b>aistudio.google.com/apikey</b> ← سجل دخول بحساب جوجل ← "Create API key" ← انسخ المفتاح والصقه هنا.</p>
+      <input class="field" id="geminiApiKey" type="password" placeholder="الصق مفتاح Gemini هنا (يبدأ بـ AIza...)" />
+      <button class="btn" onclick="saveGeminiKey()">حفظ المفتاح</button>
+      <p class="key-status" id="geminiKeyStatus"></p>
     </div>
     <div class="card">
       <p class="card-title">المساعد الصوتي</p>
@@ -1402,9 +1411,44 @@ function deleteTimeLog(id){
 }
 
 // ---------- Free AI via Puter.js (no API key needed) ----------
+let geminiApiKey = localStorage.getItem('bs_gemini_key') || '';
 function saveModelChoice(){
   aiModel = document.getElementById('aiModel').value;
   localStorage.setItem('bs_aimodel', aiModel);
+  toggleGeminiKeyCard();
+}
+function toggleGeminiKeyCard(){
+  const card = document.getElementById('geminiKeyCard');
+  if(!card) return;
+  card.style.display = (aiModel === 'gemini-direct') ? 'block' : 'none';
+}
+function saveGeminiKey(){
+  const val = document.getElementById('geminiApiKey').value.trim();
+  if(!val){ alert('حط المفتاح الأول'); return; }
+  geminiApiKey = val;
+  localStorage.setItem('bs_gemini_key', geminiApiKey);
+  document.getElementById('geminiKeyStatus').textContent = 'اتحفظ ✅ - جاهز تكلمه دلوقتي';
+  document.getElementById('geminiKeyStatus').className = 'key-status ok';
+}
+async function callGeminiDirect(system, userText){
+  if(!geminiApiKey){ throw new Error('لسه محطتش مفتاح Gemini، روح الإعدادات واحفظه الأول.'); }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      systemInstruction: {parts:[{text: system}]},
+      contents: [{role:'user', parts:[{text: userText}]}]
+    })
+  });
+  if(!res.ok){
+    const errBody = await res.text().catch(()=> '');
+    throw new Error('مقدرتش أوصل لـ Gemini (كود '+res.status+'). تأكد إن المفتاح صح. '+errBody.slice(0,150));
+  }
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\n') || '';
+  if(!text) throw new Error('Gemini رد بدون نص، جرب تاني.');
+  return text;
 }
 function requireKey(){
   if(!window.puter){ alert('مكتبة الذكاء الاصطناعي لسه بتحمّل، استنى ثانية وجرب تاني.'); return false; }
@@ -1424,6 +1468,9 @@ function extractPuterText(response){
   return '';
 }
 async function callClaude(system, userText){
+  if(aiModel === 'gemini-direct'){
+    return await callGeminiDirect(system, userText);
+  }
   if(!window.puter) throw new Error('مكتبة الذكاء الاصطناعي لسه بتحمّل، جرب تاني.');
   const response = await puter.ai.chat(
     [{role:'system', content: system}, {role:'user', content: userText}],
@@ -2112,6 +2159,8 @@ applyLang();
 checkLock();
 if(settings.focusMode) document.body.classList.add('focus-mode');
 document.getElementById('aiModel').value = aiModel;
+if(document.getElementById('geminiApiKey')) document.getElementById('geminiApiKey').value = geminiApiKey;
+toggleGeminiKeyCard();
 if(pin){ document.getElementById('pinInput').placeholder='القفل مفعّل حاليًا'; }
 if(activeTimer){
   document.getElementById('timerStartBtn').textContent='⏹️ إيقاف';
