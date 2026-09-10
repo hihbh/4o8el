@@ -131,6 +131,16 @@
   .prod-price{font-size:13px;font-weight:700;color:var(--maroon-dark);}
   .prod-old{font-size:10px;color:var(--text-mute);text-decoration:line-through;}
 
+  /* ---------- You May Also Like (no image) ---------- */
+  .prod-card-noimg{background:#fff;border-radius:14px;border:1px solid var(--border);min-width:150px;max-width:150px;padding:14px 12px;position:relative;cursor:pointer;flex-shrink:0;box-shadow:0 3px 12px rgba(90,50,45,.08);transition:transform .16s cubic-bezier(.34,1.56,.64,1), box-shadow .16s ease;}
+  .prod-card-noimg:active{transform:scale(.96);box-shadow:0 2px 6px rgba(90,50,45,.06);}
+  .prod-card-noimg .prod-heart{top:10px;right:10px;}
+  .prod-card-noimg .prod-brand{font-size:10px;color:var(--text-mute);padding-right:18px;}
+  .prod-card-noimg .prod-name{font-size:12.5px;font-weight:700;color:var(--text);line-height:1.3;margin:4px 0 8px;min-height:32px;}
+  .prod-card-noimg .rating-mini{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--text-mute);margin-bottom:8px;}
+  .prod-card-noimg .rating-mini .stars{color:var(--gold);font-size:11px;}
+  .prod-card-noimg .prod-price-row{border-top:1px solid var(--border);padding-top:8px;}
+
   /* ---------- Category grid ---------- */
   .catpage-header{position:relative;overflow:hidden;padding:20px 18px 6px;background:linear-gradient(160deg,#f6e3dc 0%,#f7ece7 55%,#f7ece7 100%);}
   .catpage-header .leaf-deco{position:absolute;top:-10px;right:-16px;width:130px;height:130px;opacity:.55;pointer-events:none;}
@@ -196,6 +206,30 @@
   .collapse-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:13px;}
   .collapse-body{font-size:12.5px;color:var(--text-mute);margin-top:8px;line-height:1.6;display:none;}
   .collapse-body.open{display:block;}
+
+  /* ---------- Reviews ---------- */
+  .review-form{background:var(--pink-softer);border:1px solid var(--border);border-radius:14px;padding:14px;margin:0 18px 16px;}
+  .review-form label{font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:6px;}
+  .star-select{display:flex;gap:6px;margin-bottom:12px;}
+  .star-select span{font-size:26px;color:var(--border);cursor:pointer;line-height:1;transition:transform .1s ease;}
+  .star-select span.on{color:var(--gold);}
+  .star-select span:active{transform:scale(1.15);}
+  .review-form textarea{width:100%;resize:vertical;min-height:64px;border:1px solid var(--border);border-radius:10px;padding:10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;margin-bottom:10px;}
+  .review-form input[type="text"]{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;margin-bottom:10px;}
+  .review-form-actions{display:flex;gap:8px;}
+  .review-form-actions button{flex:1;}
+  .reviews-list{padding:0 18px 6px;}
+  .review-item{border-top:1px solid var(--border);padding:12px 0;}
+  .review-item:first-child{border-top:none;}
+  .review-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .review-item-name{font-size:13px;font-weight:700;color:var(--text);}
+  .review-item-date{font-size:11px;color:var(--text-mute);}
+  .review-item-stars{color:var(--gold);font-size:12px;margin-bottom:4px;}
+  .review-item-text{font-size:12.5px;color:var(--text-mute);line-height:1.6;}
+  .reviews-empty{font-size:12.5px;color:var(--text-mute);padding:6px 0 14px;}
+  .write-review-btn{display:flex;align-items:center;gap:6px;background:var(--maroon-dark);color:#fff;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:20px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 10px rgba(94,37,49,.25);}
+  .write-review-btn svg{width:14px;height:14px;flex-shrink:0;}
+  .write-review-btn:active{transform:scale(.96);}
 
   /* ---------- Cart ---------- */
   .cart-item{display:flex;gap:12px;background:#fff;border:none;box-shadow:0 2px 10px rgba(90,50,45,.07);border-radius:16px;padding:12px;margin:0 18px 12px;position:relative;}
@@ -484,7 +518,23 @@
           <div class="collapse-body" id="howBody"></div>
         </div>
       </div>
-      <div class="section-head"><h3>You May Also Like</h3></div>
+      <div class="section-head"><h3>Reviews</h3><span class="write-review-btn" onclick="toggleReviewForm()" id="reviewToggleLink"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Write a Review</span></div>
+      <div class="review-form" id="reviewForm" style="display:none;">
+        <label>Your Rating</label>
+        <div class="star-select" id="reviewStarSelect">
+          <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+        </div>
+        <label>Your Name</label>
+        <input type="text" id="reviewName" placeholder="e.g. Sara Ahmed">
+        <label>Your Review</label>
+        <textarea id="reviewText" placeholder="Share your thoughts about this product..."></textarea>
+        <div class="review-form-actions">
+          <button class="btn-main btn-outline-cart" onclick="toggleReviewForm()">Cancel</button>
+          <button class="btn-main btn-order-now" onclick="submitReview()">Submit</button>
+        </div>
+      </div>
+      <div class="reviews-list" id="reviewsList"></div>
+      <div class="section-head"><h3>You May Like</h3></div>
       <div class="best-scroll" id="youMayLike"></div>
     </div>
   </div>
@@ -885,7 +935,8 @@ let state = {
   currentList:{category:null, tab:'All'},
   currentProductId:null, currentQty:1, currentShadeIdx:0,
   pendingCheckout:false, selectedAddrId:null, addressFormReturn:'summary',
-  checkoutAddress:null, coupon:null, lastOrder:null
+  checkoutAddress:null, coupon:null, lastOrder:null,
+  reviews:{}, currentReviewStars:0
 };
 
 /* ============== HELPERS ============== */
@@ -1009,6 +1060,16 @@ function productCardHtml(p){
     <div class="prod-price-row"><span class="prod-price">${money(p.price)}</span><span class="prod-old">${money(p.oldPrice)}</span></div>
   </div>`;
 }
+function productCardHtmlNoImg(p){
+  const inWish = state.wishlist.some(w=>w.productId===p.id);
+  return `<div class="prod-card-noimg" onclick="openDetail('${p.id}')">
+    <span class="prod-heart" data-pid="${p.id}" onclick="event.stopPropagation();toggleWishlist('${p.id}')">${heartIcon(inWish)}</span>
+    <div class="prod-brand">${p.brand}</div>
+    <div class="prod-name">${p.name}</div>
+    <div class="rating-mini"><span class="stars">★</span>${p.rating||''} ${p.reviews?`(${p.reviews})`:''}</div>
+    <div class="prod-price-row"><span class="prod-price">${money(p.price)}</span><span class="prod-old">${money(p.oldPrice)}</span></div>
+  </div>`;
+}
 
 /* ============== CATEGORY GRID ============== */
 function renderCategoryGrid(){
@@ -1077,6 +1138,9 @@ function openDetail(id){
   state.currentProductId = id;
   state.currentQty = 1;
   state.currentShadeIdx = 0;
+  const rf = document.getElementById('reviewForm');
+  if(rf) rf.style.display = 'none';
+  setReviewBtnLabel('Write a Review');
   showScreen('detail');
   renderDetail();
   const sa = document.querySelector('#screen-detail .scroll-area');
@@ -1106,6 +1170,7 @@ function renderDetail(){
   document.getElementById('howBody').textContent = p.how;
   updateHeartIcons();
   renderYouMayLike(p);
+  renderReviews(p);
 }
 function renderYouMayLike(p){
   const wrap = document.getElementById('youMayLike');
@@ -1114,7 +1179,81 @@ function renderYouMayLike(p){
   const sameCat = pool.filter(x=>x.category===p.category);
   const rest = pool.filter(x=>x.category!==p.category);
   const picks = [...sameCat, ...rest].slice(0,6);
-  wrap.innerHTML = picks.map(productCardHtml).join('') || emptyRow();
+  wrap.innerHTML = picks.map(productCardHtmlNoImg).join('') || emptyRow();
+}
+
+/* ============== REVIEWS ============== */
+function setReviewBtnLabel(text){
+  const link = document.getElementById('reviewToggleLink');
+  if(!link) return;
+  const svg = link.querySelector('svg');
+  link.textContent = text;
+  if(svg) link.prepend(svg);
+}
+function toggleReviewForm(){
+  const form = document.getElementById('reviewForm');
+  const opening = form.style.display === 'none';
+  form.style.display = opening ? 'block' : 'none';
+  setReviewBtnLabel(opening ? 'Cancel' : 'Write a Review');
+  if(opening){
+    state.currentReviewStars = 0;
+    document.getElementById('reviewName').value = state.isAnon ? '' : (state.userName||'');
+    document.getElementById('reviewText').value = '';
+    renderStarSelect();
+    form.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+function renderStarSelect(){
+  document.querySelectorAll('#reviewStarSelect span').forEach(s=>{
+    s.classList.toggle('on', Number(s.dataset.v) <= state.currentReviewStars);
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const sel = document.getElementById('reviewStarSelect');
+  if(sel){
+    sel.querySelectorAll('span').forEach(s=>{
+      s.addEventListener('click', ()=>{
+        state.currentReviewStars = Number(s.dataset.v);
+        renderStarSelect();
+      });
+    });
+  }
+});
+function submitReview(){
+  const p = state.products.find(x=>x.id===state.currentProductId);
+  if(!p) return;
+  const name = document.getElementById('reviewName').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
+  const stars = state.currentReviewStars;
+  if(!stars){ toast('Please select a rating'); return; }
+  if(!name){ toast('Please enter your name'); return; }
+  if(!text){ toast('Please write your review'); return; }
+  if(!state.reviews[p.id]) state.reviews[p.id] = [];
+  state.reviews[p.id].unshift({ name, stars, text, date: Date.now() });
+  p.reviews = (p.reviews||0) + 1;
+  const allStars = state.reviews[p.id].map(r=>r.stars);
+  const avg = allStars.reduce((a,b)=>a+b,0) / allStars.length;
+  p.rating = Math.round(((p.rating*(p.reviews-1) + stars) / p.reviews) * 10) / 10 || avg;
+  toggleReviewForm();
+  renderDetail();
+  toast('Thanks for your review!');
+}
+function renderReviews(p){
+  const wrap = document.getElementById('reviewsList');
+  if(!wrap) return;
+  const list = state.reviews[p.id] || [];
+  if(!list.length){
+    wrap.innerHTML = `<div class="reviews-empty">No reviews yet — be the first to share your thoughts!</div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(r=>{
+    const d = new Date(r.date);
+    return `<div class="review-item">
+      <div class="review-item-top"><span class="review-item-name">${r.name}</span><span class="review-item-date">${d.toLocaleDateString()}</span></div>
+      <div class="review-item-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+      <div class="review-item-text">${r.text}</div>
+    </div>`;
+  }).join('');
 }
 function selectShade(i){ state.currentShadeIdx=i; renderDetail(); }
 function changeQty(d){
@@ -1449,7 +1588,12 @@ function closeThanksScreen(){ showScreen('home'); }
 function renderWishlist(){
   const wrap = document.getElementById('wishlistItems');
   if(!state.wishlist.length){
-    wrap.innerHTML = `<div class="empty-state"><div class="e-icon">🤍</div><div>Your wishlist is empty</div></div>`;
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="e-icon-circle"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+      <div class="e-title">Your wishlist is empty</div>
+      <div class="e-sub">Save the products you love and find them here anytime.</div>
+      <button class="btn-main" style="width:fit-content;padding:11px 26px;margin:20px auto 0;" onclick="showScreen('category')">Start Shopping</button>
+    </div>`;
     return;
   }
   const items = state.wishlist.map(w=> state.products.find(p=>p.id===w.productId)).filter(Boolean);
