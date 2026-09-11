@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Glow Out Cosmetics</title>
+<!-- Firebase (compat SDK so all existing onclick="..." handlers keep working) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   :root{
     --maroon:#7a3040;
@@ -2219,51 +2222,259 @@ function deleteAddress(id){
 function goSearch(){ showScreen('category'); setTimeout(()=>document.getElementById('catSearchInput').focus(), 100); }
 
 /* ================================================================
+   FIREBASE SETUP — glow-up-1
+   Every visitor's browser (customers AND admin) now reads/writes the
+   SAME Firestore project, so admin changes (products, orders, coupons,
+   settings...) show up for every visitor everywhere — a real shared
+   store instead of data trapped in one browser's localStorage.
+   localStorage is still used underneath as an instant-paint cache
+   (so the app isn't blank while Firestore replies) and as an offline
+   fallback if the network/Firestore is unreachable.
+================================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCLAv9M7ZLhf_-HbfxC3t4BRn3TFDdwOOI",
+  authDomain: "glow-up-1.firebaseapp.com",
+  databaseURL: "https://glow-up-1-default-rtdb.firebaseio.com",
+  projectId: "glow-up-1",
+  storageBucket: "glow-up-1.firebasestorage.app",
+  messagingSenderId: "95801650239",
+  appId: "1:95801650239:web:3051e12eae7a83ec2c1c8a",
+  measurementId: "G-LLRNPYWCQT"
+};
+let fbDb = null, fbReady = false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fbDb = firebase.firestore();
+  fbReady = true;
+}catch(e){ console.error('Firebase init failed — check firebaseConfig at the top of the script.', e); }
+
+/* Races any promise against a timeout so a slow/blocked network call can
+   NEVER freeze the UI forever — if the timeout wins we fall back instead
+   of leaving the caller (and the splash screen) hanging. */
+function withTimeout(promise, ms, fallback){
+  return new Promise((resolve)=>{
+    let settled = false;
+    const timer = setTimeout(()=>{ if(!settled){ settled = true; resolve(fallback); } }, ms);
+    Promise.resolve(promise).then(v=>{
+      if(!settled){ settled = true; clearTimeout(timer); resolve(v); }
+    }).catch(e=>{
+      console.error(e);
+      if(!settled){ settled = true; clearTimeout(timer); resolve(fallback); }
+    });
+  });
+}
+/* Distinguishes "Firestore has no data yet" (brand-new project — safe to
+   seed) from "we simply couldn't reach Firestore" (slow/offline network —
+   must NOT reseed/overwrite real data with the demo catalog). */
+const FETCH_FAILED = Symbol('fetch-failed');
+/* ---------------- FIRESTORE LAYOUT ----------------
+   products/{productId}   → one document per product (see below)
+   store/orders            store/reviews           store/coupons
+   store/settings          store/extraCategories    store/governorates
+   store/offers            store/returns            store/tickets
+   store/activityLog       store/notificationsLog   store/adminUsers
+   store/homepage          store/content            store/security
+   store/analytics         store/categoryImages
+   Each piece of shared admin data gets its OWN small document (instead
+   of one giant blob) — easy to inspect in the Firebase console, and no
+   single write ever has to carry the whole store's data. */
+const STORE_KEYS = ['orders','reviews','coupons','settings','extraCategories','governorates',
+  'offers','returns','tickets','activityLog','notificationsLog','adminUsers','homepage',
+  'content','security','analytics','categoryImages'];
+function storeDocRef(key){ return fbDb.collection('store').doc(key); }
+function productsColRef(){ return fbDb.collection('products'); }
+let _knownProductIds = new Set(); // ids last confirmed to exist in Firestore, so persistProducts() knows what to delete
+
+async function fetchCoreFromFirestore(){
+  if(!fbReady) return FETCH_FAILED;
+  try{
+    const snap = await withTimeout(fbDb.collection('store').get(), 8000, FETCH_FAILED);
+    if(snap===FETCH_FAILED) return FETCH_FAILED;
+    if(snap.empty) return null;
+    const out = {};
+    snap.forEach(doc=>{ out[doc.id] = doc.data().value; });
+    return out;
+  }catch(e){ console.error('fetchCore failed', e); return FETCH_FAILED; }
+}
+/* Products live in their OWN Firestore collection (one document per
+   product, keyed by id) instead of inside a shared document. Product
+   photos are saved as base64 (compressed — see compressImageFile below)
+   and a catalog with 100 photo'd products would risk Firestore's
+   1MB-per-document cap if crammed into one shared doc — a dedicated
+   collection has no such combined ceiling, only a (roomy, and with
+   compressed photos comfortably-met) 1MB-per-product limit. */
+async function fetchProductsFromFirestore(){
+  if(!fbReady) return FETCH_FAILED;
+  try{
+    const snap = await withTimeout(productsColRef().get(), 8000, FETCH_FAILED);
+    if(snap===FETCH_FAILED) return FETCH_FAILED;
+    if(snap.empty) return null;
+    const list = snap.docs.map(d=>d.data());
+    _knownProductIds = new Set(list.map(p=>p.id));
+    return list;
+  }catch(e){ console.error('fetchProducts failed', e); return FETCH_FAILED; }
+}
+function pushCoreToFirestore(coreData){
+  if(!fbReady) return;
+  try{
+    const batch = fbDb.batch();
+    STORE_KEYS.forEach(key=>{
+      if(coreData[key]===undefined) return;
+      batch.set(storeDocRef(key), { value: coreData[key], updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    });
+    batch.commit().catch(e=>console.error('pushCore failed', e));
+  }catch(e){ console.error('pushCore failed', e); }
+}
+/* Products can be added/removed one at a time without rewriting the
+   whole catalog (keeps writes cheap and fast even with ~100 products):
+   use these for saveProduct()/deleteProduct() instead of the full
+   persistProducts() batch whenever only one product changed. */
+function persistOneProduct(product){
+  if(!fbReady) return;
+  productsColRef().doc(String(product.id)).set(product).catch(e=>console.error('persistOneProduct failed', e));
+  _knownProductIds.add(String(product.id));
+}
+function deleteOneProductRemote(id){
+  if(!fbReady) return;
+  productsColRef().doc(String(id)).delete().catch(e=>console.error('deleteOneProductRemote failed', e));
+  _knownProductIds.delete(String(id));
+}
+/* Full resync of the whole products collection — used at boot (to clean
+   up ids that no longer exist locally) and after a bulk change. */
+function persistProducts(){
+  if(!fbReady) return;
+  try{
+    const list = state.products || [];
+    const currentIds = new Set(list.map(p=>String(p.id)));
+    const batch = fbDb.batch();
+    list.forEach(p=>{ batch.set(productsColRef().doc(String(p.id)), p); });
+    _knownProductIds.forEach(id=>{ if(!currentIds.has(id)) batch.delete(productsColRef().doc(String(id))); });
+    _knownProductIds = currentIds;
+    batch.commit().catch(e=>console.error('persistProducts failed', e));
+  }catch(e){ console.error('persistProducts failed', e); }
+}
+/* Resizes + re-encodes an uploaded image on a <canvas> before it's ever
+   turned into base64, so a phone photo (often 3-5MB) shrinks to roughly
+   30-150KB. That's what lets ~100 products each carry a photo comfortably:
+   individual product documents stay tiny, the whole catalog stays fast
+   to sync, and everything still sits far under Firestore's 1MB-per-doc
+   ceiling. maxDim caps the longest side in pixels; quality is 0-1 JPEG
+   quality. */
+function compressImageFile(file, maxDim, quality){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w>maxDim || h>maxDim){
+          if(w>=h){ h = Math.round(h*maxDim/w); w = maxDim; }
+          else{ w = Math.round(w*maxDim/h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality||0.75));
+      };
+      img.onerror = ()=>resolve(reader.result); // not a decodable image — fall back to the raw file
+      img.src = reader.result;
+    };
+    reader.onerror = ()=>resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+/* Re-renders whatever's currently on screen after fresh data arrives
+   from Firestore (e.g. another admin/device changed something). */
+function refreshAfterSync(){
+  try{
+    const homeScreen = document.getElementById('screen-home');
+    if(homeScreen && homeScreen.classList.contains('active')) renderHome();
+    const catScreen = document.getElementById('screen-category');
+    if(catScreen && catScreen.classList.contains('active')) renderCategoryGrid();
+    const admin = document.getElementById('admin');
+    if(admin && admin.classList.contains('active')){
+      const activeBtn = document.querySelector('.adm-nav button.active');
+      if(activeBtn && activeBtn.dataset.sec) switchAdmSection(activeBtn.dataset.sec);
+    }
+  }catch(e){ console.error('refreshAfterSync failed', e); }
+}
+/* Pulls the latest shared data from Firestore in the background and
+   merges it into state — called once at boot (during the splash screen,
+   so it usually finishes before the store is even shown) and safe to
+   call again any time. */
+async function syncFromFirestore(){
+  if(!fbReady) return;
+  const [core, products] = await Promise.all([fetchCoreFromFirestore(), fetchProductsFromFirestore()]);
+  let changed = false;
+  if(core && core!==FETCH_FAILED){ applyLoadedCore(core); changed = true; }
+  if(products && products!==FETCH_FAILED){ state.products = products; changed = true; }
+  if(changed){
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
+    refreshAfterSync();
+  } else if(core===null && products===null){
+    // Firestore reachable but genuinely empty (brand-new project) — push
+    // whatever we currently have (seed catalog or local cache) up so
+    // every future visitor sees the same store.
+    saveDB();
+    persistProducts();
+  }
+}
+
+/* ================================================================
    ADMIN PANEL — GLOW OUT
-   Persists products/orders/reviews/coupons/settings to localStorage
-   so admin changes actually stick across reloads (this app has no
-   backend). Everything else in this file keeps working as-is.
+   Persists products/orders/reviews/coupons/settings to Firestore (so
+   admin changes show up for every visitor) with a localStorage mirror
+   for instant loading and offline fallback.
 ================================================================ */
 const DB_KEY = 'glowout_admin_db_v1';
+function buildCoreSnapshot(){
+  return {
+    orders: state.orders, reviews: state.reviews,
+    coupons: state.coupons, settings: state.settings, extraCategories: state.extraCategories||[],
+    governorates: state.governorates, offers: state.offers, returns: state.returns,
+    tickets: state.tickets, activityLog: state.activityLog, notificationsLog: state.notificationsLog,
+    adminUsers: state.adminUsers, homepage: state.homepage, content: state.content,
+    security: state.security, analytics: state.analytics, categoryImages: state.categoryImages
+  };
+}
 function saveDB(){
   try{
-    localStorage.setItem(DB_KEY, JSON.stringify({
-      products: state.products, orders: state.orders, reviews: state.reviews,
-      coupons: state.coupons, settings: state.settings, extraCategories: state.extraCategories||[],
-      governorates: state.governorates, offers: state.offers, returns: state.returns,
-      tickets: state.tickets, activityLog: state.activityLog, notificationsLog: state.notificationsLog,
-      adminUsers: state.adminUsers, homepage: state.homepage, content: state.content,
-      security: state.security, analytics: state.analytics, categoryImages: state.categoryImages
-    }));
+    const core = buildCoreSnapshot();
+    localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products: state.products}, core)));
+    pushCoreToFirestore(core);
   }catch(e){ console.warn('saveDB failed', e); }
+}
+function applyLoadedCore(saved){
+  state.orders = saved.orders || [];
+  state.reviews = saved.reviews || {};
+  state.coupons = saved.coupons || state.coupons;
+  state.settings = Object.assign(state.settings, saved.settings||{});
+  state.extraCategories = saved.extraCategories || [];
+  state.governorates = saved.governorates || state.governorates;
+  state.offers = saved.offers || [];
+  state.returns = saved.returns || [];
+  state.tickets = saved.tickets || [];
+  state.activityLog = saved.activityLog || [];
+  state.notificationsLog = saved.notificationsLog || [];
+  state.adminUsers = saved.adminUsers || state.adminUsers;
+  state.homepage = Object.assign(state.homepage, saved.homepage||{});
+  state.content = Object.assign(state.content, saved.content||{});
+  state.security = Object.assign(state.security, saved.security||{});
+  state.analytics = Object.assign(state.analytics, saved.analytics||{});
+  state.categoryImages = Object.assign(state.categoryImages, saved.categoryImages||{});
 }
 function loadDB(){
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); }catch(e){ saved = null; }
   if(saved && saved.products && saved.products.length){
     state.products = saved.products;
-    state.orders = saved.orders || [];
-    state.reviews = saved.reviews || {};
-    state.coupons = saved.coupons || state.coupons;
-    state.settings = Object.assign(state.settings, saved.settings||{});
-    state.extraCategories = saved.extraCategories || [];
-    state.governorates = saved.governorates || state.governorates;
-    state.offers = saved.offers || [];
-    state.returns = saved.returns || [];
-    state.tickets = saved.tickets || [];
-    state.activityLog = saved.activityLog || [];
-    state.notificationsLog = saved.notificationsLog || [];
-    state.adminUsers = saved.adminUsers || state.adminUsers;
-    state.homepage = Object.assign(state.homepage, saved.homepage||{});
-    state.content = Object.assign(state.content, saved.content||{});
-    state.security = Object.assign(state.security, saved.security||{});
-    state.analytics = Object.assign(state.analytics, saved.analytics||{});
-    state.categoryImages = Object.assign(state.categoryImages, saved.categoryImages||{});
+    applyLoadedCore(saved);
   } else {
     state.products = SEED_PRODUCTS;
     state.extraCategories = [];
     saveDB();
   }
+  syncFromFirestore(); // background pull — overwrites the above with Firestore's copy once it arrives
 }
 function logActivity(text){
   state.activityLog = state.activityLog || [];
@@ -2618,27 +2829,20 @@ function renderAdmProducts(){
 function pfPreviewImage(e){
   const file = e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
+  compressImageFile(file, 900, 0.75).then(dataUrl=>{
+    if(!dataUrl) return;
     const prev = document.getElementById('pfImagePreview');
-    prev.src = reader.result; prev.style.display = 'block';
-    prev.dataset.b64 = reader.result;
-  };
-  reader.readAsDataURL(file);
+    prev.src = dataUrl; prev.style.display = 'block';
+    prev.dataset.b64 = dataUrl;
+  });
 }
 let pfExtraImagesData = [];
 function pfPreviewExtraImages(e){
   const files = Array.from(e.target.files||[]);
   if(!files.length) return;
-  let pending = files.length;
-  files.forEach(file=>{
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      pfExtraImagesData.push(reader.result);
-      pending--;
-      if(pending===0) renderPfExtraImagesPreview();
-    };
-    reader.readAsDataURL(file);
+  Promise.all(files.map(file=>compressImageFile(file, 900, 0.72))).then(results=>{
+    results.filter(Boolean).forEach(dataUrl=>pfExtraImagesData.push(dataUrl));
+    renderPfExtraImagesPreview();
   });
 }
 function renderPfExtraImagesPreview(){
@@ -2721,19 +2925,23 @@ function saveProduct(){
     images: pfExtraImagesData.slice()
   };
   if(data.oldPrice) data.off = Math.round((1-price/data.oldPrice)*100);
+  let savedProduct;
   if(admEditingProductId){
     const p = state.products.find(x=>x.id===admEditingProductId);
     const oldQty = p.qty;
     Object.assign(p, data);
+    savedProduct = p;
     logActivity(`Product "${p.name}" updated`);
     if(typeof data.qty==='number' && data.qty!==oldQty){
       logActivity(`Stock for "${p.name}" changed from ${typeof oldQty==='number'?oldQty:'—'} to ${data.qty}`);
     }
   } else {
-    state.products.unshift(Object.assign({id:genId('p'), rating:0, reviews:0, visual:'jar'}, data));
+    savedProduct = Object.assign({id:genId('p'), rating:0, reviews:0, visual:'jar'}, data);
+    state.products.unshift(savedProduct);
     logActivity(`New product "${data.name}" added`);
   }
   saveDB();
+  persistOneProduct(savedProduct); // writes just this product's document — cheap even with ~100 products in the catalog
   closeProductForm();
   renderAdmProducts();
   toast('Product saved');
@@ -2743,6 +2951,7 @@ function deleteProduct(id){
   const p = state.products.find(x=>x.id===id);
   state.products = state.products.filter(p=>p.id!==id);
   saveDB();
+  deleteOneProductRemote(id);
   if(p) logActivity(`Product "${p.name}" deleted`);
   renderAdmProducts();
 }
@@ -2794,13 +3003,12 @@ function closeCategoryForm(){ document.getElementById('categoryForm').classList.
 function cfPreviewImage(e){
   const file = e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
+  compressImageFile(file, 500, 0.75).then(dataUrl=>{
+    if(!dataUrl) return;
     const prev = document.getElementById('cfImagePreview');
-    prev.src = reader.result; prev.style.display = 'block';
-    prev.dataset.b64 = reader.result;
-  };
-  reader.readAsDataURL(file);
+    prev.src = dataUrl; prev.style.display = 'block';
+    prev.dataset.b64 = dataUrl;
+  });
 }
 function saveNewCategory(){
   const name = document.getElementById('cfName').value.trim();
@@ -2820,16 +3028,15 @@ function saveNewCategory(){
 function changeCategoryImage(e, key){
   const file = e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
+  compressImageFile(file, 500, 0.75).then(dataUrl=>{
+    if(!dataUrl) return;
     state.categoryImages = state.categoryImages || {};
-    state.categoryImages[key] = reader.result;
+    state.categoryImages[key] = dataUrl;
     saveDB();
     logActivity(`Category "${key}" image updated`);
     renderAdmCategories();
     toast('Category image updated');
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 /* ---------- CUSTOMERS ---------- */
@@ -3664,13 +3871,12 @@ function moveHomeSection(key, dir){
 function hpPreviewBannerImage(e){
   const file = e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
+  compressImageFile(file, 1200, 0.78).then(dataUrl=>{
+    if(!dataUrl) return;
     const prev = document.getElementById('hpBannerImagePreview');
-    prev.src = reader.result; prev.style.display = 'block';
-    prev.dataset.b64 = reader.result;
-  };
-  reader.readAsDataURL(file);
+    prev.src = dataUrl; prev.style.display = 'block';
+    prev.dataset.b64 = dataUrl;
+  });
 }
 function saveHomepage(){
   state.homepage.bannerTitle = document.getElementById('hpBannerTitle').value.trim() || 'Glow Everyday';
