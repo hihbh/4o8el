@@ -2463,6 +2463,57 @@ function applyLoadedCore(saved){
   state.analytics = Object.assign(state.analytics, saved.analytics||{});
   state.categoryImages = Object.assign(state.categoryImages, saved.categoryImages||{});
 }
+/* Applies ONE store/{key} document's value onto state, without touching
+   any of the other keys (unlike applyLoadedCore, which expects a full
+   snapshot and would reset every missing key back to its default).
+   Used by the live listener below so a change to just "orders" can't
+   wipe out reviews/coupons/settings/etc. in the same update. */
+function applyCoreKey(key, value){
+  switch(key){
+    case 'orders': state.orders = value || []; break;
+    case 'reviews': state.reviews = value || {}; break;
+    case 'coupons': state.coupons = value || state.coupons; break;
+    case 'settings': state.settings = Object.assign(state.settings, value||{}); break;
+    case 'extraCategories': state.extraCategories = value || []; break;
+    case 'governorates': state.governorates = value || state.governorates; break;
+    case 'offers': state.offers = value || []; break;
+    case 'returns': state.returns = value || []; break;
+    case 'tickets': state.tickets = value || []; break;
+    case 'activityLog': state.activityLog = value || []; break;
+    case 'notificationsLog': state.notificationsLog = value || []; break;
+    case 'adminUsers': state.adminUsers = value || state.adminUsers; break;
+    case 'homepage': state.homepage = Object.assign(state.homepage, value||{}); break;
+    case 'content': state.content = Object.assign(state.content, value||{}); break;
+    case 'security': state.security = Object.assign(state.security, value||{}); break;
+    case 'analytics': state.analytics = Object.assign(state.analytics, value||{}); break;
+    case 'categoryImages': state.categoryImages = Object.assign(state.categoryImages, value||{}); break;
+  }
+}
+let _realtimeAttached = false;
+/* Keeps every open tab/device (customer AND admin) LIVE in sync with
+   Firestore — instead of only pulling data once at boot, each store/{key}
+   document and the whole products collection get an onSnapshot listener,
+   so a new order placed on one phone appears on the admin's laptop
+   automatically, with no refresh needed. */
+function attachRealtimeListeners(){
+  if(!fbReady || _realtimeAttached) return;
+  _realtimeAttached = true;
+  STORE_KEYS.forEach(key=>{
+    storeDocRef(key).onSnapshot(doc=>{
+      if(!doc.exists) return;
+      applyCoreKey(key, doc.data().value);
+      try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
+      refreshAfterSync();
+    }, e=>console.error('onSnapshot store/'+key+' failed', e));
+  });
+  productsColRef().onSnapshot(snap=>{
+    const list = snap.docs.map(d=>d.data());
+    _knownProductIds = new Set(list.map(p=>p.id));
+    state.products = list;
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
+    refreshAfterSync();
+  }, e=>console.error('onSnapshot products failed', e));
+}
 function loadDB(){
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); }catch(e){ saved = null; }
@@ -2475,6 +2526,7 @@ function loadDB(){
     saveDB();
   }
   syncFromFirestore(); // background pull — overwrites the above with Firestore's copy once it arrives
+  attachRealtimeListeners(); // then stay live — no refresh needed for new orders/changes to show up
 }
 function logActivity(text){
   state.activityLog = state.activityLog || [];
