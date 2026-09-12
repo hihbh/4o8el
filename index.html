@@ -1252,6 +1252,53 @@ const SEED_PRODUCTS = [
 ];
 SEED_PRODUCTS.forEach(p=>{ if(!p.desc) p.desc = 'A must-have from Glow Out Cosmetics, crafted to bring out your natural beauty with premium, skin-friendly ingredients.'; if(!p.how) p.how='Apply as needed to clean skin/hair. For best results, use daily as part of your beauty routine.'; });
 
+/* Extra cosmetics catalog — added on demand from Settings > Danger Zone
+   ("Add Cosmetics Products") rather than at first boot, so it can top up
+   an ALREADY-LIVE store (real Firestore data) without needing a reset. */
+const EXTRA_COSMETICS_PRODUCTS = [
+  {id:'cz1', brand:'Maybelline', name:'Fit Me Matte Pressed Powder', shade:'Shade 130', category:'Makeup', subcategory:'Face', price:340, oldPrice:430, off:21, rating:4.6, reviews:88, visual:'foundation', img:IMAGES.foundation},
+  {id:'cz2', brand:"L'Oreal", name:'Infallible Full Wear Concealer', shade:'Shade 325', category:'Makeup', subcategory:'Face', price:360, oldPrice:460, off:22, rating:4.7, reviews:112, visual:'concealer', img:IMAGES.makeupFlat},
+  {id:'cz3', brand:'NYX', name:'Epic Ink Waterproof Eyeliner', shade:'Black', category:'Makeup', subcategory:'Eyes', price:260, oldPrice:320, off:19, rating:4.6, reviews:140, visual:'mascara', img:IMAGES.makeupFlat},
+  {id:'cz4', brand:'Maybelline', name:'The Blushed Nudes Eyeshadow Palette', shade:'12 Shades', category:'Makeup', subcategory:'Eyes', price:480, oldPrice:600, off:20, rating:4.8, reviews:96, visual:'lipliner', img:IMAGES.makeupFlat, bestSeller:true},
+  {id:'cz5', brand:'Glow Out', name:'Matte Liquid Lipstick', shade:'Shade Rosewood', category:'Makeup', subcategory:'Lips', price:220, oldPrice:280, off:21, rating:4.6, reviews:75, visual:'lipstick', img:IMAGES.makeupFlat},
+  {id:'cz6', brand:'Glow Out', name:'Niacinamide 10% Serum', shade:'30ml', category:'Skincare', subcategory:'', price:420, oldPrice:520, off:19, rating:4.8, reviews:210, visual:'serum', img:IMAGES.skincare, bestSeller:true},
+  {id:'cz7', brand:'Glow Out', name:'Gentle Foaming Cleanser', shade:'150ml', category:'Skincare', subcategory:'', price:260, oldPrice:320, off:19, rating:4.7, reviews:130, visual:'facewash', img:IMAGES.skincare},
+  {id:'cz8', brand:'Glow Out', name:'Daily Defense Sunscreen SPF50', shade:'50ml', category:'Skincare', subcategory:'', price:340, oldPrice:420, off:19, rating:4.9, reviews:260, visual:'jar', img:IMAGES.sunscreen, bestSeller:true},
+  {id:'cz9', brand:'Glow Out', name:'Hyaluronic Acid Moisturizer', shade:'50ml', category:'Skincare', subcategory:'', price:390, oldPrice:480, off:19, rating:4.7, reviews:150, visual:'jar', img:IMAGES.skincare},
+  {id:'cz10', brand:'Glow Out', name:'Keratin Repair Shampoo', shade:'250ml', category:'Hair Care', subcategory:'', price:260, oldPrice:320, off:19, rating:4.6, reviews:100, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz11', brand:'Glow Out', name:'Keratin Repair Conditioner', shade:'250ml', category:'Hair Care', subcategory:'', price:270, oldPrice:330, off:18, rating:4.6, reviews:90, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz12', brand:'Glow Out', name:'Heat Protection Hair Serum', shade:'80ml', category:'Hair Care', subcategory:'', price:250, oldPrice:310, off:19, rating:4.5, reviews:64, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz13', brand:'Glow Out', name:'Vanilla Musk Eau de Parfum', shade:'50ml', category:'Fragrance', subcategory:'', price:600, oldPrice:750, off:20, rating:4.8, reviews:170, visual:'perfume', img:IMAGES.fragrance},
+  {id:'cz14', brand:'Glow Out', name:'Citrus Bloom Body Mist', shade:'150ml', category:'Fragrance', subcategory:'', price:220, oldPrice:280, off:21, rating:4.5, reviews:80, visual:'perfume', img:IMAGES.fragrance},
+  {id:'cz15', brand:'Glow Out', name:'Coconut Milk Body Lotion', shade:'250ml', category:'Body Care', subcategory:'', price:260, oldPrice:320, off:19, rating:4.6, reviews:95, visual:'bodybutter', img:IMAGES.skincare},
+  {id:'cz16', brand:'Glow Out', name:'Exfoliating Body Scrub', shade:'200ml', category:'Body Care', subcategory:'', price:240, oldPrice:300, off:20, rating:4.5, reviews:60, visual:'bodybutter', img:IMAGES.skincare},
+  {id:'cz17', brand:'Glow Out', name:'Professional Makeup Sponge Duo', shade:'2 pcs', category:'Tools & Accessories', subcategory:'', price:160, oldPrice:210, off:24, rating:4.4, reviews:48, visual:'sponge', img:IMAGES.makeupFlat},
+  {id:'cz18', brand:'Glow Out', name:'Eyelash Curler', shade:'One Size', category:'Tools & Accessories', subcategory:'', price:130, oldPrice:170, off:24, rating:4.3, reviews:35, visual:'sponge', img:IMAGES.makeupFlat},
+  {id:'cz19', brand:'Glow Out Men', name:'Men Anti-Dandruff Shampoo', shade:'300ml', category:'Men Care', subcategory:'', price:240, oldPrice:300, off:20, rating:4.5, reviews:70, visual:'facewash', img:IMAGES.skincare},
+  {id:'cz20', brand:'Glow Out Men', name:'Men Beard Oil', shade:'30ml', category:'Men Care', subcategory:'', price:210, oldPrice:270, off:22, rating:4.6, reviews:58, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz21', brand:'Glow Out', name:'Biotin Hair & Skin Capsules', shade:'60 caps', category:'Vitamins', subcategory:'', price:320, oldPrice:400, off:20, rating:4.7, reviews:110, visual:'jar', img:IMAGES.skincare},
+  {id:'cz22', brand:'Glow Out', name:'Vitamin C Immunity Tablets', shade:'30 tabs', category:'Vitamins', subcategory:'', price:180, oldPrice:230, off:22, rating:4.6, reviews:85, visual:'jar', img:IMAGES.skincare},
+  {id:'cz23', brand:'Glow Out', name:'Collagen Beauty Gummies', shade:'60 gummies', category:'Vitamins', subcategory:'', price:350, oldPrice:440, off:20, rating:4.8, reviews:132, visual:'jar', img:IMAGES.skincare, bestSeller:true},
+  {id:'cz24', brand:'Glow Out Kids', name:'No-Tears Kids Shower Gel', shade:'250ml', category:'Kids', subcategory:'', price:170, oldPrice:210, off:19, rating:4.6, reviews:40, visual:'bodybutter', img:IMAGES.kids}
+];
+EXTRA_COSMETICS_PRODUCTS.forEach(p=>{ if(!p.desc) p.desc = 'A must-have from Glow Out Cosmetics, crafted to bring out your natural beauty with premium, skin-friendly ingredients.'; if(!p.how) p.how='Apply as needed to clean skin/hair. For best results, use daily as part of your beauty routine.'; });
+/* Adds any EXTRA_COSMETICS_PRODUCTS not already in the catalog (matched by
+   id) straight into the live store — additive only, never touches or
+   removes existing products, so it's safe to click more than once. */
+function addCosmeticsProducts(){
+  const existingIds = new Set(state.products.map(p=>String(p.id)));
+  const toAdd = EXTRA_COSMETICS_PRODUCTS.filter(p=>!existingIds.has(String(p.id)));
+  if(!toAdd.length){ toast('These cosmetics products are already in your store'); return; }
+  toAdd.forEach(p=>{
+    state.products.push(p);
+    persistOneProduct(p);
+  });
+  saveDB();
+  logActivity(`${toAdd.length} cosmetics product(s) added to the catalog`);
+  refreshAfterSync();
+  toast(`${toAdd.length} cosmetics products added`);
+}
+
 /* ============== STATE ============== */
 let state = {
   uid:'local-session', isAnon:true, userName:'', userPhone:'',
@@ -1709,7 +1756,22 @@ function addCurrentToCart(silent){
   if(!silent) toast('Added to cart 🛍️');
   return true;
 }
+/* Holds which action to resume automatically once the person finishes the
+   quick sign-up prompt (see startCheckout/submitAuth) — so they don't have
+   to go back and tap "Order Now"/"Checkout" a second time. Not part of
+   `state`: purely transient UI plumbing, never saved/synced. */
+let pendingAuthResume = null;
 function orderNowCurrent(){
+  // IMPORTANT: check login status BEFORE touching the cart. Adding the
+  // product to the cart first (then discovering the person needs to log
+  // in) meant tapping "Order Now" again after signing up added it a
+  // SECOND time — which is exactly what caused quantity to jump to 2.
+  if(state.isAnon){
+    pendingAuthResume = orderNowCurrent;
+    toast('Please log in to checkout');
+    openAuth();
+    return;
+  }
   if(addCurrentToCart(true)){
     startCheckout();
   }
@@ -1834,13 +1896,14 @@ function clearCart(){
 /* ============== CHECKOUT: DELIVERY ADDRESS ============== */
 function startCheckout(){
   if(!state.cart.length) return;
-  state.analytics.checkoutStarts = (state.analytics.checkoutStarts||0)+1;
-  saveDB();
   if(state.isAnon){
+    pendingAuthResume = startCheckout;
     toast('Please log in to checkout');
     openAuth();
     return;
   }
+  state.analytics.checkoutStarts = (state.analytics.checkoutStarts||0)+1;
+  saveDB();
   if(state.addresses.length){
     renderSelectAddress();
     openOverlay('overlay-select-address');
@@ -1978,6 +2041,7 @@ function confirmOrder(){
   state.lastOrder = order;
   state.cart = [];
   state.coupon = null;
+  persistOneOrder(order);
   saveDB();
   logActivity(`New order #${order.id.slice(-6).toUpperCase()} placed by ${order.customerName} (${money(order.total)})`);
   refreshCartDependentUI();
@@ -2082,7 +2146,13 @@ function submitAuth(){
   state.isAnon = false;
   closeOverlay('overlay-auth');
   toast('Welcome, '+name+'!');
-  showScreen('profile');
+  if(pendingAuthResume){
+    const resume = pendingAuthResume;
+    pendingAuthResume = null;
+    resume();
+  } else {
+    showScreen('profile');
+  }
 }
 function logOut(){
   state.isAnon = true;
@@ -2269,7 +2339,11 @@ function withTimeout(promise, ms, fallback){
 const FETCH_FAILED = Symbol('fetch-failed');
 /* ---------------- FIRESTORE LAYOUT ----------------
    products/{productId}   → one document per product (see below)
-   store/orders            store/reviews           store/coupons
+   orders/{orderId}        → one document per order (same reasoning as
+                             products: writing/reading a single order can
+                             never be overwritten by another device's stale
+                             copy of the full order list)
+   store/reviews           store/coupons
    store/settings          store/extraCategories    store/governorates
    store/offers            store/returns            store/tickets
    store/activityLog       store/notificationsLog   store/adminUsers
@@ -2278,12 +2352,19 @@ const FETCH_FAILED = Symbol('fetch-failed');
    Each piece of shared admin data gets its OWN small document (instead
    of one giant blob) — easy to inspect in the Firebase console, and no
    single write ever has to carry the whole store's data. */
-const STORE_KEYS = ['orders','reviews','coupons','settings','extraCategories','governorates',
+const STORE_KEYS = ['reviews','coupons','settings','extraCategories','governorates',
   'offers','returns','tickets','activityLog','notificationsLog','adminUsers','homepage',
   'content','security','analytics','categoryImages'];
 function storeDocRef(key){ return fbDb.collection('store').doc(key); }
 function productsColRef(){ return fbDb.collection('products'); }
 let _knownProductIds = new Set(); // ids last confirmed to exist in Firestore, so persistProducts() knows what to delete
+/* Orders get their OWN Firestore collection (one document per order, same
+   pattern as products) instead of living inside one shared store/orders
+   document. This is what makes a new order show up reliably in the admin
+   panel: writing/reading one order at a time can never be clobbered by an
+   unrelated device pushing a stale, locally-cached copy of the full order
+   list (which is exactly what used to make freshly-placed orders vanish). */
+function ordersColRef(){ return fbDb.collection('orders'); }
 
 async function fetchCoreFromFirestore(){
   if(!fbReady) return FETCH_FAILED;
@@ -2313,6 +2394,36 @@ async function fetchProductsFromFirestore(){
     _knownProductIds = new Set(list.map(p=>p.id));
     return list;
   }catch(e){ console.error('fetchProducts failed', e); return FETCH_FAILED; }
+}
+async function fetchOrdersFromFirestore(){
+  if(!fbReady) return FETCH_FAILED;
+  try{
+    const snap = await withTimeout(ordersColRef().get(), 8000, FETCH_FAILED);
+    if(snap===FETCH_FAILED) return FETCH_FAILED;
+    if(snap.empty) return null;
+    const list = snap.docs.map(d=>d.data());
+    list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    return list;
+  }catch(e){ console.error('fetchOrders failed', e); return FETCH_FAILED; }
+}
+/* Pushes ONE order document — used when an order is placed or its status
+   changes, so we never have to rewrite every other order just to save one. */
+function persistOneOrder(order){
+  if(!fbReady) return;
+  ordersColRef().doc(String(order.id)).set(order).catch(e=>console.error('persistOneOrder failed', e));
+}
+/* Full resync of the whole orders collection — only used the very first
+   time a brand-new Firestore project is seeded with whatever orders
+   already exist locally. */
+function persistAllOrders(){
+  if(!fbReady) return;
+  const list = state.orders || [];
+  if(!list.length) return;
+  try{
+    const batch = fbDb.batch();
+    list.forEach(o=>batch.set(ordersColRef().doc(String(o.id)), o));
+    batch.commit().catch(e=>console.error('persistAllOrders failed', e));
+  }catch(e){ console.error('persistAllOrders failed', e); }
 }
 function pushCoreToFirestore(coreData){
   if(!fbReady) return;
@@ -2404,19 +2515,21 @@ function refreshAfterSync(){
    call again any time. */
 async function syncFromFirestore(){
   if(!fbReady) return;
-  const [core, products] = await Promise.all([fetchCoreFromFirestore(), fetchProductsFromFirestore()]);
+  const [core, products, orders] = await Promise.all([fetchCoreFromFirestore(), fetchProductsFromFirestore(), fetchOrdersFromFirestore()]);
   let changed = false;
   if(core && core!==FETCH_FAILED){ applyLoadedCore(core); changed = true; }
   if(products && products!==FETCH_FAILED){ state.products = products; changed = true; }
+  if(orders && orders!==FETCH_FAILED){ state.orders = orders; changed = true; }
   if(changed){
     try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
     refreshAfterSync();
-  } else if(core===null && products===null){
+  } else if(core===null && products===null && orders===null){
     // Firestore reachable but genuinely empty (brand-new project) — push
     // whatever we currently have (seed catalog or local cache) up so
     // every future visitor sees the same store.
     saveDB();
     persistProducts();
+    persistAllOrders();
   }
 }
 
@@ -2445,7 +2558,10 @@ function saveDB(){
   }catch(e){ console.warn('saveDB failed', e); }
 }
 function applyLoadedCore(saved){
-  state.orders = saved.orders || [];
+  // NOTE: orders are intentionally NOT set here — they live in their own
+  // Firestore collection now and are applied separately (see loadDB,
+  // syncFromFirestore, attachRealtimeListeners), so a sync of any other
+  // key can never reset or clobber state.orders.
   state.reviews = saved.reviews || {};
   state.coupons = saved.coupons || state.coupons;
   state.settings = Object.assign(state.settings, saved.settings||{});
@@ -2470,7 +2586,6 @@ function applyLoadedCore(saved){
    wipe out reviews/coupons/settings/etc. in the same update. */
 function applyCoreKey(key, value){
   switch(key){
-    case 'orders': state.orders = value || []; break;
     case 'reviews': state.reviews = value || {}; break;
     case 'coupons': state.coupons = value || state.coupons; break;
     case 'settings': state.settings = Object.assign(state.settings, value||{}); break;
@@ -2513,12 +2628,20 @@ function attachRealtimeListeners(){
     try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
     refreshAfterSync();
   }, e=>console.error('onSnapshot products failed', e));
+  ordersColRef().onSnapshot(snap=>{
+    const list = snap.docs.map(d=>d.data());
+    list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    state.orders = list;
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
+    refreshAfterSync();
+  }, e=>console.error('onSnapshot orders failed', e));
 }
 function loadDB(){
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); }catch(e){ saved = null; }
   if(saved && saved.products && saved.products.length){
     state.products = saved.products;
+    state.orders = saved.orders || []; // instant-paint cache; live collection sync below will refresh/replace this
     applyLoadedCore(saved);
   } else {
     state.products = SEED_PRODUCTS;
@@ -2535,9 +2658,21 @@ function logActivity(text){
   saveDB();
 }
 function trackVisit(){
+  // IMPORTANT: this fires on EVERY boot, on EVERY device, before the initial
+  // Firestore sync has necessarily finished — so it must never call the
+  // generic saveDB()/pushCoreToFirestore(), which would batch-write all 15
+  // other store/* keys using whatever (possibly stale/cached) copies of
+  // them happen to be in local state at that moment, clobbering real
+  // changes another device just made (this is what used to make freshly
+  // placed orders, and occasionally other admin edits, disappear). Instead,
+  // touch ONLY the analytics document.
   const key = new Date().toISOString().slice(0,10);
   state.analytics.visits[key] = (state.analytics.visits[key]||0)+1;
-  saveDB();
+  try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products: state.products}, buildCoreSnapshot()))); }catch(e){}
+  if(fbReady){
+    storeDocRef('analytics').set({ value: state.analytics, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(e=>console.error('trackVisit push failed', e));
+  }
 }
 
 /* ---------- LOGIN / OPEN / CLOSE ---------- */
@@ -2807,6 +2942,7 @@ function updateOrderStatus(id, status){
   const o = state.orders.find(x=>x.id===id);
   if(!o) return;
   o.status = status;
+  persistOneOrder(o);
   saveDB();
   logActivity(`Order #${o.id.slice(-6).toUpperCase()} status changed to ${status}`);
   toast('Order status updated');
@@ -3259,6 +3395,63 @@ function deleteReview(pid, idx){
 }
 
 /* ---------- SETTINGS ---------- */
+/* ---------- DANGER ZONE: clear store data ---------- */
+const CLEARABLE_KEYS = [
+  {key:'products', label:'Products (entire catalog)'},
+  {key:'orders', label:'Orders'},
+  {key:'reviews', label:'Reviews'},
+  {key:'coupons', label:'Coupons'},
+  {key:'offers', label:'Offers'},
+  {key:'returns', label:'Return Requests'},
+  {key:'tickets', label:'Support Tickets'},
+  {key:'activityLog', label:'Activity Log'},
+  {key:'notificationsLog', label:'Notifications Log'}
+];
+/* Deletes every document in the orders collection remotely (orders live in
+   their own collection now, so — unlike the other keys — clearing them
+   isn't just a matter of writing an empty value to one store/{key} doc). */
+function clearOrdersRemote(){
+  if(!fbReady) return;
+  ordersColRef().get().then(snap=>{
+    const batch = fbDb.batch();
+    snap.forEach(doc=>batch.delete(doc.ref));
+    return batch.commit();
+  }).catch(e=>console.error('clearOrdersRemote failed', e));
+}
+function clearStoreData(){
+  const pass = document.getElementById('clrPassword').value;
+  if(pass !== '123'){ toast('Incorrect password'); return; }
+  const all = document.getElementById('clrAll').checked;
+  const checked = CLEARABLE_KEYS.filter(k=>document.getElementById('clr_'+k.key).checked).map(k=>k.key);
+  const keys = all ? CLEARABLE_KEYS.map(k=>k.key) : checked;
+  if(!keys.length){ toast('Select at least one item to clear'); return; }
+  const labels = CLEARABLE_KEYS.filter(k=>keys.includes(k.key)).map(k=>k.label);
+  if(!confirm(`This will permanently delete for EVERY visitor: ${labels.join(', ')}. This cannot be undone. Continue?`)) return;
+  keys.forEach(key=>{
+    switch(key){
+      case 'products': state.products = []; persistProducts(); break;
+      case 'orders': state.orders = []; clearOrdersRemote(); break;
+      case 'reviews': state.reviews = {}; break;
+      case 'coupons': state.coupons = {}; break;
+      case 'offers': state.offers = []; break;
+      case 'returns': state.returns = []; break;
+      case 'tickets': state.tickets = []; break;
+      case 'activityLog': state.activityLog = []; break;
+      case 'notificationsLog': state.notificationsLog = []; break;
+    }
+  });
+  saveDB();
+  logActivity(`Store data cleared: ${labels.join(', ')}`);
+  document.getElementById('clrPassword').value = '';
+  renderAdmSettings();
+  refreshAfterSync();
+  toast('Selected data cleared');
+}
+function toggleClrAll(){
+  const all = document.getElementById('clrAll').checked;
+  CLEARABLE_KEYS.forEach(k=>{ document.getElementById('clr_'+k.key).checked = all; });
+}
+
 function renderAdmSettings(){
   const el = document.getElementById('admsec-settings');
   const s = state.settings;
@@ -3290,6 +3483,23 @@ function renderAdmSettings(){
         <div><label>New Password</label><input type="password" id="stNewPass"></div>
       </div>
       <div class="adm-form-actions"><button class="adm-btn sec" onclick="changeAdmPassword()">Change Password</button></div>
+    </div>
+    <div class="adm-form open">
+      <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:6px;font-weight:700;">Catalog Tools</h4>
+      <div class="adm-sub" style="margin-bottom:12px;">Add a ready-made set of cosmetics products (makeup, skincare, hair care, fragrance, body care, tools, men care, vitamins) to your store. Only items you don't already have are added — safe to click more than once.</div>
+      <div class="adm-form-actions"><button class="adm-btn" onclick="addCosmeticsProducts()">Add Cosmetics Products</button></div>
+    </div>
+    <div class="adm-form open" style="border:1px solid var(--danger);">
+      <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--danger);margin-bottom:6px;font-weight:700;">Danger Zone</h4>
+      <div class="adm-sub" style="margin-bottom:12px;">Permanently clear data from the shared store — this affects every visitor and every device. Requires the admin password.</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:12px;">
+        ${CLEARABLE_KEYS.map(k=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);"><input type="checkbox" id="clr_${k.key}"> ${k.label}</label>`).join('')}
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--danger);margin-bottom:14px;"><input type="checkbox" id="clrAll" onchange="toggleClrAll()"> Everything — full store reset</label>
+      <div class="adm-form-grid">
+        <div><label>Admin Password</label><input type="password" id="clrPassword" placeholder="Enter password"></div>
+      </div>
+      <div class="adm-form-actions"><button class="adm-btn danger" onclick="clearStoreData()">Clear Selected Data</button></div>
     </div>
   `;
 }
