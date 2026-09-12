@@ -545,9 +545,37 @@
   .al-err{color:var(--danger); font-size:11.5px; min-height:16px; margin-bottom:4px;}
   .al-form .adm-btn{width:100%;}
   @media(max-width:760px){.al-visual{display:none;} .al-form{max-width:none; padding:34px 22px;}}
+
+  /* ---------- PUBLIC SHIPPING UPDATE PAGE (courier link, no login) ---------- */
+  #shipPublicScreen{display:none; position:fixed; inset:0; z-index:900; background:var(--bg); overflow-y:auto; font-family:'Georgia','Segoe UI',serif; color:var(--text);}
+  html.ship-mode #shipPublicScreen{display:block;}
+  html.ship-mode .app-frame{display:none;}
+  .sp-wrap{max-width:480px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; padding-bottom:40px;}
+  .sp-header{background:var(--maroon-dark); color:#fff; padding:22px 20px 18px; display:flex; flex-direction:column; gap:2px;}
+  .sp-logo{font-size:19px; letter-spacing:2px; font-weight:700;}
+  .sp-header-sub{font-size:12.5px; opacity:.85;}
+  .sp-body{padding:18px;}
+  .sp-loading, .sp-error{text-align:center; padding:40px 16px; color:var(--text-mute); font-size:14px;}
+  .sp-error{color:var(--danger);}
+  .sp-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:18px; box-shadow:0 3px 12px rgba(90,50,45,.08);}
+  .sp-order-id{font-size:16px; font-weight:700; color:var(--maroon-dark); margin-bottom:10px;}
+  .sp-row{display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:7px 0; border-bottom:1px solid var(--border);}
+  .sp-row:last-child{border-bottom:none;}
+  .sp-row span{color:var(--text-mute); flex-shrink:0;}
+  .sp-row b{font-weight:600; text-align:left;}
+  .sp-steps{display:flex; justify-content:space-between; gap:6px; margin:0 0 20px;}
+  .sp-step{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11px; color:var(--text-mute); text-align:center;}
+  .sp-step-icon{width:34px; height:34px; border-radius:50%; background:var(--pink-soft); display:flex; align-items:center; justify-content:center; font-size:15px;}
+  .sp-step.done{color:var(--maroon-dark); font-weight:700;}
+  .sp-step.done .sp-step-icon{background:var(--maroon-dark); color:#fff;}
+  .sp-btn{width:100%; background:var(--maroon-dark); color:#fff; border:none; border-radius:14px; padding:16px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;}
+  .sp-btn:active{opacity:.85;}
+  .sp-final{text-align:center; background:var(--pink-softer); border-radius:14px; padding:18px; font-size:14px; font-weight:600; color:var(--maroon-dark);}
+  .sp-final.sp-cancelled{color:var(--danger); background:#fbe9e7;}
 </style>
 </head>
 <body>
+<script>if(new URLSearchParams(window.location.search).has('ship')) document.documentElement.classList.add('ship-mode');</script>
 <div class="app-frame" id="frame">
 
   <!-- SPLASH -->
@@ -918,6 +946,17 @@
   </div>
 
   <div class="toast" id="toast"></div>
+</div>
+
+<!-- ============== PUBLIC SHIPPING UPDATE PAGE (no login — link sent to courier) ============== -->
+<div id="shipPublicScreen" dir="rtl">
+  <div class="sp-wrap">
+    <div class="sp-header">
+      <span class="sp-logo">GLOW OUT</span>
+      <span class="sp-header-sub">تحديث حالة الشحن</span>
+    </div>
+    <div id="shipPublicBody" class="sp-body"><div class="sp-loading">جارِ تحميل بيانات الأوردر...</div></div>
+  </div>
 </div>
 
 <!-- ============== ADMIN LOGIN ============== -->
@@ -1400,6 +1439,7 @@ function esc(s){
 
 /* ============== SPLASH -> BOOT ============== */
 window.addEventListener('load', ()=>{
+  if(isShipPublicMode()){ initShipPublicPage(); return; }
   let pct = 0;
   const fill = document.getElementById('splashFill');
   const iv = setInterval(()=>{
@@ -2049,7 +2089,9 @@ function confirmOrder(){
     address: {label:'Home', text:`${a.detailed}, ${a.city}, ${a.governorate}`, governorate:a.governorate, city:a.city||'', detailed:a.detailed||'', fullName:a.fullName||'', phone:a.phone||'', altPhone:a.altPhone||''},
     payment:'Cash on Delivery',
     status:'Processing',
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    shipToken: genId('shp'),
+    shipEvents: []
   };
   state.orders.unshift(order);
   state.lastOrder = order;
@@ -2208,6 +2250,7 @@ const TRUCK_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org
 function openTrack(orderId){
   const o = state.orders.find(x=>x.id===orderId);
   if(!o) return;
+  state.lastTrackedOrderId = orderId;
   const currentIdx = Math.max(1, STATUS_STEPS.indexOf(o.status)); // at least "Order Placed"+"Processing"
   const dt = new Date(o.createdAt);
   const itemsTxt = o.items.map(i=>`${i.qty}× ${i.name}`).join(', ');
@@ -2242,6 +2285,92 @@ function toggleTrackDetails(){
   const open = box.style.display !== 'none';
   box.style.display = open ? 'none' : 'block';
   link.textContent = open ? 'View Details' : 'Hide Details';
+}
+
+/* ============== PUBLIC SHIPPING UPDATE PAGE (courier link, no login) ==============
+   Opened via ?ship=<orderId>&t=<shipToken>. Lets the courier / shipping company
+   move an order through its shipping checkpoints WITHOUT logging into the admin
+   panel. Talks to Firestore directly (the order collection), so it works from a
+   completely fresh browser/device — no local app state required. Because it
+   writes straight to the same "orders" collection the whole app already listens
+   to live (see attachRealtimeListeners -> ordersColRef().onSnapshot), the
+   customer's "Track Your Order" screen and the admin Orders page update
+   automatically, with no refresh needed. */
+const SHIP_STAGES = [
+  {status:'Shipped', label:'استلمنا الشحنة', icon:'📦'},
+  {status:'Out for Delivery', label:'خرجت للتوصيل', icon:'🚚'},
+  {status:'Delivered', label:'تم التسليم', icon:'✅'}
+];
+function isShipPublicMode(){
+  return new URLSearchParams(window.location.search).has('ship');
+}
+function shipPublicLink(order){
+  return `${window.location.origin}${window.location.pathname}?ship=${encodeURIComponent(order.id)}&t=${encodeURIComponent(order.shipToken||'')}`;
+}
+async function initShipPublicPage(){
+  const body = document.getElementById('shipPublicBody');
+  if(!fbReady){ body.innerHTML = '<div class="sp-error">تعذر الاتصال بالخادم. تأكد من الاتصال بالإنترنت وحاول تاني.</div>'; return; }
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('ship');
+  const token = params.get('t');
+  try{
+    const doc = await ordersColRef().doc(orderId).get();
+    if(!doc.exists){ body.innerHTML = '<div class="sp-error">الأوردر غير موجود.</div>'; return; }
+    const o = doc.data();
+    if(!o.shipToken || o.shipToken !== token){ body.innerHTML = '<div class="sp-error">الرابط غير صحيح أو منتهي.</div>'; return; }
+    renderShipPublic(o);
+  }catch(e){
+    console.error('initShipPublicPage failed', e);
+    body.innerHTML = '<div class="sp-error">حدث خطأ أثناء تحميل بيانات الأوردر.</div>';
+  }
+}
+function shipStageIndex(status){ return SHIP_STAGES.findIndex(s=>s.status===status); }
+function renderShipPublic(o){
+  const currentIdx = shipStageIndex(o.status); // -1 = not shipped yet, 0/1/2 = which stage reached
+  const cancelled = o.status === 'Cancelled';
+  const a = o.address || {};
+  const itemsTxt = (o.items||[]).map(i=>`${i.qty}× ${i.name}`).join('، ');
+  let actionHtml;
+  if(cancelled){
+    actionHtml = `<div class="sp-final sp-cancelled">تم إلغاء هذا الأوردر — لا داعي للشحن.</div>`;
+  } else if(currentIdx >= SHIP_STAGES.length-1){
+    actionHtml = `<div class="sp-final">✅ تم تسليم الأوردر بنجاح. شكرًا لمجهودك!</div>`;
+  } else {
+    const next = SHIP_STAGES[currentIdx+1];
+    actionHtml = `<button class="sp-btn" onclick="advanceShipStatus('${o.id}','${next.status}',this)">${next.icon} ${next.label}</button>`;
+  }
+  document.getElementById('shipPublicBody').innerHTML = `
+    <div class="sp-card">
+      <div class="sp-order-id">أوردر #${o.id.slice(-6).toUpperCase()}</div>
+      <div class="sp-row"><span>الاسم</span><b>${esc(o.customerName||a.fullName||'—')}</b></div>
+      <div class="sp-row"><span>التليفون</span><b><a href="tel:${esc(o.customerPhone||a.phone||'')}" style="color:inherit;">${esc(o.customerPhone||a.phone||'—')}</a></b></div>
+      ${a.altPhone?`<div class="sp-row"><span>تليفون إضافي</span><b><a href="tel:${esc(a.altPhone)}" style="color:inherit;">${esc(a.altPhone)}</a></b></div>`:''}
+      <div class="sp-row"><span>المحافظة</span><b>${esc(a.governorate||'—')}</b></div>
+      <div class="sp-row"><span>المدينة / المنطقة</span><b>${esc(a.city||'—')}</b></div>
+      <div class="sp-row"><span>العنوان بالتفصيل</span><b>${esc(a.detailed||a.text||'—')}</b></div>
+      <div class="sp-row"><span>المنتجات</span><b>${esc(itemsTxt)||'—'}</b></div>
+      <div class="sp-row"><span>الدفع</span><b>${esc(o.payment||'الدفع عند الاستلام')}</b></div>
+    </div>
+    <div class="sp-steps">
+      ${SHIP_STAGES.map((s,i)=>`<div class="sp-step ${i<=currentIdx&&!cancelled?'done':''}"><span class="sp-step-icon">${i<=currentIdx&&!cancelled?'✔':s.icon}</span><span>${s.label}</span></div>`).join('')}
+    </div>
+    ${actionHtml}
+  `;
+}
+async function advanceShipStatus(orderId, newStatus, btn){
+  if(btn){ btn.disabled = true; btn.textContent = '...جارِ التحديث'; }
+  try{
+    await ordersColRef().doc(orderId).update({
+      status: newStatus,
+      shipEvents: firebase.firestore.FieldValue.arrayUnion({status:newStatus, at:Date.now()})
+    });
+    const doc = await ordersColRef().doc(orderId).get();
+    renderShipPublic(doc.data());
+  }catch(e){
+    console.error('advanceShipStatus failed', e);
+    alert('حصل خطأ، حاول تاني.');
+    if(btn){ btn.disabled = false; }
+  }
 }
 
 /* ============== ADDRESSES ============== */
@@ -2549,6 +2678,10 @@ function refreshAfterSync(){
     if(homeScreen && homeScreen.classList.contains('active')) renderHome();
     const catScreen = document.getElementById('screen-category');
     if(catScreen && catScreen.classList.contains('active')) renderCategoryGrid();
+    const ordersScreen = document.getElementById('screen-orders');
+    if(ordersScreen && ordersScreen.classList.contains('active')) renderOrders();
+    const trackScreen = document.getElementById('screen-track');
+    if(trackScreen && trackScreen.classList.contains('active') && state.lastTrackedOrderId) openTrack(state.lastTrackedOrderId);
     const admin = document.getElementById('admin');
     if(admin && admin.classList.contains('active')){
       const activeBtn = document.querySelector('.adm-nav button.active');
@@ -2949,6 +3082,7 @@ function renderAdmOrders(){
 function openOrderDetail(id){
   const o = state.orders.find(x=>x.id===id);
   if(!o) return;
+  if(!o.shipToken){ o.shipToken = genId('shp'); persistOneOrder(o); } // back-fill for orders placed before shipping links existed
   const a = o.address || {};
   const itemsTotal = o.items.reduce((s,i)=>s+i.price*i.qty,0);
   const modal = document.getElementById('orderDetailModal');
@@ -2987,12 +3121,33 @@ function openOrderDetail(id){
         </div>
 
         <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Order Status</h4>
-        <select onchange="updateOrderStatus('${o.id}', this.value); openOrderDetail('${o.id}');" style="width:100%;">
+        <select onchange="updateOrderStatus('${o.id}', this.value); openOrderDetail('${o.id}');" style="width:100%;margin-bottom:16px;">
           ${['Processing','Shipped','Out for Delivery','Delivered','Cancelled'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
+
+        <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Shipping Link</h4>
+        <div class="adm-sub" style="margin-bottom:8px;">Send this link to the courier / shipping company — it lets them update this order's shipping status (received, out for delivery, delivered) without logging into the admin panel.</div>
+        <div style="display:flex;gap:8px;">
+          <input readonly value="${shipPublicLink(o)}" style="flex:1;font-size:11px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;color:var(--text-mute);" onclick="this.select()">
+          <button class="adm-btn small" onclick="copyShipLink('${o.id}')">Copy</button>
+        </div>
+        ${(o.shipEvents&&o.shipEvents.length) ? `
+        <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin:16px 0 8px;font-weight:700;">Shipping Activity</h4>
+        <div class="adm-panel">${o.shipEvents.map(e=>`<div class="adm-list-row"><div class="lr-name">${e.status}</div><div class="lr-meta">${new Date(e.at).toLocaleString('en-GB')}</div></div>`).join('')}</div>
+        ` : ''}
       </div>
     </div>
   `;
+}
+function copyShipLink(id){
+  const o = state.orders.find(x=>x.id===id);
+  if(!o) return;
+  const link = shipPublicLink(o);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(()=>toast('Shipping link copied')).catch(()=>toast('Could not copy — select and copy manually'));
+  } else {
+    toast('Could not copy — select and copy manually');
+  }
 }
 function closeOrderDetail(){ const modal = document.getElementById('orderDetailModal'); if(modal) modal.innerHTML=''; }
 function updateOrderStatus(id, status){
