@@ -103,20 +103,34 @@
   }
 
   /* ---------- Home ---------- */
-  .banner{margin:0 18px 16px;border-radius:18px;background:linear-gradient(120deg,rgba(233,211,203,.55),rgba(246,232,226,.4)),url('https://commons.wikimedia.org/wiki/Special:FilePath/BB_cream_selection_2.jpg?width=700') center/cover no-repeat;padding:22px;position:relative;overflow:hidden;min-height:170px;display:flex;flex-direction:column;justify-content:center;}
-  .banner h2{font-size:22px;color:var(--maroon-dark);line-height:1.25;max-width:60%;text-shadow:0 1px 8px rgba(255,255,255,.5);}
-  .banner p{font-size:12px;color:var(--maroon-dark);max-width:58%;margin-top:4px;}
-  .banner-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:var(--maroon-dark);color:#fff;font-size:12px;padding:7px 14px;border-radius:20px;cursor:pointer;width:fit-content;}
-  .banner-visual{position:absolute;right:-6px;bottom:-6px;width:130px;height:130px;display:flex;align-items:flex-end;gap:-6px;}
-  .banner-visual svg{filter:drop-shadow(0 6px 8px rgba(90,50,40,.18));}
-  .cat-row{display:flex;gap:6px;overflow-x:auto;margin:0 0 20px;padding:0 14px 4px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
+  .promo-ticker{width:100%;margin:0 0 16px;background:var(--maroon-dark);overflow:hidden;position:relative;height:34px;display:flex;align-items:center;}
+  .promo-ticker-track{display:flex;gap:48px;white-space:nowrap;position:absolute;left:0;animation:ticker-scroll 34s linear infinite;padding-left:100%;}
+  .promo-ticker-track span{color:#fff;font-size:11.5px;letter-spacing:.3px;display:inline-flex;align-items:center;gap:6px;}
+  @keyframes ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-100%);}}
+  .banner-carousel{margin:0 18px 16px;border-radius:20px;position:relative;overflow:hidden;height:178px;box-shadow:0 10px 26px rgba(122,48,64,.22);}
+  .banner-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.65,0,.35,1);}
+  .banner-slide{min-width:100%;height:100%;padding:22px;position:relative;display:flex;flex-direction:column;justify-content:center;background-size:cover;background-position:center;overflow:hidden;flex-shrink:0;}
+  .banner-slide::before{content:'';position:absolute;inset:0;background:var(--slide-tint,linear-gradient(125deg,rgba(122,48,64,.68),rgba(90,40,50,.28)));}
+  .banner-slide-inner{position:relative;z-index:2;max-width:66%;}
+  .banner-slide-tag{display:inline-block;font-size:10px;letter-spacing:1.5px;color:#fff;background:rgba(255,255,255,.22);padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;}
+  .banner-slide h2{font-size:21px;color:#fff;line-height:1.25;text-shadow:0 1px 10px rgba(0,0,0,.25);}
+  .banner-slide p{font-size:12px;color:#fff;opacity:.92;margin-top:4px;}
+  .banner-btn{margin-top:12px;display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--maroon-dark);font-weight:700;font-size:12px;padding:8px 15px;border-radius:20px;cursor:pointer;width:fit-content;box-shadow:0 4px 10px rgba(0,0,0,.15);}
+  .banner-dots{position:absolute;bottom:12px;left:22px;display:flex;gap:5px;z-index:3;}
+  .banner-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:all .25s ease;}
+  .banner-dot.active{width:18px;border-radius:4px;background:#fff;}
+  .cat-row{display:flex;gap:10px;overflow-x:auto;margin:0 0 22px;padding:0 18px 4px;-webkit-overflow-scrolling:touch;}
   .cat-row::-webkit-scrollbar{display:none;}
-  .cat-circle-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;width:70px;flex-shrink:0;scroll-snap-align:start;}
-  .cat-circle{width:56px;height:56px;border-radius:50%;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;transition:background .15s;}
-  .cat-circle-wrap.active .cat-circle{background:var(--maroon-dark);}
-  .cat-circle svg{width:56%;height:56%;}
-  .cat-circle-wrap span{font-size:11px;color:var(--text);text-align:center;}
-  .cat-circle-wrap.active span{color:var(--maroon-dark);font-weight:700;}
+  .cat-chip{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:16px;padding:8px 14px 8px 8px;box-shadow:0 3px 10px rgba(90,50,45,.06);transition:background .15s,border-color .15s,transform .15s;}
+  .cat-chip:active{transform:scale(.96);}
+  .cat-chip-ic{width:34px;height:34px;border-radius:11px;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden;flex-shrink:0;}
+  .cat-chip-ic svg{width:60%;height:60%;}
+  .cat-chip-ic img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cat-chip span{font-size:12px;color:var(--text);font-weight:600;white-space:nowrap;}
+  .cat-chip.active{background:var(--maroon-dark);border-color:var(--maroon-dark);}
+  .cat-chip.active .cat-chip-ic{background:rgba(255,255,255,.2);}
+  .cat-chip.active span{color:#fff;}
+  .new-badge{position:absolute;top:12px;left:12px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:.3px;z-index:2;}
   .section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 18px 10px;}
   .section-head h3{font-size:16px;color:var(--maroon-dark);}
   .section-head a{font-size:12px;color:var(--maroon);cursor:pointer;}
@@ -205,6 +219,11 @@
   .btn-main svg{width:16px;height:16px;flex-shrink:0;}
   .btn-outline-cart{background:#fff;color:var(--maroon-dark);border:1.6px solid var(--maroon-dark);}
   .btn-order-now{background:linear-gradient(135deg,var(--maroon-dark),var(--maroon-light));color:#fff;}
+  .btn-main[disabled]{opacity:.45;cursor:not-allowed;pointer-events:none;}
+  .prod-oos-badge{position:absolute;top:12px;left:12px;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:.3px;z-index:2;}
+  .prod-card.is-oos .prod-img,.prod-card-noimg.is-oos{opacity:.55;}
+  .detail-oos-banner{background:#f6dede;color:var(--danger);font-size:12.5px;font-weight:700;padding:10px 14px;border-radius:12px;margin-bottom:10px;text-align:center;}
+  .review-locked-note{font-size:12px;color:var(--text-mute);background:var(--pink-softer);border-radius:10px;padding:8px 12px;margin:0 18px 10px;}
   .collapse{border-top:1px solid var(--border);padding:14px 0;}
   .collapse-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:13px;}
   .collapse-body{font-size:12.5px;color:var(--text-mute);margin-top:8px;line-height:1.6;display:none;}
@@ -623,13 +642,19 @@
           <div class="icon-btn" onclick="toast('No new notifications')"><svg class="icon-bell-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         </div>
       </div>
-      <div class="banner">
-        <h2>Glow Everyday</h2>
-        <p>Skincare • Makeup • Beauty</p>
-        <div class="banner-btn" onclick="showScreen('category')">Shop Now →</div>
+      <div class="promo-ticker" id="promoTicker">
+        <div class="promo-ticker-track" id="promoTickerTrack"></div>
+      </div>
+      <div class="banner-carousel" id="bannerCarousel">
+        <div class="banner-track" id="bannerTrack"></div>
+        <div class="banner-dots" id="bannerDots"></div>
       </div>
       <div class="cat-row" id="homeCatRow"></div>
       <div id="homeSectionsWrap">
+      <div class="home-section" data-home-section="new">
+        <div class="section-head"><h3>New Arrivals</h3><a onclick="showScreen('category')">See All →</a></div>
+        <div class="best-scroll" id="newArrivals"></div>
+      </div>
       <div class="home-section" data-home-section="best">
         <div class="section-head"><h3>Best Sellers</h3><a onclick="showScreen('category')">See All →</a></div>
         <div class="best-scroll" id="bestSellers"></div>
@@ -691,13 +716,14 @@
         <div class="price-line" id="detailPriceLine"></div>
         <div class="swatch-row" id="detailSwatches"></div>
         <select class="shade-select" id="detailShadeSelect"></select>
-        <div class="qty-row">
+        <div class="detail-oos-banner" id="detailOosBanner" style="display:none;">Out of Stock</div>
+        <div class="qty-row" id="detailQtyRow">
           <span class="qty-row-label">Quantity</span>
           <div class="qty-box"><button onclick="changeQty(-1)">−</button><span id="qtyVal">1</span><button onclick="changeQty(1)">+</button></div>
         </div>
-        <div class="cart-actions-row">
-          <button class="btn-main btn-outline-cart" onclick="addCurrentToCart()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21.5 7H6"/></svg>Add to Cart</button>
-          <button class="btn-main btn-order-now" onclick="orderNowCurrent()">Order Now</button>
+        <div class="cart-actions-row" id="detailCartActionsRow">
+          <button class="btn-main btn-outline-cart" id="detailAddCartBtn" onclick="addCurrentToCart()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21.5 7H6"/></svg>Add to Cart</button>
+          <button class="btn-main btn-order-now" id="detailOrderNowBtn" onclick="orderNowCurrent()">Order Now</button>
         </div>
         <div class="collapse" onclick="toggleCollapse('descBody')">
           <div class="collapse-head"><span>Product Description</span><span>▾</span></div>
@@ -717,6 +743,7 @@
         </div>
       </div>
       <div class="section-head"><h3>Reviews</h3><span class="write-review-btn" onclick="toggleReviewForm()" id="reviewToggleLink"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Write a Review</span></div>
+      <div class="review-locked-note" id="reviewLockedNote" style="display:none;"></div>
       <div class="review-form" id="reviewForm" style="display:none;">
         <label>Your Rating</label>
         <div class="star-select" id="reviewStarSelect">
@@ -1382,7 +1409,14 @@ let state = {
   ],
   offers:[], returns:[], tickets:[], activityLog:[], notificationsLog:[],
   adminUsers:[{id:'adm1', name:'Admin', email:'admin@glowout.com', username:'admin', password:'123', role:'Super Admin'}],
-  homepage:{bannerTitle:'Glow Everyday', bannerSub:'Skincare • Makeup • Beauty', bannerImg:'', showBestSellers:true, showOffers:true, showJustForYou:true, order:['best','offers','jfy']},
+  homepage:{bannerTitle:'Glow Everyday', bannerSub:'Skincare • Makeup • Beauty', bannerImg:'', showBestSellers:true, showOffers:true, showJustForYou:true, showNewArrivals:true, order:['new','best','offers','jfy'],
+    tickerMessages:['✨ Free shipping on orders over 500 EGP','🎁 New arrivals just dropped','💖 Members save more with GLOW50'],
+    bannerSlides:[
+      {id:'bs1', tag:'This Week', title:'Glow Everyday', sub:'Skincare • Makeup • Beauty', img:''},
+      {id:'bs2', tag:'Just In', title:'New Arrivals', sub:'Fresh drops added to the store', img:''},
+      {id:'bs3', tag:'Limited Time', title:'Offers & Bundles', sub:'Save more on curated sets', img:''}
+    ],
+    categoryIcons:{}},
   categoryImages:{},
   content:{about:'', contact:'', faqs:'', terms:'', privacy:'', returnPolicy:'', shippingPolicy:''},
   security:{twoFA:false, loginHistory:[], currentAdminId:null},
@@ -1397,7 +1431,15 @@ function toast(msg){
   clearTimeout(window._toastT);
   window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
 }
-function showScreen(name){
+/* Every screen change goes through here, so this is also where we sync
+   the browser/app history: each navigation pushes a history entry for
+   the screen we're going TO, and the popstate handler below plays that
+   back when the phone/browser back button (or swipe-back gesture) is
+   used — so back moves one screen backward inside the store instead of
+   immediately exiting/closing it. `fromHistory` is only ever passed by
+   that popstate handler, to avoid pushing a duplicate entry for a
+   navigation that *is* the back action. */
+function showScreen(name, fromHistory){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
   renderBottomNav(name);
@@ -1414,7 +1456,17 @@ function showScreen(name){
   if(name==='checkout-address') renderCheckoutAddress();
   if(name==='checkout-summary') renderCheckoutSummary();
   if(name==='checkout-done') renderCheckoutDone();
+  if(!fromHistory){
+    try{
+      if(!history.state){ history.replaceState({screen:name}, '', ''); }
+      else { history.pushState({screen:name}, '', ''); }
+    }catch(e){}
+  }
 }
+window.addEventListener('popstate', (e)=>{
+  const target = (e.state && e.state.screen) || 'home';
+  showScreen(target, true);
+});
 function openOverlay(id){ document.getElementById(id).classList.add('active'); }
 function closeOverlay(id){ document.getElementById(id).classList.remove('active'); }
 
@@ -1450,6 +1502,12 @@ function toggleCollapse(id){
   document.getElementById(id).classList.toggle('open');
 }
 function money(n){ return 'EGP '+n; }
+/* Stock is only tracked when a product has a numeric qty (set via the
+   admin Product form / Inventory). Untracked products (qty left blank)
+   are always considered purchasable, same as before this was added. */
+function isStockTracked(p){ return p && typeof p.qty==='number'; }
+function availableStock(p){ return isStockTracked(p) ? p.qty : Infinity; }
+function isOutOfStock(p){ return isStockTracked(p) && p.qty<=0; }
 /* Escapes any text a customer typed (name, phone, address, review, ticket
    message...) before it's inserted into innerHTML, so a visitor can't run
    script in another visitor's or the admin's browser (stored XSS). */
@@ -1498,37 +1556,105 @@ function getActiveScreenName(){
 function renderHome(){
   document.getElementById('homeCatRow').innerHTML = HOME_CATS.map(key=>{
     const c = CATEGORIES.find(x=>x.key===key);
-    return `<div class="cat-circle-wrap" onclick="openCategory('${key}')">
-      <div class="cat-circle">${c.icon || c.emoji}</div><span>${c.label || key}</span>
+    const img = (state.homepage.categoryIcons && state.homepage.categoryIcons[key]) || '';
+    const icHtml = img ? `<img src="${img}" alt="${key}" loading="lazy">` : (c.icon || c.emoji);
+    return `<div class="cat-chip" onclick="openCategory('${key}')">
+      <div class="cat-chip-ic">${icHtml}</div><span>${c.label || key}</span>
     </div>`;
   }).join('');
+
   const hp = state.homepage || {};
-  const bannerEl = document.querySelector('#screen-home .banner');
-  const bannerH2 = document.querySelector('#screen-home .banner h2');
-  const bannerP = document.querySelector('#screen-home .banner p');
-  if(bannerH2 && hp.bannerTitle) bannerH2.textContent = hp.bannerTitle;
-  if(bannerP && hp.bannerSub) bannerP.textContent = hp.bannerSub;
-  if(bannerEl && hp.bannerImg){
-    bannerEl.style.backgroundImage = `linear-gradient(120deg,rgba(233,211,203,.55),rgba(246,232,226,.4)), url('${hp.bannerImg}')`;
-  }
+  renderHomeBanner(hp);
+  renderPromoTicker(hp);
+
   const best = state.products.filter(p=>p.bestSeller);
   const bundles = state.products.filter(p=>p.bundle || p.category==='Special Offers');
+  const newArrivals = state.products.filter(p=>p.isNew).length ? state.products.filter(p=>p.isNew) : state.products.slice(-8).reverse();
   const justFor = state.products.filter(p=>!p.bestSeller && !p.bundle).slice(0,6);
-  document.getElementById('bestSellers').innerHTML = best.map(productCardHtml).join('') || emptyRow();
-  document.getElementById('offersBundles').innerHTML = bundles.map(productCardHtml).join('') || emptyRow();
-  document.getElementById('justForYou').innerHTML = justFor.map(productCardHtml).join('') || emptyRow();
+  document.getElementById('newArrivals').innerHTML = newArrivals.slice(0,10).map(p=>productCardHtml(p, true)).join('') || emptyRow();
+  document.getElementById('bestSellers').innerHTML = best.map(p=>productCardHtml(p)).join('') || emptyRow();
+  document.getElementById('offersBundles').innerHTML = bundles.map(p=>productCardHtml(p)).join('') || emptyRow();
+  document.getElementById('justForYou').innerHTML = justFor.map(p=>productCardHtml(p)).join('') || emptyRow();
+  toggleHomeSection('new', hp.showNewArrivals!==false);
   toggleHomeSection('best', hp.showBestSellers!==false);
   toggleHomeSection('offers', hp.showOffers!==false);
   toggleHomeSection('jfy', hp.showJustForYou!==false);
   applyHomeSectionOrder();
+}
+
+/* ---------- Animated home banner (auto-rotating carousel) ---------- */
+let _bannerTimer = null;
+let _bannerIdx = 0;
+const BANNER_TINTS = [
+  'linear-gradient(125deg,rgba(122,48,64,.68),rgba(90,40,50,.28))',
+  'linear-gradient(125deg,rgba(60,90,80,.62),rgba(40,60,55,.32))',
+  'linear-gradient(125deg,rgba(201,161,90,.62),rgba(122,48,64,.42))',
+  'linear-gradient(125deg,rgba(90,70,120,.6),rgba(60,45,90,.32))'
+];
+const BANNER_FALLBACK_IMGS = [IMAGES.makeup, IMAGES.skincare, IMAGES.bundle, IMAGES.fragrance];
+function homeBannerSlides(hp){
+  let slides = (hp.bannerSlides||[]).filter(s=>s && (s.title||s.sub||s.img));
+  if(!slides.length){
+    // Legacy fallback for stores saved before the banner manager existed
+    slides = [{tag:'This Week', title: hp.bannerTitle||'Glow Everyday', sub: hp.bannerSub||'Skincare • Makeup • Beauty', img: hp.bannerImg||''}];
+  }
+  return slides.map((s,i)=>({
+    tag: s.tag || '',
+    title: s.title || 'Glow Out',
+    sub: s.sub || '',
+    img: s.img || BANNER_FALLBACK_IMGS[i%BANNER_FALLBACK_IMGS.length],
+    tint: BANNER_TINTS[i%BANNER_TINTS.length]
+  }));
+}
+function renderHomeBanner(hp){
+  const slides = homeBannerSlides(hp||{});
+  const track = document.getElementById('bannerTrack');
+  const dots = document.getElementById('bannerDots');
+  if(!track || !dots) return;
+  track.innerHTML = slides.map((s,i)=>`<div class="banner-slide" style="background-image:url('${s.img}');--slide-tint:${s.tint}" onclick="showScreen('category')">
+      <div class="banner-slide-inner">
+        ${s.tag?`<span class="banner-slide-tag">${s.tag}</span>`:''}
+        <h2>${s.title}</h2>
+        ${s.sub?`<p>${s.sub}</p>`:''}
+        <div class="banner-btn">Shop Now →</div>
+      </div>
+    </div>`).join('');
+  dots.innerHTML = slides.length>1 ? slides.map((s,i)=>`<span class="banner-dot${i===0?' active':''}" onclick="event.stopPropagation();goToBannerSlide(${i})"></span>`).join('') : '';
+  window._bannerSlides = slides;
+  _bannerIdx = 0;
+  track.style.transform = 'translateX(0%)';
+  clearInterval(_bannerTimer);
+  if(slides.length>1) _bannerTimer = setInterval(()=>goToBannerSlide((_bannerIdx+1)%slides.length), 4200);
+}
+function goToBannerSlide(i){
+  const track = document.getElementById('bannerTrack');
+  if(!track) return;
+  _bannerIdx = i;
+  track.style.transform = `translateX(-${i*100}%)`;
+  document.querySelectorAll('#bannerDots .banner-dot').forEach((d,idx)=>d.classList.toggle('active', idx===i));
+  clearInterval(_bannerTimer);
+  const total = (window._bannerSlides||[]).length || 1;
+  if(total>1) _bannerTimer = setInterval(()=>goToBannerSlide((_bannerIdx+1)%total), 4200);
+}
+
+/* ---------- Scrolling promo ticker (admin-editable messages) ---------- */
+function renderPromoTicker(hp){
+  const wrap = document.getElementById('promoTicker');
+  const track = document.getElementById('promoTickerTrack');
+  if(!track) return;
+  const msgs = (hp.tickerMessages||[]).filter(m=>m && m.trim());
+  if(!msgs.length){ if(wrap) wrap.style.display='none'; return; }
+  if(wrap) wrap.style.display='flex';
+  const doubled = msgs.concat(msgs);
+  track.innerHTML = doubled.map(m=>`<span>${esc(m)}</span>`).join('');
 }
 function toggleHomeSection(key, show){
   const sec = document.querySelector(`.home-section[data-home-section="${key}"]`);
   if(sec) sec.style.display = show ? '' : 'none';
 }
 function homeSectionOrder(){
-  const order = (state.homepage && state.homepage.order) || ['best','offers','jfy'];
-  const valid = ['best','offers','jfy'];
+  const order = (state.homepage && state.homepage.order) || ['new','best','offers','jfy'];
+  const valid = ['new','best','offers','jfy'];
   const filtered = order.filter(k=>valid.includes(k));
   valid.forEach(k=>{ if(!filtered.includes(k)) filtered.push(k); });
   return filtered;
@@ -1542,9 +1668,11 @@ function applyHomeSectionOrder(){
   });
 }
 function emptyRow(){ return `<div style="color:var(--text-mute);font-size:12px;padding:10px;">Loading products...</div>`; }
-function productCardHtml(p){
+function productCardHtml(p, showNewBadge){
   const inWish = state.wishlist.some(w=>w.productId===p.id);
-  return `<div class="prod-card" onclick="openDetail('${p.id}')">
+  const oos = isOutOfStock(p);
+  return `<div class="prod-card${oos?' is-oos':''}" onclick="openDetail('${p.id}')">
+    ${oos?'<span class="prod-oos-badge">Out of Stock</span>':(showNewBadge?'<span class="new-badge">New</span>':'')}
     <span class="prod-heart" data-pid="${p.id}" onclick="event.stopPropagation();toggleWishlist('${p.id}')">${heartIcon(inWish)}</span>
     <div class="prod-img">${imgOrIcon(p)}</div>
     <div class="prod-brand">${p.brand}</div>
@@ -1554,7 +1682,9 @@ function productCardHtml(p){
 }
 function productCardHtmlNoImg(p){
   const inWish = state.wishlist.some(w=>w.productId===p.id);
-  return `<div class="prod-card-noimg" onclick="openDetail('${p.id}')">
+  const oos = isOutOfStock(p);
+  return `<div class="prod-card-noimg${oos?' is-oos':''}" onclick="openDetail('${p.id}')">
+    ${oos?'<span class="prod-oos-badge">Out of Stock</span>':''}
     <span class="prod-heart" data-pid="${p.id}" onclick="event.stopPropagation();toggleWishlist('${p.id}')">${heartIcon(inWish)}</span>
     <div class="prod-brand">${p.brand}</div>
     <div class="prod-name">${p.name}</div>
@@ -1693,6 +1823,12 @@ function renderDetail(){
   updateHeartIcons();
   renderYouMayLike(p);
   renderReviews(p);
+  const oos = isOutOfStock(p);
+  document.getElementById('detailOosBanner').style.display = oos ? 'block' : 'none';
+  document.getElementById('detailQtyRow').style.display = oos ? 'none' : 'flex';
+  document.getElementById('detailAddCartBtn').disabled = oos;
+  document.getElementById('detailOrderNowBtn').disabled = oos;
+  renderReviewGate(p);
 }
 function renderYouMayLike(p){
   const wrap = document.getElementById('youMayLike');
@@ -1705,6 +1841,33 @@ function renderYouMayLike(p){
 }
 
 /* ============== REVIEWS ============== */
+/* Only customers who actually bought a product can review it. We check
+   their own order history (matched by the phone number they logged in
+   with) for a non-cancelled order that contains this product's id.
+   Orders placed before this check existed won't have a productId on
+   their items, so they simply can't be matched — same as any other
+   order that doesn't contain the product. */
+function hasPurchasedProduct(pid){
+  if(state.isAnon || !state.userPhone) return false;
+  return state.orders.some(o=>o.customerPhone===state.userPhone && o.status!=='Cancelled' && o.items.some(i=>i.productId===pid));
+}
+function renderReviewGate(p){
+  const link = document.getElementById('reviewToggleLink');
+  const note = document.getElementById('reviewLockedNote');
+  const form = document.getElementById('reviewForm');
+  if(!link || !note) return;
+  const eligible = hasPurchasedProduct(p.id);
+  link.style.display = eligible ? '' : 'none';
+  if(!eligible){
+    form.style.display = 'none';
+    note.style.display = 'block';
+    note.textContent = state.isAnon
+      ? 'Log in and purchase this product to write a review.'
+      : "You'll be able to review this product once your order for it is placed.";
+  } else {
+    note.style.display = 'none';
+  }
+}
 function setReviewBtnLabel(text){
   const link = document.getElementById('reviewToggleLink');
   if(!link) return;
@@ -1713,6 +1876,11 @@ function setReviewBtnLabel(text){
   if(svg) link.prepend(svg);
 }
 function toggleReviewForm(){
+  const p = state.products.find(x=>x.id===state.currentProductId);
+  if(p && !hasPurchasedProduct(p.id)){
+    toast(state.isAnon ? 'Please log in and purchase this product first' : 'Only customers who purchased this product can review it');
+    return;
+  }
   const form = document.getElementById('reviewForm');
   const opening = form.style.display === 'none';
   form.style.display = opening ? 'block' : 'none';
@@ -1744,6 +1912,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 function submitReview(){
   const p = state.products.find(x=>x.id===state.currentProductId);
   if(!p) return;
+  if(!hasPurchasedProduct(p.id)){ toast('Only customers who purchased this product can review it'); return; }
   const name = document.getElementById('reviewName').value.trim();
   const text = document.getElementById('reviewText').value.trim();
   const stars = state.currentReviewStars;
@@ -1780,7 +1949,11 @@ function renderReviews(p){
 }
 function selectShade(i){ state.currentShadeIdx=i; renderDetail(); }
 function changeQty(d){
-  state.currentQty = Math.max(1, state.currentQty+d);
+  const p = state.products.find(x=>x.id===state.currentProductId);
+  const max = p ? availableStock(p) : Infinity;
+  let next = Math.max(1, state.currentQty+d);
+  if(next>max){ next = max; if(d>0) toast(`Only ${max} left in stock`); }
+  state.currentQty = next;
   document.getElementById('qtyVal').textContent = state.currentQty;
 }
 function updateHeartIcons(){
@@ -1819,7 +1992,14 @@ function toggleWishlist(pid){
 function addCurrentToCart(silent){
   const p = state.products.find(x=>x.id===state.currentProductId);
   if(!p) return false;
+  if(isOutOfStock(p)){ toast('This product is out of stock'); return false; }
   const existing = state.cart.find(c=>c.productId===p.id);
+  const already = existing ? existing.qty : 0;
+  const max = availableStock(p);
+  if(already+state.currentQty>max){
+    toast(max<=already ? 'You already have all available stock in your cart' : `Only ${max-already} more available`);
+    return false;
+  }
   if(existing){
     existing.qty += state.currentQty;
   } else {
@@ -1837,6 +2017,8 @@ function addCurrentToCart(silent){
    `state`: purely transient UI plumbing, never saved/synced. */
 let pendingAuthResume = null;
 function orderNowCurrent(){
+  const p = state.products.find(x=>x.id===state.currentProductId);
+  if(p && isOutOfStock(p)){ toast('This product is out of stock'); return; }
   // IMPORTANT: check login status BEFORE touching the cart. Adding the
   // product to the cart first (then discovering the person needs to log
   // in) meant tapping "Order Now" again after signing up added it a
@@ -1950,7 +2132,12 @@ function renderCart(){
 function updateCartQty(id,d){
   const item = state.cart.find(c=>c.id===id);
   if(!item) return;
-  const newQty = item.qty+d;
+  let newQty = item.qty+d;
+  if(d>0){
+    const p = state.products.find(x=>x.id===item.productId);
+    const max = p ? availableStock(p) : Infinity;
+    if(newQty>max){ toast(`Only ${max} in stock`); newQty = max; }
+  }
   if(newQty<=0){ state.cart = state.cart.filter(c=>c.id!==id); } else { item.qty = newQty; }
   refreshCartDependentUI();
   renderCart();
@@ -2080,13 +2267,13 @@ function renderCheckoutSummary(){
 function applyCoupon(){
   const code = document.getElementById('couponCode').value.trim().toUpperCase();
   if(!code){ toast('Enter a coupon code'); return; }
-  if(state.coupons[code]){
-    state.coupon = {code, amount:state.coupons[code]};
-    toast('Coupon applied! 🎉');
-  } else {
-    toast('Invalid coupon code');
-    return;
-  }
+  if(!state.coupons[code]){ toast('Invalid coupon code'); return; }
+  const status = couponStatus(state.coupons[code]);
+  if(status==='Expired'){ toast('This coupon has expired'); return; }
+  if(status==='Limit reached'){ toast('This coupon has reached its usage limit'); return; }
+  const cd = normalizeCoupon(state.coupons[code]);
+  state.coupon = {code, amount:cd.amount};
+  toast('Coupon applied! 🎉');
   renderCheckoutSummary();
 }
 function removeCoupon(){
@@ -2098,13 +2285,22 @@ function confirmOrder(){
   if(!state.cart.length) return;
   const a = state.checkoutAddress;
   if(!a){ toast('Please add a delivery address'); showScreen('checkout-address'); return; }
+  // Final stock guard: stock may have moved (admin edit, another order)
+  // since items were added to the cart, so re-check right before placing.
+  for(const c of state.cart){
+    const p = state.products.find(x=>x.id===c.productId);
+    if(!p) continue;
+    const max = availableStock(p);
+    if(max<=0){ toast(`${p.name} just went out of stock — please remove it from your cart`); showScreen('cart'); renderCart(); return; }
+    if(c.qty>max){ toast(`Only ${max} left of ${p.name} — please update the quantity in your cart`); c.qty = max; showScreen('cart'); renderCart(); return; }
+  }
   const subtotal = state.cart.reduce((s,c)=>s+c.price*c.qty,0);
   const shipping = shippingFor(a.governorate);
   const discount = state.coupon ? state.coupon.amount : 0;
   const total = Math.max(0, subtotal + shipping - discount);
   const order = {
     id: genId('order'),
-    items: state.cart.map(c=>({name:c.name, brand:c.brand, qty:c.qty, price:c.price, visual:c.visual, shade:c.shade||'', img:c.img||''})),
+    items: state.cart.map(c=>({productId:c.productId, name:c.name, brand:c.brand, qty:c.qty, price:c.price, visual:c.visual, shade:c.shade||'', img:c.img||''})),
     subtotal, shipping, discount, coupon: state.coupon ? state.coupon.code : '', total,
     customerName: a.fullName||state.userName||'Guest', customerPhone: a.phone||state.userPhone||'',
     address: {label:'Home', text:`${a.detailed}, ${a.city}, ${a.governorate}`, governorate:a.governorate, city:a.city||'', detailed:a.detailed||'', fullName:a.fullName||'', phone:a.phone||'', altPhone:a.altPhone||''},
@@ -2114,6 +2310,16 @@ function confirmOrder(){
     shipToken: genId('shp'),
     shipEvents: []
   };
+  // Deduct tracked stock now that the order is confirmed.
+  state.cart.forEach(c=>{
+    const p = state.products.find(x=>x.id===c.productId);
+    if(p && isStockTracked(p)) p.qty = Math.max(0, p.qty-c.qty);
+  });
+  if(state.coupon && state.coupons[state.coupon.code]){
+    const cData = normalizeCoupon(state.coupons[state.coupon.code]);
+    cData.usedCount = (cData.usedCount||0)+1;
+    state.coupons[state.coupon.code] = cData;
+  }
   state.orders.unshift(order);
   state.lastOrder = order;
   state.cart = [];
@@ -3557,6 +3763,20 @@ function openCustomerProfile(encodedKey){
 function closeCustomerProfile(){ const modal = document.getElementById('customerProfileModal'); if(modal) modal.innerHTML=''; }
 
 /* ---------- COUPONS ---------- */
+/* Coupons used to be stored as a plain `code -> amount` number. They now
+   carry an optional expiry date and usage limit too, so every read goes
+   through this normalizer to fill in defaults for old-format entries
+   without needing a one-time data migration. */
+function normalizeCoupon(v){
+  if(typeof v==='number') return {amount:v, expiry:null, usageLimit:null, usedCount:0};
+  return {amount:v.amount||0, expiry:v.expiry||null, usageLimit:(typeof v.usageLimit==='number'?v.usageLimit:null), usedCount:v.usedCount||0};
+}
+function couponStatus(v){
+  const c = normalizeCoupon(v);
+  if(c.expiry && Date.now() > new Date(c.expiry+'T23:59:59').getTime()) return 'Expired';
+  if(c.usageLimit!==null && c.usedCount>=c.usageLimit) return 'Limit reached';
+  return 'Active';
+}
 function renderAdmCoupons(){
   const el = document.getElementById('admsec-coupons');
   const codes = Object.keys(state.coupons);
@@ -3568,6 +3788,8 @@ function renderAdmCoupons(){
       <div class="adm-form-grid">
         <div><label>Coupon Code</label><input id="cfCode" style="text-transform:uppercase;"></div>
         <div><label>Discount Amount (EGP off)</label><input id="cfAmount" type="number"></div>
+        <div><label>Expiry Date (optional)</label><input id="cfExpiry" type="date"></div>
+        <div><label>Usage Limit (optional)</label><input id="cfLimit" type="number" placeholder="Unlimited"></div>
       </div>
       <div class="adm-form-actions">
         <button class="adm-btn" onclick="saveCoupon()">Save Coupon</button>
@@ -3576,10 +3798,15 @@ function renderAdmCoupons(){
     </div>
     <div style="overflow-x:auto;">
     <table class="adm-table">
-      <thead><tr><th>Code</th><th>Discount</th><th></th></tr></thead>
+      <thead><tr><th>Code</th><th>Discount</th><th>Expiry</th><th>Used</th><th>Status</th><th></th></tr></thead>
       <tbody>
-      ${codes.length ? codes.map(c=>`<tr><td>${c}</td><td>${money(state.coupons[c])}</td><td><button class="adm-btn small danger" onclick="deleteCoupon('${c}')">Delete</button></td></tr>`).join('')
-      : `<tr><td colspan="3" class="adm-empty">No coupons yet.</td></tr>`}
+      ${codes.length ? codes.map(c=>{
+        const cd = normalizeCoupon(state.coupons[c]);
+        const status = couponStatus(state.coupons[c]);
+        const badge = status==='Active' ? 'adm-badge-ok' : status==='Expired' ? 'adm-badge-out' : 'adm-badge-low';
+        return `<tr><td>${c}</td><td>${money(cd.amount)}</td><td>${cd.expiry||'—'}</td><td>${cd.usedCount}${cd.usageLimit!==null?' / '+cd.usageLimit:''}</td><td><span class="${badge}">${status}</span></td><td><button class="adm-btn small danger" onclick="deleteCoupon('${c}')">Delete</button></td></tr>`;
+      }).join('')
+      : `<tr><td colspan="6" class="adm-empty">No coupons yet.</td></tr>`}
       </tbody>
     </table>
     </div>
@@ -3590,10 +3817,13 @@ function closeCouponForm(){ document.getElementById('couponForm').classList.remo
 function saveCoupon(){
   const code = document.getElementById('cfCode').value.trim().toUpperCase();
   const amount = Number(document.getElementById('cfAmount').value);
+  const expiry = document.getElementById('cfExpiry').value || null;
+  const limitRaw = document.getElementById('cfLimit').value;
+  const usageLimit = limitRaw!=='' ? Number(limitRaw) : null;
   if(!code || !amount){ toast('Enter a code and amount'); return; }
-  state.coupons[code] = amount;
+  state.coupons[code] = {amount, expiry, usageLimit, usedCount:0};
   saveDB();
-  logActivity(`Coupon "${code}" saved (${money(amount)} off)`);
+  logActivity(`Coupon "${code}" saved (${money(amount)} off${expiry?', expires '+expiry:''}${usageLimit!==null?', limit '+usageLimit:''})`);
   closeCouponForm();
   renderAdmCoupons();
   toast('Coupon saved');
@@ -4329,32 +4559,86 @@ function toggleAutoNotify(key){
 function renderAdmHomepage(){
   const el = document.getElementById('admsec-homepage');
   const h = state.homepage;
+  const slides = h.bannerSlides || [];
+  const msgs = h.tickerMessages || [];
   el.innerHTML = `
     <div class="adm-h1">Homepage Builder</div>
     <div class="adm-sub">Control what shoppers see first — this feeds the live storefront home screen</div>
-    <div class="adm-form open">
+
+    <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Banner Slides</h4>
+    <div class="adm-sub" style="margin-top:-4px;margin-bottom:10px;">The animated banner at the top of the homepage. Add as many slides as you like — each needs its own image and text.</div>
+    <div class="adm-toolbar"><div></div><button class="adm-btn" onclick="openBannerSlideForm()">+ Add Slide</button></div>
+    <div class="adm-form" id="bsForm">
       <div class="adm-form-grid">
-        <div><label>Main Banner Title</label><input id="hpBannerTitle" value="${h.bannerTitle||''}"></div>
-        <div><label>Main Banner Subtitle</label><input id="hpBannerSub" value="${h.bannerSub||''}"></div>
-        <div><label>Main Banner Image</label><input type="file" id="hpBannerImageFile" accept="image/*" onchange="hpPreviewBannerImage(event)"></div>
-        <div class="full"><img id="hpBannerImagePreview" src="${h.bannerImg||''}" style="max-width:200px;max-height:100px;object-fit:cover;border-radius:10px;margin-top:4px;${h.bannerImg?'':'display:none;'}"></div>
+        <div><label>Small Tag (optional)</label><input id="bsTag" placeholder="e.g. Limited Time"></div>
+        <div><label>Title</label><input id="bsTitle" placeholder="e.g. Glow Everyday"></div>
+        <div class="full"><label>Subtitle</label><input id="bsSub" placeholder="e.g. Skincare • Makeup • Beauty"></div>
+        <div><label>Slide Image</label><input type="file" id="bsImageFile" accept="image/*" onchange="bsPreviewImage(event)"></div>
+        <div class="full"><img id="bsImagePreview" src="" style="max-width:200px;max-height:100px;object-fit:cover;border-radius:10px;margin-top:4px;display:none;"></div>
       </div>
-      <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin:16px 0 8px;font-weight:700;">Home Sections</h4>
+      <div class="adm-form-actions">
+        <button class="adm-btn" onclick="saveBannerSlide()" id="bsSaveBtn">Add Slide</button>
+        <button class="adm-btn sec" onclick="closeBannerSlideForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="adm-panel" style="margin-bottom:20px;">
+      ${slides.length ? slides.map((s,i)=>`
+        <div class="adm-list-row">
+          <img src="${s.img||''}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;background:var(--pink-soft);flex-shrink:0;margin-right:10px;" onerror="this.style.visibility='hidden'">
+          <div class="lr-name" style="flex:1;">${esc(s.title||'(untitled)')}${s.sub?` <span style="color:var(--text-mute);font-weight:400;">— ${esc(s.sub)}</span>`:''}</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button type="button" class="adm-btn small sec" style="padding:2px 8px;" ${i===0?'disabled':''} onclick="moveBannerSlide('${s.id}',-1)">↑</button>
+            <button type="button" class="adm-btn small sec" style="padding:2px 8px;" ${i===slides.length-1?'disabled':''} onclick="moveBannerSlide('${s.id}',1)">↓</button>
+            <button class="adm-btn small sec" onclick="openBannerSlideForm('${s.id}')">Edit</button>
+            <button class="adm-btn small danger" onclick="deleteBannerSlide('${s.id}')">Delete</button>
+          </div>
+        </div>`).join('') : '<div class="adm-empty">No slides yet — add one above.</div>'}
+    </div>
+
+    <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Homepage Category Icons</h4>
+    <div class="adm-sub" style="margin-top:-4px;margin-bottom:10px;">Icons shown in the category row on the homepage only — separate from the category page images.</div>
+    <div class="adm-kpis" style="margin-bottom:20px;">
+      ${HOME_CATS.map(key=>{
+        const c = CATEGORIES.find(x=>x.key===key);
+        const img = (state.homepage.categoryIcons||{})[key] || '';
+        return `<div class="adm-kpi" style="text-align:center;">
+          <div style="width:56px;height:56px;margin:0 auto 8px;border-radius:16px;overflow:hidden;${img?`background:url('${img}') center/cover no-repeat;`:'background:var(--pink-soft);'}display:flex;align-items:center;justify-content:center;font-size:22px;">${img?'':(c.icon||c.emoji)}</div>
+          <div class="kk-label">${c.label||key}</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;">
+            <label class="adm-btn small sec" style="cursor:pointer;">Change<input type="file" accept="image/*" style="display:none;" onchange="changeHomeCategoryIcon(event,'${key}')"></label>
+            ${img?`<button class="adm-btn small danger" onclick="resetHomeCategoryIcon('${key}')">Reset</button>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Scrolling Ticker Text</h4>
+    <div class="adm-sub" style="margin-top:-4px;margin-bottom:10px;">The scrolling strip above the banner. Add short messages — they loop continuously.</div>
+    <div class="adm-panel" style="margin-bottom:12px;">
+      ${msgs.length ? msgs.map((m,i)=>`
+        <div class="adm-list-row">
+          <input value="${esc(m)}" oninput="updateTickerMessage(${i}, this.value)" style="flex:1;margin-right:10px;">
+          <button class="adm-btn small danger" onclick="deleteTickerMessage(${i})">Delete</button>
+        </div>`).join('') : '<div class="adm-empty">No ticker messages yet — add one below.</div>'}
+    </div>
+    <div class="adm-form-actions" style="margin-bottom:20px;"><button class="adm-btn sec" onclick="addTickerMessage()">+ Add Message</button></div>
+
+    <div class="adm-form open">
+      <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Home Sections</h4>
       <div class="adm-sub" style="margin-top:-4px;margin-bottom:10px;">Toggle sections on/off, and use ↑ / ↓ to change the order they appear in on the storefront home screen.</div>
       ${homeSectionOrder().map((key,i,arr)=>{
-        const labels = {best:'Best Sellers', offers:'Offers & Bundles', jfy:'Just For You'};
-        const showKey = {best:'showBestSellers', offers:'showOffers', jfy:'showJustForYou'}[key];
-        const inputId = {best:'hpShowBest', offers:'hpShowOffers', jfy:'hpShowJfy'}[key];
+        const labels = {new:'New Arrivals', best:'Best Sellers', offers:'Offers & Bundles', jfy:'Just For You'};
+        const showKey = {new:'showNewArrivals', best:'showBestSellers', offers:'showOffers', jfy:'showJustForYou'}[key];
+        const inputId = {new:'hpShowNew', best:'hpShowBest', offers:'hpShowOffers', jfy:'hpShowJfy'}[key];
         return `<div class="adm-list-row">
           <div class="lr-name">${labels[key]}</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <button type="button" class="adm-btn small sec" style="padding:2px 8px;" ${i===0?'disabled':''} onclick="moveHomeSection('${key}',-1)">↑</button>
             <button type="button" class="adm-btn small sec" style="padding:2px 8px;" ${i===arr.length-1?'disabled':''} onclick="moveHomeSection('${key}',1)">↓</button>
-            <label class="adm-switch"><input type="checkbox" id="${inputId}" data-showkey="${showKey}" ${h[showKey]!==false?'checked':''}><span class="slider"></span></label>
+            <label class="adm-switch"><input type="checkbox" id="${inputId}" data-showkey="${showKey}" ${h[showKey]!==false?'checked':''} onchange="saveHomepage()"><span class="slider"></span></label>
           </div>
         </div>`;
       }).join('')}
-      <div class="adm-form-actions"><button class="adm-btn" onclick="saveHomepage()">Save Homepage</button></div>
     </div>
   `;
 }
@@ -4371,21 +4655,129 @@ function moveHomeSection(key, dir){
   renderAdmHomepage();
   renderHome();
 }
-function hpPreviewBannerImage(e){
+
+/* ---------- Homepage category icons (admin) ---------- */
+function changeHomeCategoryIcon(e, key){
+  const file = e.target.files[0];
+  if(!file) return;
+  compressImageFile(file, 300, 0.75).then(dataUrl=>{
+    if(!dataUrl) return;
+    state.homepage.categoryIcons = state.homepage.categoryIcons || {};
+    state.homepage.categoryIcons[key] = dataUrl;
+    saveDB();
+    logActivity(`Homepage icon for "${key}" updated`);
+    renderAdmHomepage();
+    renderHome();
+    toast('Icon updated');
+  });
+}
+function resetHomeCategoryIcon(key){
+  if(!state.homepage.categoryIcons) return;
+  delete state.homepage.categoryIcons[key];
+  saveDB();
+  logActivity(`Homepage icon for "${key}" reset`);
+  renderAdmHomepage();
+  renderHome();
+}
+
+/* ---------- Banner slides (admin) ---------- */
+let admEditingBannerSlideId = null;
+function openBannerSlideForm(id){
+  admEditingBannerSlideId = id || null;
+  document.getElementById('bsForm').classList.add('open');
+  document.getElementById('bsSaveBtn').textContent = id ? 'Save Slide' : 'Add Slide';
+  const prev = document.getElementById('bsImagePreview');
+  if(id){
+    const s = (state.homepage.bannerSlides||[]).find(x=>x.id===id);
+    if(!s) return;
+    document.getElementById('bsTag').value = s.tag||'';
+    document.getElementById('bsTitle').value = s.title||'';
+    document.getElementById('bsSub').value = s.sub||'';
+    prev.src = s.img||''; prev.style.display = s.img?'block':'none'; delete prev.dataset.b64;
+  } else {
+    ['bsTag','bsTitle','bsSub'].forEach(i=>document.getElementById(i).value='');
+    prev.src=''; prev.style.display='none'; delete prev.dataset.b64;
+  }
+}
+function closeBannerSlideForm(){ document.getElementById('bsForm').classList.remove('open'); admEditingBannerSlideId=null; }
+function bsPreviewImage(e){
   const file = e.target.files[0];
   if(!file) return;
   compressImageFile(file, 1200, 0.78).then(dataUrl=>{
     if(!dataUrl) return;
-    const prev = document.getElementById('hpBannerImagePreview');
+    const prev = document.getElementById('bsImagePreview');
     prev.src = dataUrl; prev.style.display = 'block';
     prev.dataset.b64 = dataUrl;
   });
 }
+function saveBannerSlide(){
+  const tag = document.getElementById('bsTag').value.trim();
+  const title = document.getElementById('bsTitle').value.trim();
+  const sub = document.getElementById('bsSub').value.trim();
+  const prev = document.getElementById('bsImagePreview');
+  if(!title){ toast('Enter a title for the slide'); return; }
+  state.homepage.bannerSlides = state.homepage.bannerSlides || [];
+  if(admEditingBannerSlideId){
+    const s = state.homepage.bannerSlides.find(x=>x.id===admEditingBannerSlideId);
+    if(s){
+      Object.assign(s, {tag, title, sub});
+      if(prev.dataset.b64) s.img = prev.dataset.b64;
+    }
+  } else {
+    state.homepage.bannerSlides.push({id:genId('bs'), tag, title, sub, img: prev.dataset.b64||''});
+  }
+  saveDB();
+  logActivity('Homepage banner slide saved');
+  closeBannerSlideForm();
+  renderAdmHomepage();
+  renderHome();
+  toast('Slide saved');
+}
+function deleteBannerSlide(id){
+  if(!confirm('Delete this banner slide?')) return;
+  state.homepage.bannerSlides = (state.homepage.bannerSlides||[]).filter(x=>x.id!==id);
+  saveDB();
+  logActivity('Homepage banner slide deleted');
+  renderAdmHomepage();
+  renderHome();
+}
+function moveBannerSlide(id, dir){
+  const arr = state.homepage.bannerSlides||[];
+  const i = arr.findIndex(x=>x.id===id);
+  const j = i+dir;
+  if(i<0 || j<0 || j>=arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  saveDB();
+  renderAdmHomepage();
+  renderHome();
+}
+
+/* ---------- Ticker messages (admin) ---------- */
+function updateTickerMessage(i, value){
+  state.homepage.tickerMessages = state.homepage.tickerMessages || [];
+  state.homepage.tickerMessages[i] = value;
+  saveDB();
+  renderHome();
+}
+function addTickerMessage(){
+  state.homepage.tickerMessages = state.homepage.tickerMessages || [];
+  state.homepage.tickerMessages.push('');
+  saveDB();
+  renderAdmHomepage();
+  renderHome();
+  const inputs = document.querySelectorAll('#admsec-homepage .adm-panel input');
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+function deleteTickerMessage(i){
+  state.homepage.tickerMessages = (state.homepage.tickerMessages||[]).filter((_,idx)=>idx!==i);
+  saveDB();
+  logActivity('Homepage ticker message removed');
+  renderAdmHomepage();
+  renderHome();
+}
+
 function saveHomepage(){
-  state.homepage.bannerTitle = document.getElementById('hpBannerTitle').value.trim() || 'Glow Everyday';
-  state.homepage.bannerSub = document.getElementById('hpBannerSub').value.trim();
-  const bannerPrev = document.getElementById('hpBannerImagePreview');
-  if(bannerPrev.dataset.b64) state.homepage.bannerImg = bannerPrev.dataset.b64;
+  state.homepage.showNewArrivals = document.getElementById('hpShowNew').checked;
   state.homepage.showBestSellers = document.getElementById('hpShowBest').checked;
   state.homepage.showOffers = document.getElementById('hpShowOffers').checked;
   state.homepage.showJustForYou = document.getElementById('hpShowJfy').checked;
@@ -4394,6 +4786,7 @@ function saveHomepage(){
   renderHome();
   toast('Homepage updated');
 }
+
 
 /* ---------- STORE CONTENT ---------- */
 function renderAdmContent(){
