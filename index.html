@@ -638,7 +638,7 @@
       <div class="detail-body">
         <div class="detail-brand" id="detailBrand"></div>
         <div class="detail-name" id="detailName"></div>
-        <div class="rating-row"><span class="stars">★★★★★</span><span id="detailRating"></span></div>
+        <div class="rating-row"><span class="stars" id="detailStars">★★★★★</span><span id="detailRating"></span></div>
         <div class="price-line" id="detailPriceLine"></div>
         <div class="swatch-row" id="detailSwatches"></div>
         <select class="shade-select" id="detailShadeSelect"></select>
@@ -1230,25 +1230,25 @@ const HOME_CATS = ['Makeup','Skincare','Hair Care','Vitamins','Kids','Special Of
 
 /* ============== SEED PRODUCTS ============== */
 const SEED_PRODUCTS = [
-  {id:'p1', brand:'Maybelline', name:'Fit Me Foundation', shade:'Shade 220', category:'Makeup', subcategory:'Face', price:450, oldPrice:600, off:25, rating:4.8, reviews:124, visual:'foundation', img:IMAGES.foundation, shades:['#d9a876','#c98f5e','#b47444','#8f5a34'], desc:'A natural, matte finish foundation that matches your skin tone and texture for a flawless look that lasts all day.', how:'Apply with a brush, sponge, or fingertips starting from the center of the face, blending outward and downward.', bestSeller:true},
-  {id:'p2', brand:"L'Oreal", name:'True Match Concealer', shade:'Shade 2N', category:'Makeup', subcategory:'Face', price:320, oldPrice:420, off:24, rating:4.6, reviews:98, visual:'concealer', img:IMAGES.makeupFlat},
-  {id:'p3', brand:'Maybelline', name:'Sky High Mascara', shade:'Black', category:'Makeup', subcategory:'Eyes', price:350, oldPrice:480, off:27, rating:4.7, reviews:210, visual:'mascara', img:IMAGES.sunscreen},
-  {id:'p4', brand:'NYX', name:'Lip Liner', shade:'Nude', category:'Makeup', subcategory:'Lips', price:180, oldPrice:250, off:26, rating:4.5, reviews:60, visual:'lipliner', img:IMAGES.makeupFlat},
-  {id:'p5', brand:'Maybelline', name:'Color Sensational Lipstick', shade:'Shade 785', category:'Makeup', subcategory:'Lips', price:280, oldPrice:350, off:20, rating:4.7, reviews:150, visual:'lipstick', img:IMAGES.makeupFlat, bestSeller:true},
-  {id:'p6', brand:'Glow Out', name:'Beauty Blender Sponge', shade:'One Size', category:'Makeup', subcategory:'Tools', price:150, oldPrice:200, off:25, rating:4.4, reviews:40, visual:'sponge', img:IMAGES.makeupFlat},
-  {id:'p7', brand:'Glow Out', name:'Vitamin C Serum', shade:'30ml', category:'Skincare', subcategory:'', price:520, oldPrice:650, off:20, rating:4.9, reviews:300, visual:'serum', img:IMAGES.skincare},
-  {id:'p8', brand:'Glow Out', name:'Hydrating Face Cream', shade:'50ml', category:'Skincare', subcategory:'', price:380, oldPrice:480, off:21, rating:4.8, reviews:180, visual:'jar', img:IMAGES.skincare, bestSeller:true},
-  {id:'p9', brand:'Glow Out', name:'Argan Hair Oil', shade:'100ml', category:'Hair Care', subcategory:'', price:300, oldPrice:380, off:21, rating:4.6, reviews:90, visual:'hairoil', img:IMAGES.haircare},
-  {id:'p10', brand:'Glow Out', name:'Rose Eau de Parfum', shade:'50ml', category:'Fragrance', subcategory:'', price:650, oldPrice:800, off:19, rating:4.9, reviews:220, visual:'perfume', img:IMAGES.fragrance},
-  {id:'p11', brand:'Glow Out', name:'Shea Body Butter', shade:'200ml', category:'Body Care', subcategory:'', price:280, oldPrice:350, off:20, rating:4.5, reviews:70, visual:'bodybutter', img:IMAGES.skincare},
-  {id:'p12', brand:'Glow Out', name:'Makeup Brush Set', shade:'12 pcs', category:'Tools & Accessories', subcategory:'', price:450, oldPrice:600, off:25, rating:4.7, reviews:130, visual:'brushes', img:IMAGES.makeupFlat},
-  {id:'p13', brand:'Glow Out', name:'Men Face Wash', shade:'150ml', category:'Men Care', subcategory:'', price:220, oldPrice:280, off:21, rating:4.4, reviews:55, visual:'facewash', img:IMAGES.skincare},
-  {id:'p14', brand:'Glow Out', name:'Glow Bundle Gift Set', shade:'Set of 4', category:'Special Offers', subcategory:'', price:900, oldPrice:1200, off:25, rating:4.9, reviews:80, visual:'giftbox', img:IMAGES.bundle, bundle:true},
-  {id:'p15', brand:'Glow Out', name:'Skincare Starter Bundle', shade:'Set of 3', category:'Special Offers', subcategory:'', price:680, oldPrice:950, off:28, rating:4.8, reviews:64, visual:'jar', img:IMAGES.bundle, bundle:true},
-  {id:'p16', brand:'Glow Out', name:'Mini Makeup Bundle', shade:'Set of 5', category:'Special Offers', subcategory:'', price:750, oldPrice:1050, off:29, rating:4.7, reviews:52, visual:'lipstick', img:IMAGES.makeupFlat, bundle:true},
-  {id:'k1', brand:'Glow Out Kids', name:'Gentle Kids Shampoo', shade:'200ml', category:'Kids', subcategory:'', price:180, oldPrice:220, off:18, rating:4.8, reviews:45, visual:'facewash', img:IMAGES.kids},
-  {id:'k2', brand:'Glow Out Kids', name:'Kids Sunscreen Lotion', shade:'SPF 50 · 100ml', category:'Kids', subcategory:'', price:220, oldPrice:270, off:19, rating:4.7, reviews:38, visual:'jar', img:IMAGES.sunscreen},
-  {id:'k3', brand:'Glow Out Kids', name:'Fruity Bubble Bath', shade:'300ml', category:'Kids', subcategory:'', price:160, oldPrice:200, off:20, rating:4.6, reviews:30, visual:'bodybutter', img:IMAGES.kids}
+  {id:'p1', brand:'Maybelline', name:'Fit Me Foundation', shade:'Shade 220', category:'Makeup', subcategory:'Face', price:450, oldPrice:600, off:25, rating:0, reviews:0, visual:'foundation', img:IMAGES.foundation, shades:['#d9a876','#c98f5e','#b47444','#8f5a34'], desc:'A natural, matte finish foundation that matches your skin tone and texture for a flawless look that lasts all day.', how:'Apply with a brush, sponge, or fingertips starting from the center of the face, blending outward and downward.', bestSeller:true},
+  {id:'p2', brand:"L'Oreal", name:'True Match Concealer', shade:'Shade 2N', category:'Makeup', subcategory:'Face', price:320, oldPrice:420, off:24, rating:0, reviews:0, visual:'concealer', img:IMAGES.makeupFlat},
+  {id:'p3', brand:'Maybelline', name:'Sky High Mascara', shade:'Black', category:'Makeup', subcategory:'Eyes', price:350, oldPrice:480, off:27, rating:0, reviews:0, visual:'mascara', img:IMAGES.sunscreen},
+  {id:'p4', brand:'NYX', name:'Lip Liner', shade:'Nude', category:'Makeup', subcategory:'Lips', price:180, oldPrice:250, off:26, rating:0, reviews:0, visual:'lipliner', img:IMAGES.makeupFlat},
+  {id:'p5', brand:'Maybelline', name:'Color Sensational Lipstick', shade:'Shade 785', category:'Makeup', subcategory:'Lips', price:280, oldPrice:350, off:20, rating:0, reviews:0, visual:'lipstick', img:IMAGES.makeupFlat, bestSeller:true},
+  {id:'p6', brand:'Glow Out', name:'Beauty Blender Sponge', shade:'One Size', category:'Makeup', subcategory:'Tools', price:150, oldPrice:200, off:25, rating:0, reviews:0, visual:'sponge', img:IMAGES.makeupFlat},
+  {id:'p7', brand:'Glow Out', name:'Vitamin C Serum', shade:'30ml', category:'Skincare', subcategory:'', price:520, oldPrice:650, off:20, rating:0, reviews:0, visual:'serum', img:IMAGES.skincare},
+  {id:'p8', brand:'Glow Out', name:'Hydrating Face Cream', shade:'50ml', category:'Skincare', subcategory:'', price:380, oldPrice:480, off:21, rating:0, reviews:0, visual:'jar', img:IMAGES.skincare, bestSeller:true},
+  {id:'p9', brand:'Glow Out', name:'Argan Hair Oil', shade:'100ml', category:'Hair Care', subcategory:'', price:300, oldPrice:380, off:21, rating:0, reviews:0, visual:'hairoil', img:IMAGES.haircare},
+  {id:'p10', brand:'Glow Out', name:'Rose Eau de Parfum', shade:'50ml', category:'Fragrance', subcategory:'', price:650, oldPrice:800, off:19, rating:0, reviews:0, visual:'perfume', img:IMAGES.fragrance},
+  {id:'p11', brand:'Glow Out', name:'Shea Body Butter', shade:'200ml', category:'Body Care', subcategory:'', price:280, oldPrice:350, off:20, rating:0, reviews:0, visual:'bodybutter', img:IMAGES.skincare},
+  {id:'p12', brand:'Glow Out', name:'Makeup Brush Set', shade:'12 pcs', category:'Tools & Accessories', subcategory:'', price:450, oldPrice:600, off:25, rating:0, reviews:0, visual:'brushes', img:IMAGES.makeupFlat},
+  {id:'p13', brand:'Glow Out', name:'Men Face Wash', shade:'150ml', category:'Men Care', subcategory:'', price:220, oldPrice:280, off:21, rating:0, reviews:0, visual:'facewash', img:IMAGES.skincare},
+  {id:'p14', brand:'Glow Out', name:'Glow Bundle Gift Set', shade:'Set of 4', category:'Special Offers', subcategory:'', price:900, oldPrice:1200, off:25, rating:0, reviews:0, visual:'giftbox', img:IMAGES.bundle, bundle:true},
+  {id:'p15', brand:'Glow Out', name:'Skincare Starter Bundle', shade:'Set of 3', category:'Special Offers', subcategory:'', price:680, oldPrice:950, off:28, rating:0, reviews:0, visual:'jar', img:IMAGES.bundle, bundle:true},
+  {id:'p16', brand:'Glow Out', name:'Mini Makeup Bundle', shade:'Set of 5', category:'Special Offers', subcategory:'', price:750, oldPrice:1050, off:29, rating:0, reviews:0, visual:'lipstick', img:IMAGES.makeupFlat, bundle:true},
+  {id:'k1', brand:'Glow Out Kids', name:'Gentle Kids Shampoo', shade:'200ml', category:'Kids', subcategory:'', price:180, oldPrice:220, off:18, rating:0, reviews:0, visual:'facewash', img:IMAGES.kids},
+  {id:'k2', brand:'Glow Out Kids', name:'Kids Sunscreen Lotion', shade:'SPF 50 · 100ml', category:'Kids', subcategory:'', price:220, oldPrice:270, off:19, rating:0, reviews:0, visual:'jar', img:IMAGES.sunscreen},
+  {id:'k3', brand:'Glow Out Kids', name:'Fruity Bubble Bath', shade:'300ml', category:'Kids', subcategory:'', price:160, oldPrice:200, off:20, rating:0, reviews:0, visual:'bodybutter', img:IMAGES.kids}
 ];
 SEED_PRODUCTS.forEach(p=>{ if(!p.desc) p.desc = 'A must-have from Glow Out Cosmetics, crafted to bring out your natural beauty with premium, skin-friendly ingredients.'; if(!p.how) p.how='Apply as needed to clean skin/hair. For best results, use daily as part of your beauty routine.'; });
 
@@ -1256,30 +1256,30 @@ SEED_PRODUCTS.forEach(p=>{ if(!p.desc) p.desc = 'A must-have from Glow Out Cosme
    ("Add Cosmetics Products") rather than at first boot, so it can top up
    an ALREADY-LIVE store (real Firestore data) without needing a reset. */
 const EXTRA_COSMETICS_PRODUCTS = [
-  {id:'cz1', brand:'Maybelline', name:'Fit Me Matte Pressed Powder', shade:'Shade 130', category:'Makeup', subcategory:'Face', price:340, oldPrice:430, off:21, rating:4.6, reviews:88, visual:'foundation', img:IMAGES.foundation},
-  {id:'cz2', brand:"L'Oreal", name:'Infallible Full Wear Concealer', shade:'Shade 325', category:'Makeup', subcategory:'Face', price:360, oldPrice:460, off:22, rating:4.7, reviews:112, visual:'concealer', img:IMAGES.makeupFlat},
-  {id:'cz3', brand:'NYX', name:'Epic Ink Waterproof Eyeliner', shade:'Black', category:'Makeup', subcategory:'Eyes', price:260, oldPrice:320, off:19, rating:4.6, reviews:140, visual:'mascara', img:IMAGES.makeupFlat},
-  {id:'cz4', brand:'Maybelline', name:'The Blushed Nudes Eyeshadow Palette', shade:'12 Shades', category:'Makeup', subcategory:'Eyes', price:480, oldPrice:600, off:20, rating:4.8, reviews:96, visual:'lipliner', img:IMAGES.makeupFlat, bestSeller:true},
-  {id:'cz5', brand:'Glow Out', name:'Matte Liquid Lipstick', shade:'Shade Rosewood', category:'Makeup', subcategory:'Lips', price:220, oldPrice:280, off:21, rating:4.6, reviews:75, visual:'lipstick', img:IMAGES.makeupFlat},
-  {id:'cz6', brand:'Glow Out', name:'Niacinamide 10% Serum', shade:'30ml', category:'Skincare', subcategory:'', price:420, oldPrice:520, off:19, rating:4.8, reviews:210, visual:'serum', img:IMAGES.skincare, bestSeller:true},
-  {id:'cz7', brand:'Glow Out', name:'Gentle Foaming Cleanser', shade:'150ml', category:'Skincare', subcategory:'', price:260, oldPrice:320, off:19, rating:4.7, reviews:130, visual:'facewash', img:IMAGES.skincare},
-  {id:'cz8', brand:'Glow Out', name:'Daily Defense Sunscreen SPF50', shade:'50ml', category:'Skincare', subcategory:'', price:340, oldPrice:420, off:19, rating:4.9, reviews:260, visual:'jar', img:IMAGES.sunscreen, bestSeller:true},
-  {id:'cz9', brand:'Glow Out', name:'Hyaluronic Acid Moisturizer', shade:'50ml', category:'Skincare', subcategory:'', price:390, oldPrice:480, off:19, rating:4.7, reviews:150, visual:'jar', img:IMAGES.skincare},
-  {id:'cz10', brand:'Glow Out', name:'Keratin Repair Shampoo', shade:'250ml', category:'Hair Care', subcategory:'', price:260, oldPrice:320, off:19, rating:4.6, reviews:100, visual:'hairoil', img:IMAGES.haircare},
-  {id:'cz11', brand:'Glow Out', name:'Keratin Repair Conditioner', shade:'250ml', category:'Hair Care', subcategory:'', price:270, oldPrice:330, off:18, rating:4.6, reviews:90, visual:'hairoil', img:IMAGES.haircare},
-  {id:'cz12', brand:'Glow Out', name:'Heat Protection Hair Serum', shade:'80ml', category:'Hair Care', subcategory:'', price:250, oldPrice:310, off:19, rating:4.5, reviews:64, visual:'hairoil', img:IMAGES.haircare},
-  {id:'cz13', brand:'Glow Out', name:'Vanilla Musk Eau de Parfum', shade:'50ml', category:'Fragrance', subcategory:'', price:600, oldPrice:750, off:20, rating:4.8, reviews:170, visual:'perfume', img:IMAGES.fragrance},
-  {id:'cz14', brand:'Glow Out', name:'Citrus Bloom Body Mist', shade:'150ml', category:'Fragrance', subcategory:'', price:220, oldPrice:280, off:21, rating:4.5, reviews:80, visual:'perfume', img:IMAGES.fragrance},
-  {id:'cz15', brand:'Glow Out', name:'Coconut Milk Body Lotion', shade:'250ml', category:'Body Care', subcategory:'', price:260, oldPrice:320, off:19, rating:4.6, reviews:95, visual:'bodybutter', img:IMAGES.skincare},
-  {id:'cz16', brand:'Glow Out', name:'Exfoliating Body Scrub', shade:'200ml', category:'Body Care', subcategory:'', price:240, oldPrice:300, off:20, rating:4.5, reviews:60, visual:'bodybutter', img:IMAGES.skincare},
-  {id:'cz17', brand:'Glow Out', name:'Professional Makeup Sponge Duo', shade:'2 pcs', category:'Tools & Accessories', subcategory:'', price:160, oldPrice:210, off:24, rating:4.4, reviews:48, visual:'sponge', img:IMAGES.makeupFlat},
-  {id:'cz18', brand:'Glow Out', name:'Eyelash Curler', shade:'One Size', category:'Tools & Accessories', subcategory:'', price:130, oldPrice:170, off:24, rating:4.3, reviews:35, visual:'sponge', img:IMAGES.makeupFlat},
-  {id:'cz19', brand:'Glow Out Men', name:'Men Anti-Dandruff Shampoo', shade:'300ml', category:'Men Care', subcategory:'', price:240, oldPrice:300, off:20, rating:4.5, reviews:70, visual:'facewash', img:IMAGES.skincare},
-  {id:'cz20', brand:'Glow Out Men', name:'Men Beard Oil', shade:'30ml', category:'Men Care', subcategory:'', price:210, oldPrice:270, off:22, rating:4.6, reviews:58, visual:'hairoil', img:IMAGES.haircare},
-  {id:'cz21', brand:'Glow Out', name:'Biotin Hair & Skin Capsules', shade:'60 caps', category:'Vitamins', subcategory:'', price:320, oldPrice:400, off:20, rating:4.7, reviews:110, visual:'jar', img:IMAGES.skincare},
-  {id:'cz22', brand:'Glow Out', name:'Vitamin C Immunity Tablets', shade:'30 tabs', category:'Vitamins', subcategory:'', price:180, oldPrice:230, off:22, rating:4.6, reviews:85, visual:'jar', img:IMAGES.skincare},
-  {id:'cz23', brand:'Glow Out', name:'Collagen Beauty Gummies', shade:'60 gummies', category:'Vitamins', subcategory:'', price:350, oldPrice:440, off:20, rating:4.8, reviews:132, visual:'jar', img:IMAGES.skincare, bestSeller:true},
-  {id:'cz24', brand:'Glow Out Kids', name:'No-Tears Kids Shower Gel', shade:'250ml', category:'Kids', subcategory:'', price:170, oldPrice:210, off:19, rating:4.6, reviews:40, visual:'bodybutter', img:IMAGES.kids}
+  {id:'cz1', brand:'Maybelline', name:'Fit Me Matte Pressed Powder', shade:'Shade 130', category:'Makeup', subcategory:'Face', price:340, oldPrice:430, off:21, rating:0, reviews:0, visual:'foundation', img:IMAGES.foundation},
+  {id:'cz2', brand:"L'Oreal", name:'Infallible Full Wear Concealer', shade:'Shade 325', category:'Makeup', subcategory:'Face', price:360, oldPrice:460, off:22, rating:0, reviews:0, visual:'concealer', img:IMAGES.makeupFlat},
+  {id:'cz3', brand:'NYX', name:'Epic Ink Waterproof Eyeliner', shade:'Black', category:'Makeup', subcategory:'Eyes', price:260, oldPrice:320, off:19, rating:0, reviews:0, visual:'mascara', img:IMAGES.makeupFlat},
+  {id:'cz4', brand:'Maybelline', name:'The Blushed Nudes Eyeshadow Palette', shade:'12 Shades', category:'Makeup', subcategory:'Eyes', price:480, oldPrice:600, off:20, rating:0, reviews:0, visual:'lipliner', img:IMAGES.makeupFlat, bestSeller:true},
+  {id:'cz5', brand:'Glow Out', name:'Matte Liquid Lipstick', shade:'Shade Rosewood', category:'Makeup', subcategory:'Lips', price:220, oldPrice:280, off:21, rating:0, reviews:0, visual:'lipstick', img:IMAGES.makeupFlat},
+  {id:'cz6', brand:'Glow Out', name:'Niacinamide 10% Serum', shade:'30ml', category:'Skincare', subcategory:'', price:420, oldPrice:520, off:19, rating:0, reviews:0, visual:'serum', img:IMAGES.skincare, bestSeller:true},
+  {id:'cz7', brand:'Glow Out', name:'Gentle Foaming Cleanser', shade:'150ml', category:'Skincare', subcategory:'', price:260, oldPrice:320, off:19, rating:0, reviews:0, visual:'facewash', img:IMAGES.skincare},
+  {id:'cz8', brand:'Glow Out', name:'Daily Defense Sunscreen SPF50', shade:'50ml', category:'Skincare', subcategory:'', price:340, oldPrice:420, off:19, rating:0, reviews:0, visual:'jar', img:IMAGES.sunscreen, bestSeller:true},
+  {id:'cz9', brand:'Glow Out', name:'Hyaluronic Acid Moisturizer', shade:'50ml', category:'Skincare', subcategory:'', price:390, oldPrice:480, off:19, rating:0, reviews:0, visual:'jar', img:IMAGES.skincare},
+  {id:'cz10', brand:'Glow Out', name:'Keratin Repair Shampoo', shade:'250ml', category:'Hair Care', subcategory:'', price:260, oldPrice:320, off:19, rating:0, reviews:0, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz11', brand:'Glow Out', name:'Keratin Repair Conditioner', shade:'250ml', category:'Hair Care', subcategory:'', price:270, oldPrice:330, off:18, rating:0, reviews:0, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz12', brand:'Glow Out', name:'Heat Protection Hair Serum', shade:'80ml', category:'Hair Care', subcategory:'', price:250, oldPrice:310, off:19, rating:0, reviews:0, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz13', brand:'Glow Out', name:'Vanilla Musk Eau de Parfum', shade:'50ml', category:'Fragrance', subcategory:'', price:600, oldPrice:750, off:20, rating:0, reviews:0, visual:'perfume', img:IMAGES.fragrance},
+  {id:'cz14', brand:'Glow Out', name:'Citrus Bloom Body Mist', shade:'150ml', category:'Fragrance', subcategory:'', price:220, oldPrice:280, off:21, rating:0, reviews:0, visual:'perfume', img:IMAGES.fragrance},
+  {id:'cz15', brand:'Glow Out', name:'Coconut Milk Body Lotion', shade:'250ml', category:'Body Care', subcategory:'', price:260, oldPrice:320, off:19, rating:0, reviews:0, visual:'bodybutter', img:IMAGES.skincare},
+  {id:'cz16', brand:'Glow Out', name:'Exfoliating Body Scrub', shade:'200ml', category:'Body Care', subcategory:'', price:240, oldPrice:300, off:20, rating:0, reviews:0, visual:'bodybutter', img:IMAGES.skincare},
+  {id:'cz17', brand:'Glow Out', name:'Professional Makeup Sponge Duo', shade:'2 pcs', category:'Tools & Accessories', subcategory:'', price:160, oldPrice:210, off:24, rating:0, reviews:0, visual:'sponge', img:IMAGES.makeupFlat},
+  {id:'cz18', brand:'Glow Out', name:'Eyelash Curler', shade:'One Size', category:'Tools & Accessories', subcategory:'', price:130, oldPrice:170, off:24, rating:0, reviews:0, visual:'sponge', img:IMAGES.makeupFlat},
+  {id:'cz19', brand:'Glow Out Men', name:'Men Anti-Dandruff Shampoo', shade:'300ml', category:'Men Care', subcategory:'', price:240, oldPrice:300, off:20, rating:0, reviews:0, visual:'facewash', img:IMAGES.skincare},
+  {id:'cz20', brand:'Glow Out Men', name:'Men Beard Oil', shade:'30ml', category:'Men Care', subcategory:'', price:210, oldPrice:270, off:22, rating:0, reviews:0, visual:'hairoil', img:IMAGES.haircare},
+  {id:'cz21', brand:'Glow Out', name:'Biotin Hair & Skin Capsules', shade:'60 caps', category:'Vitamins', subcategory:'', price:320, oldPrice:400, off:20, rating:0, reviews:0, visual:'jar', img:IMAGES.skincare},
+  {id:'cz22', brand:'Glow Out', name:'Vitamin C Immunity Tablets', shade:'30 tabs', category:'Vitamins', subcategory:'', price:180, oldPrice:230, off:22, rating:0, reviews:0, visual:'jar', img:IMAGES.skincare},
+  {id:'cz23', brand:'Glow Out', name:'Collagen Beauty Gummies', shade:'60 gummies', category:'Vitamins', subcategory:'', price:350, oldPrice:440, off:20, rating:0, reviews:0, visual:'jar', img:IMAGES.skincare, bestSeller:true},
+  {id:'cz24', brand:'Glow Out Kids', name:'No-Tears Kids Shower Gel', shade:'250ml', category:'Kids', subcategory:'', price:170, oldPrice:210, off:19, rating:0, reviews:0, visual:'bodybutter', img:IMAGES.kids}
 ];
 EXTRA_COSMETICS_PRODUCTS.forEach(p=>{ if(!p.desc) p.desc = 'A must-have from Glow Out Cosmetics, crafted to bring out your natural beauty with premium, skin-friendly ingredients.'; if(!p.how) p.how='Apply as needed to clean skin/hair. For best results, use daily as part of your beauty routine.'; });
 /* Adds any EXTRA_COSMETICS_PRODUCTS not already in the catalog (matched by
@@ -1390,6 +1390,13 @@ function toggleCollapse(id){
   document.getElementById(id).classList.toggle('open');
 }
 function money(n){ return 'EGP '+n; }
+/* Escapes any text a customer typed (name, phone, address, review, ticket
+   message...) before it's inserted into innerHTML, so a visitor can't run
+   script in another visitor's or the admin's browser (stored XSS). */
+function esc(s){
+  if(s===undefined||s===null) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 /* ============== SPLASH -> BOOT ============== */
 window.addEventListener('load', ()=>{
@@ -1490,7 +1497,7 @@ function productCardHtmlNoImg(p){
     <span class="prod-heart" data-pid="${p.id}" onclick="event.stopPropagation();toggleWishlist('${p.id}')">${heartIcon(inWish)}</span>
     <div class="prod-brand">${p.brand}</div>
     <div class="prod-name">${p.name}</div>
-    <div class="rating-mini"><span class="stars">★</span>${p.rating||''} ${p.reviews?`(${p.reviews})`:''}</div>
+    <div class="rating-mini">${p.reviews?`<span class="stars">★</span>${p.rating} (${p.reviews})`:'New'}</div>
     <div class="prod-price-row"><span class="prod-price">${money(p.price)}</span><span class="prod-old">${money(p.oldPrice)}</span></div>
   </div>`;
 }
@@ -1599,7 +1606,14 @@ function renderDetail(){
   document.getElementById('detailImg').innerHTML = p.img ? `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : visualSvg(p.visual).replace('width:62%;height:62%;','width:52%;height:52%;');
   document.getElementById('detailBrand').textContent = p.brand;
   document.getElementById('detailName').textContent = p.name;
-  document.getElementById('detailRating').textContent = `${p.rating} (${p.reviews} reviews)`;
+  const detailStarsEl = document.getElementById('detailStars');
+  if(p.reviews){
+    detailStarsEl.style.display='';
+    document.getElementById('detailRating').textContent = `${p.rating} (${p.reviews} reviews)`;
+  } else {
+    detailStarsEl.style.display='none';
+    document.getElementById('detailRating').textContent = 'New — no reviews yet';
+  }
   document.getElementById('detailPriceLine').innerHTML = `<span class="now">${money(p.price)}</span><span class="old">${money(p.oldPrice)}</span>${p.off?`<span class="off">${p.off}% OFF</span>`:''}`;
   const swWrap = document.getElementById('detailSwatches');
   if(p.shades && p.shades.length){
@@ -1697,9 +1711,9 @@ function renderReviews(p){
   wrap.innerHTML = list.map(r=>{
     const d = new Date(r.date);
     return `<div class="review-item">
-      <div class="review-item-top"><span class="review-item-name">${r.name}</span><span class="review-item-date">${d.toLocaleDateString()}</span></div>
+      <div class="review-item-top"><span class="review-item-name">${esc(r.name)}</span><span class="review-item-date">${d.toLocaleDateString()}</span></div>
       <div class="review-item-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
-      <div class="review-item-text">${r.text}</div>
+      <div class="review-item-text">${esc(r.text)}</div>
     </div>`;
   }).join('');
 }
@@ -2203,7 +2217,7 @@ function openTrack(orderId){
       <div class="toc-id">Order #${o.id.slice(0,6).toUpperCase()}</div>
       <div class="toc-date">Placed on ${dt.toLocaleDateString()} · ${dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
       <div class="toc-view" id="trackViewDetailsLink" onclick="toggleTrackDetails()">View Details</div>
-      <div class="toc-details" id="trackDetails" style="display:none;">${itemsTxt}<br>Total: ${money(o.total)}<br>${o.address.text}</div>
+      <div class="toc-details" id="trackDetails" style="display:none;">${itemsTxt}<br>Total: ${money(o.total)}<br>${esc(o.address.text)}</div>
     </div>`;
   document.getElementById('stepper').innerHTML = STATUS_STEPS.map((s,i)=>{
     const done = i<currentIdx;
@@ -2239,7 +2253,7 @@ function renderAddresses(){
   }
   wrap.innerHTML = state.addresses.map(a=>`
     <div class="addr-card">
-      <div><div class="lbl">${a.fullName}</div><div class="txt">${a.governorate} · ${a.city}<br>${a.detailed}<br>${a.phone}</div></div>
+      <div><div class="lbl">${esc(a.fullName)}</div><div class="txt">${esc(a.governorate)} · ${esc(a.city)}<br>${esc(a.detailed)}<br>${esc(a.phone)}</div></div>
       <span class="addr-del" onclick="deleteAddress('${a.id}')"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 6.5h17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 6.5V4.8a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8v1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 6.5 17.7 19a2 2 0 0 1-2 1.9H8.3a2 2 0 0 1-2-1.9L5.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 10.3v6.4M14 10.3v6.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
     </div>`).join('');
 }
@@ -2266,10 +2280,10 @@ function renderSelectAddress(){
     <div class="select-addr-card ${a.id===state.selectedAddrId?'active':''}" onclick="pickAddress('${a.id}')">
       <div class="sac-radio"></div>
       <div class="sac-body">
-        <div class="lbl">${a.fullName}</div>
-        <div class="txt">${a.governorate} · ${a.city}</div>
-        <div class="txt">${a.detailed}</div>
-        <div class="txt">${a.phone}</div>
+        <div class="lbl">${esc(a.fullName)}</div>
+        <div class="txt">${esc(a.governorate)} · ${esc(a.city)}</div>
+        <div class="txt">${esc(a.detailed)}</div>
+        <div class="txt">${esc(a.phone)}</div>
       </div>
     </div>`).join('');
 }
@@ -2343,6 +2357,8 @@ const FETCH_FAILED = Symbol('fetch-failed');
                              products: writing/reading a single order can
                              never be overwritten by another device's stale
                              copy of the full order list)
+   loginHistory/{loginId}  → one document per admin login event, for the
+                             same anti-clobbering reason as orders
    store/reviews           store/coupons
    store/settings          store/extraCategories    store/governorates
    store/offers            store/returns            store/tickets
@@ -2365,6 +2381,11 @@ let _knownProductIds = new Set(); // ids last confirmed to exist in Firestore, s
    unrelated device pushing a stale, locally-cached copy of the full order
    list (which is exactly what used to make freshly-placed orders vanish). */
 function ordersColRef(){ return fbDb.collection('orders'); }
+/* Login history also gets its own collection (one doc per login event),
+   for the same reason orders do: so a login recorded on one device can
+   never be silently dropped by another device pushing a stale, full copy
+   of the shared "security" object at roughly the same time. */
+function loginHistoryColRef(){ return fbDb.collection('loginHistory'); }
 
 async function fetchCoreFromFirestore(){
   if(!fbReady) return FETCH_FAILED;
@@ -2412,6 +2433,21 @@ function persistOneOrder(order){
   if(!fbReady) return;
   ordersColRef().doc(String(order.id)).set(order).catch(e=>console.error('persistOneOrder failed', e));
 }
+function persistOneLogin(entry){
+  if(!fbReady) return;
+  loginHistoryColRef().doc(String(entry.id)).set(entry).catch(e=>console.error('persistOneLogin failed', e));
+}
+async function fetchLoginHistoryFromFirestore(){
+  if(!fbReady) return FETCH_FAILED;
+  try{
+    const snap = await withTimeout(loginHistoryColRef().get(), 8000, FETCH_FAILED);
+    if(snap===FETCH_FAILED) return FETCH_FAILED;
+    if(snap.empty) return null;
+    const list = snap.docs.map(d=>d.data());
+    list.sort((a,b)=>(b.date||0)-(a.date||0));
+    return list;
+  }catch(e){ console.error('fetchLoginHistory failed', e); return FETCH_FAILED; }
+}
 /* Full resync of the whole orders collection — only used the very first
    time a brand-new Firestore project is seeded with whatever orders
    already exist locally. */
@@ -2431,7 +2467,18 @@ function pushCoreToFirestore(coreData){
     const batch = fbDb.batch();
     STORE_KEYS.forEach(key=>{
       if(coreData[key]===undefined) return;
-      batch.set(storeDocRef(key), { value: coreData[key], updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      let value = coreData[key];
+      if(key==='security'){
+        // currentAdminId is "who is logged in on THIS browser" — it must
+        // NEVER be synced, or logging in on one device silently makes
+        // every other open admin session think IT is now that person too.
+        // loginHistory has its own collection (see loginHistoryColRef) for
+        // the same anti-clobbering reason orders/products do, so it's
+        // dropped here too rather than duplicated in two places.
+        const { currentAdminId, loginHistory, ...rest } = value;
+        value = rest;
+      }
+      batch.set(storeDocRef(key), { value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     });
     batch.commit().catch(e=>console.error('pushCore failed', e));
   }catch(e){ console.error('pushCore failed', e); }
@@ -2515,11 +2562,12 @@ function refreshAfterSync(){
    call again any time. */
 async function syncFromFirestore(){
   if(!fbReady) return;
-  const [core, products, orders] = await Promise.all([fetchCoreFromFirestore(), fetchProductsFromFirestore(), fetchOrdersFromFirestore()]);
+  const [core, products, orders, loginHistory] = await Promise.all([fetchCoreFromFirestore(), fetchProductsFromFirestore(), fetchOrdersFromFirestore(), fetchLoginHistoryFromFirestore()]);
   let changed = false;
   if(core && core!==FETCH_FAILED){ applyLoadedCore(core); changed = true; }
   if(products && products!==FETCH_FAILED){ state.products = products; changed = true; }
   if(orders && orders!==FETCH_FAILED){ state.orders = orders; changed = true; }
+  if(loginHistory && loginHistory!==FETCH_FAILED){ state.security.loginHistory = loginHistory; changed = true; }
   if(changed){
     try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
     refreshAfterSync();
@@ -2635,6 +2683,13 @@ function attachRealtimeListeners(){
     try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
     refreshAfterSync();
   }, e=>console.error('onSnapshot orders failed', e));
+  loginHistoryColRef().onSnapshot(snap=>{
+    const list = snap.docs.map(d=>d.data());
+    list.sort((a,b)=>(b.date||0)-(a.date||0));
+    state.security.loginHistory = list;
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(Object.assign({products:state.products}, buildCoreSnapshot()))); }catch(e){}
+    refreshAfterSync();
+  }, e=>console.error('onSnapshot loginHistory failed', e));
 }
 function loadDB(){
   let saved = null;
@@ -2699,8 +2754,10 @@ function submitAdminLogin(){
   }
   state.security.currentAdminId = match.id;
   state.security.loginHistory = state.security.loginHistory || [];
-  state.security.loginHistory.unshift({id:genId('login'), date:Date.now(), device:(navigator.userAgent||'Unknown device').slice(0,60), name:match.name, username:match.username||match.email});
+  const loginEntry = {id:genId('login'), date:Date.now(), device:(navigator.userAgent||'Unknown device').slice(0,60), name:match.name, username:match.username||match.email};
+  state.security.loginHistory.unshift(loginEntry);
   if(state.security.loginHistory.length>30) state.security.loginHistory.length = 30;
+  persistOneLogin(loginEntry);
   saveDB();
   logActivity(`${match.name} logged in`);
   closeAdminLogin();
@@ -2837,7 +2894,7 @@ function renderAdmDashboard(){
         : '<div class="adm-empty">No sales yet.</div>'
       }</div>
       <div class="adm-panel"><h4><span style="display:inline-flex;width:12px;height:12px;vertical-align:-1px;margin-right:5px;">${ADM_ICONS.orders}</span>Recent Orders</h4>${
-        recent.length ? recent.map(o=>`<div class="adm-list-row"><div class="lr-name">#${o.id.slice(-6).toUpperCase()} · ${o.customerName||'Guest'}</div><div class="lr-meta"><span class="adm-pill pill-${o.status.replace(/\s/g,'')}">${o.status}</span></div></div>`).join('')
+        recent.length ? recent.map(o=>`<div class="adm-list-row"><div class="lr-name">#${o.id.slice(-6).toUpperCase()} · ${esc(o.customerName)||'Guest'}</div><div class="lr-meta"><span class="adm-pill pill-${o.status.replace(/\s/g,'')}">${o.status}</span></div></div>`).join('')
         : '<div class="adm-empty">No orders yet.</div>'
       }</div>
     </div>
@@ -2874,7 +2931,7 @@ function renderAdmOrders(){
       ${rows.length ? rows.map(o=>`
         <tr>
           <td>#${o.id.slice(-6).toUpperCase()}</td>
-          <td>${o.customerName||'Guest'}<br><span style="color:var(--text-mute);font-size:11px;">${o.customerPhone||''}</span></td>
+          <td>${esc(o.customerName)||'Guest'}<br><span style="color:var(--text-mute);font-size:11px;">${esc(o.customerPhone)}</span></td>
           <td>${admFmtDate(o.createdAt)}</td>
           <td>${o.items.reduce((s,i)=>s+i.qty,0)}</td>
           <td>${money(o.total)}</td>
@@ -2906,12 +2963,12 @@ function openOrderDetail(id){
 
         <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Customer Information</h4>
         <div class="adm-panel" style="margin-bottom:16px;">
-          <div class="adm-list-row"><div class="lr-name">Name</div><div class="lr-meta">${o.customerName||a.fullName||'Guest'}</div></div>
-          <div class="adm-list-row"><div class="lr-name">Phone</div><div class="lr-meta">${o.customerPhone||a.phone||'—'}</div></div>
-          <div class="adm-list-row"><div class="lr-name">Alternate Phone</div><div class="lr-meta">${a.altPhone||'—'}</div></div>
-          <div class="adm-list-row"><div class="lr-name">Governorate</div><div class="lr-meta">${a.governorate||'—'}</div></div>
-          <div class="adm-list-row"><div class="lr-name">City / Area</div><div class="lr-meta">${a.city||'—'}</div></div>
-          <div class="adm-list-row"><div class="lr-name">Detailed Address</div><div class="lr-meta">${a.detailed||a.text||'—'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Name</div><div class="lr-meta">${esc(o.customerName||a.fullName)||'Guest'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Phone</div><div class="lr-meta">${esc(o.customerPhone||a.phone)||'—'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Alternate Phone</div><div class="lr-meta">${esc(a.altPhone)||'—'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Governorate</div><div class="lr-meta">${esc(a.governorate)||'—'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">City / Area</div><div class="lr-meta">${esc(a.city)||'—'}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Detailed Address</div><div class="lr-meta">${esc(a.detailed||a.text)||'—'}</div></div>
         </div>
 
         <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Order Items</h4>
@@ -3270,7 +3327,7 @@ function renderAdmCustomers(){
     <table class="adm-table">
       <thead><tr><th>Name</th><th>Phone</th><th>Governorate</th><th>Segment</th><th>Orders</th><th>Total Spent</th><th>Last Order</th><th></th></tr></thead>
       <tbody>
-      ${rows.length ? rows.map(c=>`<tr style="cursor:pointer;" onclick="openCustomerProfile('${encodeURIComponent(c.key)}')"><td>${c.name}</td><td>${c.phone}</td><td>${c.gov}</td><td><span class="adm-role-tag">${c.segment}</span></td><td>${c.orders}</td><td>${money(c.spent)}</td><td>${admFmtDate(c.last)}</td><td><button class="adm-btn small sec" onclick="event.stopPropagation();openCustomerProfile('${encodeURIComponent(c.key)}')">View</button></td></tr>`).join('')
+      ${rows.length ? rows.map(c=>`<tr style="cursor:pointer;" onclick="openCustomerProfile('${encodeURIComponent(c.key)}')"><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.gov)}</td><td><span class="adm-role-tag">${c.segment}</span></td><td>${c.orders}</td><td>${money(c.spent)}</td><td>${admFmtDate(c.last)}</td><td><button class="adm-btn small sec" onclick="event.stopPropagation();openCustomerProfile('${encodeURIComponent(c.key)}')">View</button></td></tr>`).join('')
       : `<tr><td colspan="8" class="adm-empty">No customers yet.</td></tr>`}
       </tbody>
     </table>
@@ -3293,20 +3350,20 @@ function openCustomerProfile(encodedKey){
     <div style="position:fixed;inset:0;background:rgba(58,36,38,.45);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this) closeCustomerProfile()">
       <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:22px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <div class="adm-h1" style="margin:0;">${c.name}</div>
+          <div class="adm-h1" style="margin:0;">${esc(c.name)}</div>
           <span style="cursor:pointer;font-size:20px;color:var(--text-mute);" onclick="closeCustomerProfile()">×</span>
         </div>
         <div class="adm-sub" style="margin-bottom:16px;"><span class="adm-role-tag">${c.segment}</span></div>
         <div class="adm-panel" style="margin-bottom:16px;">
-          <div class="adm-list-row"><div class="lr-name">Phone</div><div class="lr-meta">${c.phone}</div></div>
-          <div class="adm-list-row"><div class="lr-name">Governorate</div><div class="lr-meta">${c.gov}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Phone</div><div class="lr-meta">${esc(c.phone)}</div></div>
+          <div class="adm-list-row"><div class="lr-name">Governorate</div><div class="lr-meta">${esc(c.gov)}</div></div>
           <div class="adm-list-row"><div class="lr-name">Total Orders</div><div class="lr-meta">${c.orders}</div></div>
           <div class="adm-list-row"><div class="lr-name">Total Spent</div><div class="lr-meta">${money(c.spent)}</div></div>
           <div class="adm-list-row"><div class="lr-name">First Order</div><div class="lr-meta">${admFmtDate(c.first)}</div></div>
           <div class="adm-list-row"><div class="lr-name">Last Order</div><div class="lr-meta">${admFmtDate(c.last)}</div></div>
         </div>
         <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Addresses</h4>
-        <div class="adm-panel" style="margin-bottom:16px;">${addresses.length?addresses.map(a=>`<div class="adm-list-row"><div class="lr-name">${a}</div></div>`).join(''):'<div class="adm-empty">No saved addresses.</div>'}</div>
+        <div class="adm-panel" style="margin-bottom:16px;">${addresses.length?addresses.map(a=>`<div class="adm-list-row"><div class="lr-name">${esc(a)}</div></div>`).join(''):'<div class="adm-empty">No saved addresses.</div>'}</div>
         <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px;font-weight:700;">Order History</h4>
         <div class="adm-panel">${custOrders.length?custOrders.map(o=>`<div class="adm-list-row"><div class="lr-name">#${o.id.slice(-6).toUpperCase()}</div><div class="lr-meta"><span class="adm-pill pill-${o.status.replace(/\s/g,'')}">${o.status}</span> ${money(o.total)}</div></div>`).join(''):'<div class="adm-empty">No orders.</div>'}</div>
       </div>
@@ -3380,7 +3437,7 @@ function renderAdmReviews(){
     <table class="adm-table">
       <thead><tr><th>Product</th><th>Reviewer</th><th>Rating</th><th>Review</th><th>Date</th><th></th></tr></thead>
       <tbody>
-      ${rows.length ? rows.map(r=>`<tr><td>${r.product}</td><td>${r.name}</td><td>${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</td><td>${r.text}</td><td>${admFmtDate(r.date)}</td><td><button class="adm-btn small danger" onclick="deleteReview('${r.pid}',${r.idx})">Delete</button></td></tr>`).join('')
+      ${rows.length ? rows.map(r=>`<tr><td>${esc(r.product)}</td><td>${esc(r.name)}</td><td>${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</td><td>${esc(r.text)}</td><td>${admFmtDate(r.date)}</td><td><button class="adm-btn small danger" onclick="deleteReview('${r.pid}',${r.idx})">Delete</button></td></tr>`).join('')
       : `<tr><td colspan="6" class="adm-empty">No reviews yet.</td></tr>`}
       </tbody>
     </table>
@@ -3833,7 +3890,7 @@ function renderAdmReturns(){
     <div class="adm-toolbar"><div></div><button class="adm-btn" onclick="openReturnForm()">+ New Return</button></div>
     <div class="adm-form" id="returnForm">
       <div class="adm-form-grid">
-        <div><label>Order</label><select id="rfOrder">${state.orders.map(o=>`<option value="${o.id}">#${o.id.slice(-6).toUpperCase()} — ${o.customerName||'Guest'}</option>`).join('')}</select></div>
+        <div><label>Order</label><select id="rfOrder">${state.orders.map(o=>`<option value="${o.id}">#${o.id.slice(-6).toUpperCase()} — ${esc(o.customerName)||'Guest'}</option>`).join('')}</select></div>
         <div><label>Product</label><input id="rfProduct" placeholder="Product name"></div>
         <div><label>Reason</label><input id="rfReason" placeholder="e.g. Wrong shade"></div>
         <div><label>Refund Amount (EGP)</label><input id="rfAmount" type="number"></div>
@@ -3849,7 +3906,7 @@ function renderAdmReturns(){
       <tbody>
       ${state.returns.length ? state.returns.map(r=>`
         <tr>
-          <td>#${r.orderId.slice(-6).toUpperCase()}</td><td>${r.customer}</td><td>${r.product}</td><td>${r.reason}</td><td>${money(r.amount)}</td>
+          <td>#${r.orderId.slice(-6).toUpperCase()}</td><td>${esc(r.customer)}</td><td>${esc(r.product)}</td><td>${esc(r.reason)}</td><td>${money(r.amount)}</td>
           <td><select onchange="updateReturnStatus('${r.id}', this.value)">${RETURN_STAGES.map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
         </tr>`).join('') : `<tr><td colspan="6" class="adm-empty">No return requests yet.</td></tr>`}
       </tbody>
@@ -3897,7 +3954,7 @@ function renderAdmInvoices(){
       <tbody>
       ${rows.length ? rows.map(o=>`
         <tr>
-          <td>INV-${o.id.slice(-6).toUpperCase()}</td><td>#${o.id.slice(-6).toUpperCase()}</td><td>${o.customerName||'Guest'}</td>
+          <td>INV-${o.id.slice(-6).toUpperCase()}</td><td>#${o.id.slice(-6).toUpperCase()}</td><td>${esc(o.customerName)||'Guest'}</td>
           <td>${admFmtDate(o.createdAt)}</td><td>${money(o.total)}</td>
           <td><button class="adm-btn small sec" onclick="printInvoice('${o.id}')">View / Print</button></td>
         </tr>`).join('') : `<tr><td colspan="6" class="adm-empty">No invoices yet.</td></tr>`}
@@ -3916,8 +3973,8 @@ function printInvoice(orderId){
   </head><body>
     <h1>${state.settings.name||'Glow Out Cosmetics'}</h1>
     <p>Invoice #: INV-${o.id.slice(-6).toUpperCase()} &nbsp;|&nbsp; Order #: ${o.id.slice(-6).toUpperCase()} &nbsp;|&nbsp; Date: ${admFmtDate(o.createdAt)}</p>
-    <p>Customer: ${o.customerName||'Guest'} — ${o.customerPhone||''}</p>
-    <p>Address: ${o.address?o.address.text:'—'}</p>
+    <p>Customer: ${esc(o.customerName)||'Guest'} — ${esc(o.customerPhone)}</p>
+    <p>Address: ${o.address?esc(o.address.text):'—'}</p>
     <table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table>
     <div class="tot">Subtotal: ${money(o.subtotal)}<br>Shipping: ${money(o.shipping)}<br>Discount: -${money(o.discount||0)}<br>Total: ${money(o.total)}</div>
     <p style="margin-top:30px;color:#8d7375;font-size:12px;">Payment Method: Cash on Delivery</p>
@@ -3994,11 +4051,11 @@ function renderAdmSupport(){
     ${state.tickets.length ? state.tickets.map(t=>`
       <div class="adm-panel" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
-          <div><strong style="color:var(--maroon-dark);">${t.subject}</strong><div style="font-size:11px;color:var(--text-mute);">${t.customer} · ${admFmtDate(t.date)}</div></div>
+          <div><strong style="color:var(--maroon-dark);">${esc(t.subject)}</strong><div style="font-size:11px;color:var(--text-mute);">${esc(t.customer)} · ${admFmtDate(t.date)}</div></div>
           <select onchange="updateTicketStatus('${t.id}', this.value)">${TICKET_STAGES.map(s=>`<option ${t.status===s?'selected':''}>${s}</option>`).join('')}</select>
         </div>
-        <p style="font-size:12.5px;margin-top:8px;">${t.message}</p>
-        ${t.reply ? `<div style="margin-top:8px;padding:8px 10px;background:var(--pink-softer);border-radius:10px;font-size:12px;"><strong>Admin reply:</strong> ${t.reply}</div>` : `<button class="adm-btn small sec" style="margin-top:8px;" onclick="replyTicket('${t.id}')">Reply</button>`}
+        <p style="font-size:12.5px;margin-top:8px;">${esc(t.message)}</p>
+        ${t.reply ? `<div style="margin-top:8px;padding:8px 10px;background:var(--pink-softer);border-radius:10px;font-size:12px;"><strong>Admin reply:</strong> ${esc(t.reply)}</div>` : `<button class="adm-btn small sec" style="margin-top:8px;" onclick="replyTicket('${t.id}')">Reply</button>`}
       </div>`).join('') : '<div class="adm-empty">No support tickets yet.</div>'}
   `;
 }
@@ -4075,7 +4132,7 @@ function renderAdmNotifications(){
       `).join('')}
     </div>
     <h4 style="font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mute);margin-bottom:10px;font-weight:700;">Sent Notifications</h4>
-    <div class="adm-panel" style="margin-bottom:20px;">${(state.notificationsLog||[]).length ? state.notificationsLog.map(n=>`<div class="adm-list-row"><div class="lr-name">${n.message}</div><div class="lr-meta">${n.audience} · ${admFmtDate(n.date)}</div></div>`).join('') : '<div class="adm-empty">No notifications sent yet.</div>'}</div>
+    <div class="adm-panel" style="margin-bottom:20px;">${(state.notificationsLog||[]).length ? state.notificationsLog.map(n=>`<div class="adm-list-row"><div class="lr-name">${esc(n.message)}</div><div class="lr-meta">${esc(n.audience)} · ${admFmtDate(n.date)}</div></div>`).join('') : '<div class="adm-empty">No notifications sent yet.</div>'}</div>
   `;
 }
 function toggleAutoNotify(key){
@@ -4271,7 +4328,7 @@ function renderAdmActivityLog(){
   el.innerHTML = `
     <div class="adm-h1">Activity Log</div>
     <div class="adm-sub">Everything that happens in the admin panel, most recent first</div>
-    <div class="adm-panel" style="margin-bottom:20px;">${rows.length ? rows.slice(0,150).map(l=>`<div class="adm-log-row"><span class="adm-log-dot"></span><span>${l.text}</span><span class="adm-log-time">${new Date(l.date).toLocaleString('en-GB')}</span></div>`).join('') : '<div class="adm-empty">No activity recorded yet.</div>'}</div>
+    <div class="adm-panel" style="margin-bottom:20px;">${rows.length ? rows.slice(0,150).map(l=>`<div class="adm-log-row"><span class="adm-log-dot"></span><span>${esc(l.text)}</span><span class="adm-log-time">${new Date(l.date).toLocaleString('en-GB')}</span></div>`).join('') : '<div class="adm-empty">No activity recorded yet.</div>'}</div>
   `;
 }
 
