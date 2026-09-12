@@ -1281,7 +1281,9 @@ const IMAGES = {
   sunscreen:'https://commons.wikimedia.org/wiki/Special:FilePath/Commercial Sunscreens with UV and Non-UV solar radiation protection.jpeg?width=300'
 };
 function imgOrIcon(p){
-  return p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">` : visualSvg(p.visual);
+  if(!p.img) return visualSvg(p.visual);
+  const fallback = visualSvg(p.visual).replace(/"/g,'&quot;');
+  return `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.outerHTML='${fallback}'">`;
 }
 function heartIcon(active){
   return `<svg class="icon-heart-svg${active?' active':''}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21C12 21 4 15.5 4 9.5C4 6.5 6.5 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.5 4 20 6.5 20 9.5C20 15.5 12 21 12 21Z" fill="${active?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`;
@@ -1686,6 +1688,7 @@ function productCardHtmlNoImg(p){
   return `<div class="prod-card-noimg${oos?' is-oos':''}" onclick="openDetail('${p.id}')">
     ${oos?'<span class="prod-oos-badge">Out of Stock</span>':''}
     <span class="prod-heart" data-pid="${p.id}" onclick="event.stopPropagation();toggleWishlist('${p.id}')">${heartIcon(inWish)}</span>
+    <div class="prod-img">${imgOrIcon(p)}</div>
     <div class="prod-brand">${p.brand}</div>
     <div class="prod-name">${p.name}</div>
     <div class="rating-mini">${p.reviews?`<span class="stars">★</span>${p.rating} (${p.reviews})`:'New'}</div>
@@ -1794,7 +1797,7 @@ function goBackFromDetail(){ showScreen(detailFromScreen==='detail'?'home':detai
 function renderDetail(){
   const p = state.products.find(x=>x.id===state.currentProductId);
   if(!p) return;
-  document.getElementById('detailImg').innerHTML = p.img ? `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : visualSvg(p.visual).replace('width:62%;height:62%;','width:52%;height:52%;');
+  document.getElementById('detailImg').innerHTML = p.img ? (()=>{ const fb = visualSvg(p.visual).replace('width:62%;height:62%;','width:52%;height:52%;').replace(/"/g,'&quot;'); return `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='${fb}'">`; })() : visualSvg(p.visual).replace('width:62%;height:62%;','width:52%;height:52%;');
   document.getElementById('detailBrand').textContent = p.brand;
   document.getElementById('detailName').textContent = p.name;
   const detailStarsEl = document.getElementById('detailStars');
@@ -2103,7 +2106,7 @@ function renderCart(){
     const inWish = state.wishlist.some(w=>w.productId===c.productId);
     return `
     <div class="cart-item">
-      <div class="prod-img">${c.img ? `<img src="${c.img}" alt="${c.name}" onerror="this.style.display='none'">` : visualSvg(c.visual)}</div>
+      <div class="prod-img">${c.img ? (()=>{ const fb = visualSvg(c.visual).replace(/"/g,'&quot;'); return `<img src="${c.img}" alt="${c.name}" onerror="this.outerHTML='${fb}'">`; })() : visualSvg(c.visual)}</div>
       <div class="info">
         <div class="prod-brand">${c.brand}</div>
         <div class="prod-name" style="min-height:auto;">${c.name}</div>
