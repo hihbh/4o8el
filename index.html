@@ -292,9 +292,11 @@ input,select,textarea{font-size:16px}
 .chip{padding:9px 16px;font-size:13px;min-height:38px;display:flex;align-items:center}
 .cat-icons .cbtn{padding:12px 4px;font-size:11.5px}
 .product{padding:9px 9px 11px}
-.product .img{aspect-ratio:1/.86;height:auto}
+.product .img{aspect-ratio:3/4.1;height:auto}
 .product .fav{width:32px;height:32px}
 .product .sub{font-size:11px;line-height:1.45}
+.product .rating{display:flex;align-items:center;gap:4px;color:#ffc94d;font-size:12px;font-weight:700;padding:0 2px;margin-bottom:4px}
+.product .rating .cnt{color:var(--muted);font-weight:400;font-size:10.5px}
 .addcart{padding:11px;font-size:12.5px;min-height:42px}
 .qty{padding:7px 14px}
 .qty button{font-size:19px;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
@@ -305,10 +307,37 @@ nav.bottom button{min-height:48px}
 nav.bottom .i{width:22px;height:22px}
 .pill-btn{padding:16px;font-size:15px;min-height:52px}
 .outline-btn{padding:12px;min-height:46px;font-size:14px}
-.detail-img{aspect-ratio:16/12;height:auto;max-height:300px}
+.detail-img{aspect-ratio:4/5;height:auto;max-height:440px}
+.detail-rating{display:flex;align-items:center;justify-content:center;text-align:center;gap:6px;color:#ffc94d;font-size:13px;font-weight:700;margin:0 0 10px}
+.detail-img img{object-fit:contain!important;object-position:center!important}
+.detail-rating .cnt{color:var(--muted);font-weight:400;font-size:12px}
 .rstars span{font-size:34px;padding:4px}
 .upload{padding:28px 10px}
-.row2{height:90px}
+.row2{height:150px;border-radius:22px;border:1.5px solid transparent;
+  background:linear-gradient(90deg,#0a1226,#0e1a36) padding-box, linear-gradient(135deg,var(--cyan),var(--mag)) border-box;
+  box-shadow:0 0 22px -4px rgba(32,215,240,.35),0 0 22px -4px rgba(255,47,214,.25);}
+.row2 img{width:46%;-webkit-mask-image:none;mask-image:none;}
+.row2 .meta{padding:0 4px;gap:8px}
+.row2 .meta b{font-size:19px;line-height:1.4;font-weight:800}
+.row2 .meta span{font-size:19px;line-height:1.4;font-weight:800;color:var(--text)}
+.row2 .arrow{flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 16px}
+.row2 .arrow-circle{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--cyan);display:flex;align-items:center;
+  justify-content:center;color:var(--cyan);font-size:17px;box-shadow:0 0 10px rgba(32,215,240,.45)}
+.row2 .under-bar{width:52px;height:4px;border-radius:4px;background:var(--grad)}
+.product{border:1.5px solid transparent;
+  background:linear-gradient(180deg,#101c3d,#0b1329) padding-box, linear-gradient(135deg,var(--cyan),var(--mag)) border-box;
+  box-shadow:0 0 16px -6px rgba(32,215,240,.35),0 0 16px -6px rgba(255,47,214,.22);}
+.empty-cart{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 20px 30px;text-align:center}
+.empty-cart .circle{position:relative;width:150px;height:150px;border-radius:50%;border:1.5px solid var(--cyan);
+  display:flex;align-items:center;justify-content:center;margin-bottom:26px;
+  box-shadow:0 0 0 1px rgba(32,215,240,.15) inset,0 0 30px rgba(32,215,240,.25)}
+.empty-cart .circle svg{width:64px;height:64px;stroke:var(--cyan);fill:none;stroke-width:1.6;stroke-linecap:round;
+  stroke-linejoin:round;filter:drop-shadow(0 0 8px rgba(32,215,240,.5))}
+.empty-cart .x-badge{position:absolute;top:-2px;inset-inline-end:-2px;width:34px;height:34px;border-radius:50%;
+  background:var(--bg2);border:1.5px solid var(--mag);color:var(--mag);display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;box-shadow:0 0 12px rgba(255,47,214,.45)}
+.empty-cart p{font-size:15.5px;font-weight:700;margin-bottom:16px}
+.empty-cart .bar{width:70px;height:4px;border-radius:4px;background:var(--grad)}
 .row-card{padding:14px;min-height:60px}
 .contact-row{padding:16px;min-height:62px}
 main{padding:16px 14px}
@@ -444,9 +473,16 @@ function setLang(l){
 }
 
 function render(){
+ if(cart.some(c=>!c))cart=cart.filter(Boolean); // safety net: drop any corrupted cart entries
  const app = document.getElementById('app');
  if(state.view==='lang'){ app.innerHTML = langPage(); return; }
- app.innerHTML = header() + main() + bottomNav();
+ try{
+  app.innerHTML = header() + main() + bottomNav();
+ }catch(e){
+  console.error('render() failed:',e,'view=',state.view,'cart=',cart);
+  cart=[]; state.view='home';
+  try{ app.innerHTML = header() + main() + bottomNav(); }catch(e2){ console.error('render() failed again:',e2); }
+ }
 }
 
 /* ================= language page ================= */
@@ -477,6 +513,7 @@ function main(){
   case 'cart': return cartView();
   case 'checkoutInfo': return checkoutInfoView();
   case 'checkoutSummary': return checkoutSummaryView();
+ case 'checkoutConfirm': return checkoutConfirmView();
   case 'fiber': return fiberView();
   case 'fiberForm': return fiberForm();
   case 'mods': return modsList();
@@ -484,6 +521,7 @@ function main(){
   case 'modForm': return modForm();
   case 'contact': return contact();
   case 'account': return account();
+  case 'addresses': return addressesView();
   case 'success': return success();
   default: return home();
  }
@@ -539,7 +577,7 @@ function sections(){
         row2(t('q1a'),t('q1b'),IMG.fib,'fiber');
 }
 function row2(a,b,img,view){
- return `<div class="row2" onclick="go('${view}')"><div class="arrow">${t('arrowRow2')}</div>
+ return `<div class="row2" onclick="go('${view}')"><div class="arrow"><span class="arrow-circle">${t('arrowRow2')}</span><span class="under-bar"></span></div>
   <div class="meta"><b>${a}</b><span>${b}</span></div><img src="${img}" alt=""></div>`;
 }
 
@@ -579,8 +617,9 @@ function detail(){
  const p = P[state.product];
  return `<main>${back('list')}
  <div class="detail-img">${pic(p)}</div>
- <h2 style="font-size:18px;margin-bottom:6px">${x(p.n)}</h2>
+ <h2 style="font-size:18px;margin-bottom:6px;text-align:center">${x(p.n)}</h2>
  <p style="color:var(--muted);font-size:13px;margin:0 0 12px">${x(p.s)}${t('detailTail')}</p>
+ ${p.fits?`<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:0 0 12px;font-size:12.5px;color:var(--text)"><span>🏍️</span><span>${LI()?'يناسب':'Fits'}: <b>${esc(p.fits.split(',').map(f=>f.trim()).filter(Boolean).join(', '))}</b></span></div>`:''}
  <div class="badges">
   <div class="badge2">${t('b1')}</div>
   <div class="badge2">${t('b2')}</div>
@@ -590,22 +629,31 @@ function detail(){
   <span style="color:var(--muted);font-size:13px">${t('price')}</span>
   <b style="font-size:16px">${x(p.price)}</b>
  </div>
- <button class="pill-btn" onclick="addToCart(${state.product});go('cart')">${p.num!=null?t('addCart'):t('reqQuote')}</button>
+ <button class="pill-btn" onclick="addToCart(${state.product})">${p.num!=null?t('addCart'):t('reqQuote')}</button>
  </main>`;
 }
 
 function addToCart(i){ cart.push(P[i]); }
+function bumpCart(i){
+ const c=cart[i]; if(!c)return;
+ const key=c.id||c.n[0];
+ if(c.stock!=null){
+  const cur=P.find(p=>(p.id||p.n[0])===key), limit=cur?cur.stock:c.stock;
+  if(limit!=null && cart.filter(x=>x&&(x.id||x.n[0])===key).length>=limit){ alert(t('cOut')); return; }
+ }
+ cart.push(c); render();
+}
 
 function cartView(){
  return `<main>${back('home')}
  <h2 style="font-size:16px;margin-bottom:14px">${t('cart')}</h2>
- ${cart.length===0?`<p style="color:var(--muted);text-align:center;margin-top:40px">${t('cartEmpty')}</p>`:
+ ${cart.length===0?`<div class="empty-cart"><div class="circle">${SVG.cart}<span class="x-badge">✕</span></div><p>${t('cartEmpty')}</p><span class="bar"></span></div>`:
   cart.map((c,i)=>`<div class="cart-item">
    <div class="thumb" style="width:56px;height:56px;border-radius:10px;background:linear-gradient(160deg,#122043,#0a1226);
      display:flex;align-items:center;justify-content:center;font-size:22px">${pic(c)}</div>
    <div style="flex:1"><b style="font-size:13px;display:block">${x(c.n)}</b>
      <span style="color:var(--muted);font-size:11px">${x(c.price)}</span></div>
-   <div class="qty"><button onclick="removeFromCart(${i})">－</button>1<button onclick="addToCart(P.indexOf(cart[${i}]));render()">＋</button></div>
+   <div class="qty"><button onclick="removeFromCart(${i})">－</button>1<button onclick="bumpCart(${i})">＋</button></div>
   </div>`).join('')}
  ${cart.length? `<div class="cart-total"><span>${t('total')}</span><span>${t('afterInspect')}</span></div>
   <button class="pill-btn" onclick="go('checkoutInfo')">${t('proceedCheckout')}</button>`:''}
@@ -760,11 +808,22 @@ function account(){
  <div class="account-head"><div class="avatar">👤</div><div><b style="font-size:14px">${t('welcome')}</b><br><span style="color:var(--muted);font-size:12px">${t('dear')}</span></div>
   <div style="margin-inline-start:auto;color:var(--muted)">⚙️</div></div>
  ${row(t('myOrders'),'📋','account')}
- ${row(t('addresses'),'📍','account')}
+ ${row(t('addresses'),'📍','addresses')}
  ${row(t('favorites'),'♡','account')}
  ${row(t('notifications'),'🔔','account')}
  ${row(t('language'),'🌐','lang')}
  ${row(t('contactUs'),'💬','contact')}
+ </main>`;
+}
+
+function addressesView(){
+ const list=savedAddrs();
+ return `<main>${back('account')}
+ <h2 style="font-size:16px;margin-bottom:14px">${t('addresses')}</h2>
+ ${list.length?list.map(a=>`<div class="row-card" style="align-items:flex-start;padding:12px"><div class="meta" style="flex:1"><b style="font-size:13px">${esc(a.name||'')}</b><br><span style="color:var(--muted);font-size:11.5px" dir="ltr">${esc(a.phone||'')}</span><br><span style="color:var(--muted);font-size:11.5px">${esc(a.gov||'')} — ${esc(a.addr||'')}</span>
+   <div style="display:flex;gap:8px;margin-top:8px"><button class="outline-btn" style="padding:6px 14px;font-size:11.5px" onclick="useAddr('${a.id}');go('checkoutInfo')">${t('cUseAddr')}</button><button class="outline-btn" style="padding:6px 14px;font-size:11.5px;color:#e55" onclick="delAddr('${a.id}')">${t('cDelAddr')}</button></div>
+  </div></div>`).join(''):`<p style="color:var(--muted);text-align:center;margin-top:30px">${t('cNoAddrs')}</p>`}
+ <button class="pill-btn" style="margin-top:16px" onclick="state.cName='';state.cPhone='';state.cAltPhone='';state.gov='';state.cAddr='';go('checkoutInfo')">${t('cAddNew')}</button>
  </main>`;
 }
 
@@ -908,9 +967,10 @@ window.SET={cats:parseCats(DC),s:{},wa:'010 1234 5678',phone:'010 1234 5678',bra
 window.pic=o=>o.img?`<img src="${esc(o.img)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="">`:o.ic;
 
 /* ================= STORE SIDE: live data + orders/requests ================= */
-Object.assign(D,{cName:['Your name','اسمك'],cPhone:['Phone / WhatsApp','رقم الموبايل / واتساب'],cNote:['Notes (optional)','ملاحظات (اختياري)'],cNeed:['Please enter your name and phone number','من فضلك اكتب اسمك ورقم موبايلك'],cErr:['Could not send, please try again','تعذر الإرسال، حاول مرة أخرى'],cCode:['Coupon code','كود الخصم'],cApply:['Apply','تطبيق'],cBad:['Invalid or expired coupon','الكوبون غير صالح أو منتهي'],cMin:['Minimum order not reached','لم تصل للحد الأدنى للطلب'],cOut:['Sorry, this item is out of stock','عذرًا، المنتج غير متوفر حاليًا'],cClosed:['The store is closed right now','المتجر مغلق حاليًا']});
+Object.assign(D,{cName:['Your name','اسمك'],cPhone:['Phone / WhatsApp','رقم الموبايل / واتساب'],cNote:['Notes (optional)','ملاحظات (اختياري)'],cNeed:['Please enter your name and phone number','من فضلك اكتب اسمك ورقم موبايلك'],cErr:['Could not send, please try again','تعذر الإرسال، حاول مرة أخرى'],cCode:['Coupon code','كود الخصم'],cApply:['Apply','تطبيق'],cBad:['Invalid or expired coupon','الكوبون غير صالح أو منتهي'],cMin:['Minimum order not reached','لم تصل للحد الأدنى للطلب'],cOut:['Sorry, this item is out of stock','عذرًا، المنتج غير متوفر حاليًا'],cClosed:['The store is closed right now','المتجر مغلق حاليًا'],
+cAltPhone:['Alternate phone (optional)','رقم بديل (اختياري)'],cSaveAddr:['Save this address for next time','احفظ العنوان ده للمرة الجاية'],cMyAddrs:['My saved addresses','عناويني المحفوظة'],cNoAddrs:['No saved addresses yet','لسه مفيش عناوين محفوظة'],cUseAddr:['Use this address','استخدم العنوان ده'],cAddNew:['+ Add new address','+ عنوان جديد'],cDelAddr:['Delete','حذف'],cAddrSaved:['Address saved ✅','اتحفظ العنوان ✅'],cChoose:['Choose from saved addresses','اختار من العناوين المحفوظة']});
 const raw={},CK='iftkasa_cache_v1';let ready=false;
-const num=p=>p.num!=null?p.num:(parseFloat(String(p.price[0]).replace(/,/g,''))||null);
+window.num=p=>p.num!=null?p.num:(parseFloat(String(p.price[0]).replace(/,/g,''))||null);
 const mapP=d=>{const ok=d.price!==''&&d.price!=null&&!isNaN(d.price),n=Number(d.price).toLocaleString('en-US');return{id:d.id,n:[d.nEn||d.nAr,d.nAr||d.nEn],s:[d.sEn||'',d.sAr||d.sEn||''],price:ok?[n+' EGP',n+' ج.م']:['Set after inspection','يُحدد بعد المعاينة'],num:ok?Number(d.price):null,cat:d.cat||'',fits:d.fits||'',imgs:String(d.imgs||'').split(/\||\n|,(?=\s*(?:https?:|data:))/).map(a=>a.trim()).filter(Boolean),stock:d.stock===''||d.stock==null?null:Number(d.stock),ic:d.ic||'📦',img:d.img||'',tag:(d.stock!==''&&d.stock!=null&&Number(d.stock)<=0)?['Sold out','نفدت الكمية']:d.tEn||d.tAr?[d.tEn||d.tAr,d.tAr||d.tEn]:undefined}};
 const mapM=d=>({id:d.id,n:[d.nEn||d.nAr,d.nAr||d.nEn],s:[d.sEn||'',d.sAr||d.sEn||''],ic:d.ic||'🔧',img:d.img||''});
 function apply(){
@@ -923,25 +983,35 @@ function apply(){
  const nT=Date.now(),ofs=(raw.offers||[]).filter(o=>(!o.start||new Date(o.start)<=nT)&&(!o.end||new Date(o.end)>nT));
  P.forEach(p=>{const o=ofs.find(o=>!o.cat||o.cat==p.cat),pc=o?Number(o.percent)||0:0;if(pc>0&&p.num!=null){const n=Math.round(p.num*(100-pc)/100),f=n.toLocaleString('en-US');p.old=p.num;p.num=n;p.price=[f+' EGP',f+' ج.م'];p.tag=['-'+pc+'%','-'+pc+'%']}});SET.offer=ofs[0]||null;openHash();SET.open=s.storeOpen!==false;SET.closed=[s.closedEn||'',s.closedAr||''];
  if((state.view=='detail'&&!P[state.product])||(state.view=='modDetail'&&!MODS[state.mod]))state.view='home';
- if(state.view!='lang'&&!['fiberForm','modForm','cart','checkoutInfo','checkoutSummary'].includes(state.view))render();
+ if(state.view!='lang'&&!['fiberForm','modForm','cart','checkoutInfo','checkoutSummary','checkoutConfirm'].includes(state.view))render();
 }
 try{const c=JSON.parse(localStorage.getItem(CK)||'null');if(c&&c.ready){Object.assign(raw,c.raw);ready=true;apply()}}catch(e){}
-['products','mods','fiber','offers','gallery'].forEach(c=>db.collection(c).onSnapshot(s=>{raw[c]=s.docs.map(x=>({id:x.id,...x.data()})).filter(d=>d.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));apply()},()=>{}));
-db.doc('store/settings').onSnapshot(s=>{ready=s.exists;raw.settings=s.data();apply()},()=>{});
-db.collection('coupons').onSnapshot(s=>{raw.coupons=s.docs.map(x=>({id:x.id,...x.data()}))},()=>{});
-db.collection('reviews').where('approved','==',true).onSnapshot(s=>{raw.reviews=s.docs.map(x=>({id:x.id,...x.data()}))},()=>{});
+['products','mods','fiber','offers','gallery'].forEach(c=>db.collection(c).onSnapshot(s=>{raw[c]=s.docs.map(x=>({id:x.id,...x.data()})).filter(d=>d.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));apply()},e=>console.error('Failed to load "'+c+'" from Firestore (check security rules):',e)));
+db.doc('store/settings').onSnapshot(s=>{ready=s.exists;raw.settings=s.data();apply()},e=>console.error('Failed to load store/settings from Firestore (check security rules):',e));
+db.collection('coupons').onSnapshot(s=>{raw.coupons=s.docs.map(x=>({id:x.id,...x.data()}))},e=>console.error('Failed to load coupons from Firestore:',e));
+db.collection('reviews').where('approved','==',true).onSnapshot(s=>{raw.reviews=s.docs.map(x=>({id:x.id,...x.data()}))},e=>console.error('Failed to load reviews from Firestore:',e));
+setTimeout(()=>{ if(!ready) console.error('Store settings never loaded after 8s — the storefront will look empty/broken. Check that doc "store/settings" exists and Firestore security rules allow public read access.'); },8000);
 
-const cust=(note)=>`<div class="field"><label>${t('cName')}</label><input type="text" value="${esc(state.cName||'')}" oninput="state.cName=this.value"></div>
-<div class="field"><label>${t('cPhone')}</label><input type="text" inputmode="tel" dir="ltr" value="${esc(state.cPhone||'')}" oninput="state.cPhone=this.value"></div>`+
+window.cust=(note)=>`<div class="field"><label>${t('cName')}</label><input type="text" value="${esc(state.cName||'')}" oninput="state.cName=this.value"></div>
+<div class="field"><label>${t('cPhone')}</label><input type="text" inputmode="tel" dir="ltr" value="${esc(state.cPhone||'')}" oninput="state.cPhone=this.value"></div>
+<div class="field"><label>${t('cAltPhone')}</label><input type="text" inputmode="tel" dir="ltr" value="${esc(state.cAltPhone||'')}" oninput="state.cAltPhone=this.value"></div>`+
 (note?`<div class="field"><label>${t('cNote')}</label><textarea oninput="state.cNote=this.value">${esc(state.cNote||'')}</textarea></div>`:'');
-const okC=()=>{if(!SET.open){alert(SET.closed[LI()]||SET.closed[1-LI()]||t('cClosed'));return false}if(!(state.cName||'').trim()||(state.cPhone||'').replace(/\D/g,'').length<8){alert(t('cNeed'));return false}return true};
+/* ---------- Saved delivery addresses (kept locally per device) ---------- */
+const savedAddrs=()=>{try{return JSON.parse(localStorage.getItem('ift_addrs')||'[]')}catch(e){return[]}};
+const setSavedAddrs=list=>{try{localStorage.setItem('ift_addrs',JSON.stringify(list))}catch(e){}};
+window.saveCurrentAddr=()=>{if(!(state.cAddr||'').trim())return;const list=savedAddrs();const rec={id:'a_'+Date.now(),name:state.cName||'',phone:state.cPhone||'',altPhone:state.cAltPhone||'',gov:state.gov||'',addr:state.cAddr||''};list.unshift(rec);setSavedAddrs(list.slice(0,20));custToast(t('cAddrSaved'))};
+window.useAddr=id=>{const a=savedAddrs().find(x=>x.id==id);if(!a)return;state.cName=a.name;state.cPhone=a.phone;state.cAltPhone=a.altPhone;state.gov=a.gov;state.cAddr=a.addr;render();custToast(t('cAddrSaved'))};
+window.delAddr=id=>{setSavedAddrs(savedAddrs().filter(x=>x.id!=id));render()};
+function custToast(msg){let el=document.getElementById('iftToast');if(!el){el=document.createElement('div');el.id='iftToast';el.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:20px;font-size:12.5px;z-index:9999;opacity:0;transition:opacity .2s;max-width:80%;text-align:center';document.body.appendChild(el)}el.textContent=msg;el.style.opacity='1';clearTimeout(window._iftToastT);window._iftToastT=setTimeout(()=>{el.style.opacity='0'},1800)}
+window.savedAddrBox=()=>{const list=savedAddrs();if(!list.length)return'';return `<div class="field"><label>${t('cChoose')}</label><div style="display:flex;flex-direction:column;gap:6px">${list.map(a=>`<div class="row-card" style="padding:8px 10px;cursor:pointer" onclick="useAddr('${a.id}')"><div class="meta" style="flex:1"><b style="font-size:12.5px">${esc(a.name)}</b><br><span style="color:var(--muted);font-size:11px">${esc(a.gov)} — ${esc((a.addr||'').slice(0,40))}${(a.addr||'').length>40?'…':''}</span></div><span onclick="event.stopPropagation();delAddr('${a.id}')" style="color:var(--muted);padding:4px 8px">🗑</span></div>`).join('')}</div></div>`};
+window.okC=()=>{if(!SET.open){alert(SET.closed[LI()]||SET.closed[1-LI()]||t('cClosed'));return false}if(!(state.cName||'').trim()||(state.cPhone||'').replace(/\D/g,'').length<8){alert(t('cNeed'));return false}return true};
 const rep=(fn,from,to)=>function(){return fn.apply(this,arguments).replace(from,()=>to)};
 fiberForm=rep(fiberForm,'<button class="pill-btn" onclick="submitFiber()">',cust()+'<button class="pill-btn" onclick="submitFiber()">');
 modForm=rep(modForm,'<button class="pill-btn" onclick="submitMod()">',cust()+'<button class="pill-btn" onclick="submitMod()">');
-const cpnBox=()=>`<div class="field"><label>${t('cCode')}</label><div style="display:flex;gap:8px"><input type="text" dir="ltr" value="${esc(state.cCode||'')}" oninput="state.cCode=this.value" style="flex:1"><button class="outline-btn" style="padding:0 16px" onclick="applyCoupon()">${t('cApply')}</button></div>${state.cpn?`<div style="color:var(--cyan);font-size:12px;margin-top:6px">✓ ${esc(state.cpn.code)} — ${state.cpn.type=='percent'?state.cpn.value+'%':state.cpn.value+' EGP'}</div>`:''}</div>`;
+window.cpnBox=()=>`<div class="field"><label>${t('cCode')}</label><div style="display:flex;gap:8px"><input type="text" dir="ltr" value="${esc(state.cCode||'')}" oninput="state.cCode=this.value" style="flex:1"><button class="outline-btn" style="padding:0 16px" onclick="applyCoupon()">${t('cApply')}</button></div>${state.cpn?`<div style="color:var(--cyan);font-size:12px;margin-top:6px">✓ ${esc(state.cpn.code)} — ${state.cpn.type=='percent'?state.cpn.value+'%':state.cpn.value+' EGP'}</div>`:''}</div>`;
 window.applyCoupon=()=>{const c=(raw.coupons||[]).find(k=>k.active!==false&&String(k.code).toUpperCase()==(state.cCode||'').trim().toUpperCase()),sub=cart.reduce((s,p)=>s+(num(p)||0),0);
  if(!c||(c.max&&(c.uses||0)>=c.max)){state.cpn=null;alert(t('cBad'))}else if(c.min&&sub<c.min){state.cpn=null;alert(t('cMin'))}else state.cpn={code:c.code,type:c.type,value:Number(c.value),id:c.id};render()};
-addToCart=(f=>i=>{const p=P[i];if(p&&p.stock!=null&&cart.filter(c=>c===p).length>=p.stock){alert(t('cOut'));return}f(i)})(addToCart);
+addToCart=(f=>i=>{const p=P[i];if(p&&p.stock!=null){const key=p.id||p.n[0];if(cart.filter(c=>c&&(c.id||c.n[0])===key).length>=p.stock){alert(t('cOut'));return}}f(i)})(addToCart);
 header=(f=>()=>{const a=SET.an[LI()]||SET.an[1-LI()];return(a?`<div style="background:linear-gradient(90deg,#20d7f0,#ff2fd6);color:#06121f;font-weight:800;font-size:12px;text-align:center;padding:6px 10px">${esc(a)}</div>`:'')+f()})(header);
 window.placeOrder=async()=>{if(!okC())return;if(govs().length&&!state.gov){alert(L('Please choose your governorate','اختار المحافظة'));return}
  if((state.pay||'cash')=='instapay'&&!(state.paySS&&state.paySS[0]&&state.paySS[0].data)){alert(t('screenshotRequired'));return}
@@ -950,18 +1020,19 @@ window.placeOrder=async()=>{if(!okC())return;if(govs().length&&!state.gov){alert
  cart.forEach(c=>{const k=c.id||c.n[0];(m[k]=m[k]||{id:c.id||'',name:c.n[0],nameAr:c.n[1],price:num(c),qty:0}).qty++});
  const items=Object.values(m),sub=items.every(i=>i.price!=null)?items.reduce((s,i)=>s+i.price*i.qty,0):null,cp=state.cpn,
  disc=cp&&sub!=null?(cp.type=='percent'?Math.round(sub*cp.value/100):Math.min(cp.value,sub)):0,gv=govs().find(g=>g[0]==state.gov),fee=gv?gv[1]:0;
- let ref;try{ref=await db.collection('orders').add({fee,gov:state.gov||'',address:state.cAddr||'',pay:state.pay||'cash',paySS:(state.pay=='instapay'&&state.paySS[0])?(state.paySS[0].data||''):'',items,subtotal:sub,discount:disc,coupon:cp?cp.code:'',total:sub!=null?sub-disc+fee:null,name:state.cName.trim(),phone:state.cPhone.trim(),note:state.cNote||'',status:'new',lang:state.lang,createdAt:TS()})}catch(e){if(btn){btn.disabled=false;delete btn.dataset.busy}alert(t('cErr'));return}
+ let ref;try{ref=await db.collection('orders').add({fee,gov:state.gov||'',address:state.cAddr||'',pay:state.pay||'cash',paySS:(state.pay=='instapay'&&state.paySS[0])?(state.paySS[0].data||''):'',items,subtotal:sub,discount:disc,coupon:cp?cp.code:'',total:sub!=null?sub-disc+fee:null,name:state.cName.trim(),phone:state.cPhone.trim(),note:state.cNote||'',status:'new',shipToken:Math.random().toString(36).slice(2)+Date.now().toString(36),lang:state.lang,createdAt:TS()})}catch(e){console.error('placeOrder failed — could not write to Firestore "orders" (check security rules allow create):',e);if(btn){btn.disabled=false;delete btn.dataset.busy}alert(t('cErr'));return}
  const inc=n=>firebase.firestore.FieldValue.increment(n);
  items.forEach(i=>{const p=P.find(q=>q.id&&q.id==i.id);if(p&&p.stock!=null)db.collection('products').doc(i.id).update({stock:inc(-i.qty)}).catch(()=>{})});
  if(cp&&cp.id)db.collection('coupons').doc(cp.id).update({uses:inc(1)}).catch(()=>{});
  state.lastWa='🛒 طلب جديد #'+ref.id.slice(-6).toUpperCase()+'\n'+items.map(i=>(i.nameAr||i.name)+' ×'+i.qty).join('\n')+(sub!=null?'\nالإجمالي: '+(sub-disc+fee)+' ج.م':'')+'\n'+(state.pay=='instapay'?'الدفع: إنستاباي (تم إرفاق إثبات التحويل)\n':'الدفع: كاش عند الاستلام\n')+state.cName+' - '+state.cPhone;
- cart.length=0;state.cNote='';state.cpn=null;state.cCode='';state.paySS=[];state.pay='cash';state.view='success';render();window.scrollTo(0,0)};
+ if(state.saveAddr)saveCurrentAddr();
+ cart.length=0;state.cNote='';state.cpn=null;state.cCode='';state.paySS=[];state.pay='cash';state.saveAddr=false;state.view='success';render();window.scrollTo(0,0)};
 
 /* ---- store features: search/filters/favorites/compat/gallery/reviews/tracking/booking/pages ---- */
-const L=(e,a)=>LI()?a:e,ls=k=>{try{return localStorage.getItem(k)||''}catch(e){return''}},pk=p=>String(p.id||p.n[0]).replace(/['"\\]/g,'');
+window.L=(e,a)=>LI()?a:e;const ls=k=>{try{return localStorage.getItem(k)||''}catch(e){return''}},pk=p=>String(p.id||p.n[0]).replace(/['"\\]/g,'');
 const favs=()=>{try{return JSON.parse(ls('ift_fav')||'[]')}catch(e){return[]}};
 window.toggleFav=k=>{let f=favs();f=f.includes(k)?f.filter(a=>a!=k):f.concat(k);try{localStorage.setItem('ift_fav',JSON.stringify(f))}catch(e){}render()};
-const card=(p,i)=>{const fv=favs().includes(pk(p));return `<div class="product" onclick="openProduct(${i})">${p.tag?`<div class="tag">${x(p.tag)}</div>`:''}<div class="img">${pic(p)}<span class="fav" style="${fv?'color:#ff2fd6':''}" onclick="event.stopPropagation();toggleFav('${pk(p)}')">${fv?'♥':'♡'}</span></div><b>${x(p.n)}</b><span class="sub">${x(p.s)}</span><span class="price">${p.old?`<s style="color:var(--muted);font-weight:400;font-size:11px">${p.old}</s> `:''}${x(p.price)}</span><button class="addcart" onclick="event.stopPropagation();addToCart(${i})">${t('addCart')}</button></div>`};
+const card=(p,i)=>{const fv=favs().includes(pk(p));const R=(raw.reviews||[]).filter(r=>r.pid==pk(p)),rn=R.length,ravg=rn?(R.reduce((s,r)=>s+r.stars,0)/rn).toFixed(1):null;return `<div class="product" onclick="openProduct(${i})">${p.tag?`<div class="tag">${x(p.tag)}</div>`:''}<div class="img">${pic(p)}<span class="fav" style="${fv?'color:#ff2fd6':''}" onclick="event.stopPropagation();toggleFav('${pk(p)}')">${fv?'♥':'♡'}</span></div><b>${x(p.n)}</b>${ravg?`<span class="rating">★ ${ravg} <span class="cnt">(${rn})</span></span>`:''}<span class="price">${p.old?`<s style="color:var(--muted);font-weight:400;font-size:11px">${p.old}</s> `:''}${x(p.price)}</span><button class="addcart" onclick="event.stopPropagation();addToCart(${i})">${t('addCart')}</button></div>`};
 const pgrid=()=>{const q=(state.q||'').toLowerCase(),c=state.cat||'',mine=ls('ift_mine').toLowerCase().trim();
  const r=P.map((p,i)=>[p,i]).filter(([p])=>(!c||p.cat==c||(p.cat||'').indexOf(c+' > ')==0)&&(!q||(p.n.join(' ')+' '+p.s.join(' ')).toLowerCase().includes(q))&&(!mine||!p.fits||p.fits.toLowerCase().split(',').some(f=>f.trim()&&(mine.includes(f.trim())||f.trim().includes(mine)))));
  return r.length?r.map(([p,i])=>card(p,i)).join(''):`<p style="color:var(--muted);grid-column:1/-1;text-align:center;margin-top:30px">${L('No matching products','مفيش منتجات مطابقة')}</p>`};
@@ -987,7 +1058,9 @@ window.submitReview=()=>{const p=P[state.product],name=($('rvName').value||'').t
  db.collection('reviews').add({pid:pk(p),pname:p.n[1],stars:rvStars,text:text.slice(0,300),name:name.slice(0,40),approved:false,createdAt:TS()}).then(()=>{const m=$('rvMod');if(m)m.remove();alert(L('Thanks! It will appear after review','شكرًا! تقييمك هيظهر بعد المراجعة'))}).catch(()=>alert(t('cErr')))};
 const recBlock=p=>{const o=P.map((q,i)=>[q,i]).filter(([q])=>q!==p&&(!p.cat||q.cat==p.cat)).slice(0,4);return o.length?`<div class="section-title"><h3>${L('You may also like','ممكن يعجبك كمان')}</h3></div><div class="grid2">${o.map(([q,i])=>card(q,i)).join('')}</div>`:''};
 detail=(f=>()=>{let h=f();const p=P[state.product];if(!p)return h;
- if(p.imgs&&p.imgs.length)h=h.replace(/<div class="detail-img">[\s\S]*?<\/div>/,()=>`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;scroll-snap-type:x mandatory">${[p.img].concat(p.imgs).filter(Boolean).map(u=>`<img src="${esc(u)}" alt="" style="height:220px;border-radius:16px;flex:0 0 85%;object-fit:cover;scroll-snap-align:start;border:1px solid var(--line)">`).join('')}</div>`);
+ const R=(raw.reviews||[]).filter(r=>r.pid==pk(p)),rn=R.length,ravg=rn?(R.reduce((s,r)=>s+r.stars,0)/rn).toFixed(1):null;
+ if(ravg)h=h.replace(/(<h2[^>]*>[\s\S]*?<\/h2>)/,(m)=>m+`<div class="detail-rating">★ ${ravg} <span class="cnt">(${rn} ${L(rn==1?'review':'reviews','تقييم')})</span></div>`);
+ if(p.imgs&&p.imgs.length)h=h.replace(/<div class="detail-img">[\s\S]*?<\/div>/,()=>`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;scroll-snap-type:x mandatory">${[p.img].concat(p.imgs).filter(Boolean).map(u=>`<img src="${esc(u)}" alt="" style="height:380px;border-radius:16px;flex:0 0 85%;object-fit:cover;scroll-snap-align:start;border:1px solid var(--line)">`).join('')}</div>`);
  const out=p.stock!=null&&p.stock<=0;
  h=h.replace('<button class="pill-btn" onclick="addToCart(',()=>`${out?`<div style="display:flex;gap:8px;margin-bottom:12px"><button class="outline-btn" style="flex:1" onclick="notifyMe()">🔔 ${L('Notify me','أخبرني لما يتوفر')}</button></div>`:''}<button class="pill-btn" onclick="addToCart(`);
 h=h.replace(/(<div class="detail-img">[\s\S]*?<\/div>|<div style="display:flex;gap:8px;overflow-x:auto[^"]*"[\s\S]*?<\/div>)/,m=>`<div style="position:relative">${m}<button class="share-fab" onclick="shareP()" aria-label="${esc(L('Share','مشاركة'))}">📤</button></div>`);
@@ -1015,8 +1088,8 @@ main=(f=>()=>VW[state.view]?VW[state.view]():f())(main);
 account=(f=>()=>{let h=f().replace(/go\('account'\)("><div class="thumb">📋)/,"go('track')$1").replace(/go\('account'\)("><div class="thumb">♡)/,"go('favs')$1");
  const rw=(lb,ic,js)=>`<div class="row-card" onclick="${js}"><div class="thumb">${ic}</div><div class="meta"><b>${lb}</b></div><div class="arrow">${t('arrowFwd')}</div></div>`;
  return h.replace('</main>',()=>rw(L('Book an appointment','احجز موعد'),'📅',"go('book')")+rw(L('Before & After','قبل وبعد'),'🖼️',"go('gallery')")+rw(L('About us','من نحن'),'ℹ️',"state.page='about';go('page')")+rw(L('FAQ','الأسئلة الشائعة'),'❓',"state.page='faq';go('page')")+rw(L('Returns & warranty','الاسترجاع والضمان'),'🛡️',"state.page='policy';go('page')")+'</main>')})(account);
-const govs=()=>String((SET.s||{}).ship||'').split('\n').map(l=>l.split(':')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),Number(a[1])||0]);
-const shipBox=()=>{const G=govs(),pm=(SET.s||{}).payInfo;return(G.length?`<div class="field"><label>${L('Governorate','المحافظة')}</label><select onchange="state.gov=this.value;render()"><option value="">—</option>${G.map(g=>`<option value="${esc(g[0])}" ${state.gov==g[0]?'selected':''}>${esc(g[0])} (${g[1]} EGP)</option>`).join('')}</select></div><div class="field"><label>${L('Address','العنوان')}</label><textarea oninput="state.cAddr=this.value">${esc(state.cAddr||'')}</textarea></div>`:'')+`<div class="field"><label>${t('payMethod')}</label><select onchange="state.pay=this.value;render()">${[['cash',t('paymentCash')],['instapay',t('paymentInstapay')]].map(m=>`<option value="${m[0]}" ${(state.pay||'cash')==m[0]?'selected':''}>${esc(m[1])}</option>`).join('')}</select>${state.pay=='instapay'&&pm?`<div style="font-size:12px;color:var(--cyan);margin-top:6px;white-space:pre-wrap">${esc(pm)}</div>`:''}</div>`+(state.pay=='instapay'?paySSBox():'')};
+window.govs=()=>String((SET.s||{}).ship||'').split('\n').map(l=>l.split(':')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),Number(a[1])||0]);
+window.shipBox=()=>{const G=govs(),pm=(SET.s||{}).payInfo;return savedAddrBox()+(G.length?`<div class="field"><label>${L('Governorate','المحافظة')}</label><select onchange="state.gov=this.value;render()"><option value="">—</option>${G.map(g=>`<option value="${esc(g[0])}" ${state.gov==g[0]?'selected':''}>${esc(g[0])} (${g[1]} EGP)</option>`).join('')}</select></div><div class="field"><label>${L('Address','العنوان')}</label><textarea oninput="state.cAddr=this.value">${esc(state.cAddr||'')}</textarea></div><div class="addr-checkbox-row" style="display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="iftSaveAddr" ${state.saveAddr?'checked':''} onchange="state.saveAddr=this.checked"><span>${t('cSaveAddr')}</span></div>`:'')+`<div class="field"><label>${t('payMethod')}</label><select onchange="state.pay=this.value;render()">${[['cash',t('paymentCash')],['instapay',t('paymentInstapay')]].map(m=>`<option value="${m[0]}" ${(state.pay||'cash')==m[0]?'selected':''}>${esc(m[1])}</option>`).join('')}</select>${state.pay=='instapay'&&pm?`<div style="font-size:12px;color:var(--cyan);margin-top:6px;white-space:pre-wrap">${esc(pm)}</div>`:''}</div>`+(state.pay=='instapay'?paySSBox():'')};
 const paySSBox=()=>{const p=state.paySS[0];return `<div class="field"><label>${t('uploadScreenshot')} <span style="color:#ff5c72">*</span></label>
  <label class="upload" for="paySSInput"><div class="ic">🧾</div>${t('uploadPhoto')}<br><span style="font-size:11px">${t('screenshotHint')}</span></label>
  <input id="paySSInput" type="file" accept="image/*" class="hide" onchange="addPaySS(this)">
@@ -1042,16 +1115,90 @@ const sendReq=async(type,title,details,machine,model,photos,done)=>{if(!okC())re
 submitFiber=(f=>()=>sendReq('fairing',FIBER[state.fiberProblem]||['',''],state.fiberDetails,state.fiberMachine,state.fiberModel,state.fiberPhotos,f))(submitFiber);
 submitMod=(f=>()=>sendReq('mod',MODS[state.mod]?MODS[state.mod].n:['',''],state.modDetails,state.modMachine,state.modModel,state.modPhotos,f))(submitMod);
 
+
+/* ================= CHECKOUT (Glow-style), cart toast, courier page ================= */
+document.head.insertAdjacentHTML('beforeend','<style>.af{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}.afi{color:var(--cyan);width:18px;height:18px;flex:none;margin-top:1px}.afi svg{width:18px;height:18px;display:block}.afb{flex:1;min-width:0}.afb label{display:block;font-size:12px;font-weight:700;margin-bottom:3px}.afb input,.afb select,.afb textarea{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:13.5px;padding:0;resize:none}.afb select option{background:var(--card)}.cf{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line)}.cf span{color:var(--muted)}.cf b{text-align:end}.chip{display:inline-block;color:var(--cyan);font-size:12px;font-weight:700;cursor:pointer;margin:2px 0 6px}</style>');
+const IC={u:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',p:'<path d="M5 4h3.5l1.6 4.2-2 1.6a12.7 12.7 0 0 0 6.1 6.1l1.6-2 4.2 1.6V19a2 2 0 0 1-2 2C10.6 21 3 13.4 3 6a2 2 0 0 1 2-2z"/>',m:'<path d="M12 21s7-7.5 7-12.5A7 7 0 0 0 5 8.5C5 13.5 12 21 12 21z"/><circle cx="12" cy="8.5" r="2.5"/>',h:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'};
+const af=(ic,lb,inner)=>`<div class="af"><span class="afi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[ic]}</svg></span><div class="afb"><label>${lb}</label>${inner}</div></div>`;
+const emptyC=()=>`<main>${back('home')}<p style="color:var(--muted);text-align:center;margin-top:40px">${t('cartEmpty')}</p></main>`;
+const detOf=()=>state.cDet==null?(state.cAddr||''):state.cDet;
+govs=()=>String((SET.s||{}).ship||'').split('\n').map(l=>l.split(':')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),Number(a[1])||0,(a[2]||'').trim()]);
+const _ua=window.useAddr;window.useAddr=id=>{_ua(id);state.cDet=state.cAddr;state.cCity='';render()};
+
+checkoutInfoView=function(){
+ if(!cart.length)return emptyC();
+ const G=govs(),g=G.find(a=>a[0]==state.gov);
+ return `<main>${back('cart')}<h2 style="font-size:16px;margin-bottom:14px">${L('Delivery Address','عنوان التوصيل')}</h2>${savedAddrBox()}
+ ${af('u',L('Full name *','الاسم بالكامل *'),`<input value="${esc(state.cName||'')}" oninput="state.cName=this.value">`)}
+ ${af('p',L('Phone number *','رقم الموبايل *'),`<input inputmode="tel" dir="ltr" placeholder="01xxxxxxxxx" value="${esc(state.cPhone||'')}" oninput="state.cPhone=this.value">`)}
+ ${af('p',t('cAltPhone'),`<input inputmode="tel" dir="ltr" placeholder="01xxxxxxxxx" value="${esc(state.cAltPhone||'')}" oninput="state.cAltPhone=this.value">`)}
+ ${G.length?af('m',L('Governorate *','المحافظة *'),`<select onchange="state.gov=this.value;render()"><option value="">${L('Select governorate','اختار المحافظة')}</option>${G.map(a=>`<option value="${esc(a[0])}" ${state.gov==a[0]?'selected':''}>${esc(a[0])} — ${a[1]} ${L('EGP','ج.م')}</option>`).join('')}</select>${g&&g[2]?`<div style="font-size:11.5px;color:var(--muted);margin-top:4px">${L('Delivery time','مدة التوصيل')}: ${esc(g[2])}</div>`:''}`):''}
+ ${af('m',L('City / Area','المدينة / المنطقة'),`<input value="${esc(state.cCity||'')}" oninput="state.cCity=this.value">`)}
+ ${af('h',L('Detailed address *','العنوان بالتفصيل *'),`<textarea rows="2" placeholder="${L('Building, street, landmark...','رقم العمارة، الشارع، علامة مميزة...')}" oninput="state.cDet=this.value">${esc(detOf())}</textarea>`)}
+ <div style="display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:12.5px;color:var(--muted)"><input type="checkbox" ${state.saveAddr?'checked':''} onchange="state.saveAddr=this.checked"><span>${t('cSaveAddr')}</span></div>
+ <button class="pill-btn" onclick="goToSummary()">${t('continueOrder')}</button></main>`};
+goToSummary=function(){
+ if(!okC())return;
+ if(govs().length&&!state.gov){alert(L('Please choose your governorate','اختار المحافظة'));return}
+ if(!detOf().trim()){alert(L('Please enter your detailed address','اكتب عنوانك بالتفصيل'));return}
+ state.cAddr=[state.cCity,detOf()].filter(x=>x&&x.trim()).join(' - ');state.cDet=detOf();
+ go('checkoutSummary')};
+const payBox=()=>{const pm=(SET.s||{}).payInfo;return `<div class="field"><label>${t('payMethod')}</label><select onchange="state.pay=this.value;render()">${[['cash',t('paymentCash')],['instapay',t('paymentInstapay')]].map(m=>`<option value="${m[0]}" ${(state.pay||'cash')==m[0]?'selected':''}>${esc(m[1])}</option>`).join('')}</select>${state.pay=='instapay'&&pm?`<div style="font-size:12px;color:var(--cyan);margin-top:6px;white-space:pre-wrap">${esc(pm)}</div>`:''}</div>`+(state.pay=='instapay'?paySSBox():'')};
+checkoutSummaryView=function(){
+ if(!cart.length)return emptyC();
+ const o=calcOrder();
+ return `<main>${back('checkoutInfo')}<h2 style="font-size:16px;margin-bottom:14px">${t('orderSummary')}</h2>
+ <div class="card"><div class="cart-total" style="margin:0 0 4px"><span>${L('Items','المنتجات')} (${cart.length})</span><span>${o.sub!=null?egpFmt(o.sub):t('afterInspect')}</span></div>
+ <div class="chip" onclick="var e=this.nextElementSibling;e.style.display=e.style.display=='block'?'none':'block'">${L('View items','عرض المنتجات')} ▾</div>
+ <div style="display:none">${o.items.map(i=>`<div class="cf"><span>${esc(LI()?i.nameAr:i.name)} ×${i.qty}</span><b>${i.price!=null?egpFmt(i.price*i.qty):t('afterInspect')}</b></div>`).join('')}</div>
+ <div class="cart-total" style="margin:8px 0 0"><span>${t('deliveryFee')}</span><span>${egpFmt(o.fee)}</span></div></div>
+ <div style="margin-top:14px">${cpnBox()}${payBox()}</div>
+ <div class="card">${o.sub!=null?`<div class="cf"><span>${t('itemsTotal')}</span><b>${egpFmt(o.sub)}</b></div>`:''}${o.disc?`<div class="cf"><span>${t('discountLbl')}</span><b>-${egpFmt(o.disc)}</b></div>`:''}<div class="cf"><span>${t('deliveryFee')}</span><b>${egpFmt(o.fee)}</b></div><div class="cart-total" style="margin:10px 0 0"><span>${t('grandTotal')}</span><span>${o.total!=null?egpFmt(o.total):t('afterInspect')}</span></div></div>
+ <button class="pill-btn" style="margin-top:16px" onclick="goToConfirm()">${L('Confirm Order','تأكيد الطلب')}</button></main>`};
+window.goToConfirm=()=>{if(state.pay=='instapay'&&!(state.paySS&&state.paySS[0])){alert(t('screenshotRequired'));return}go('checkoutConfirm')};
+checkoutConfirmView=function(){
+ if(!cart.length)return emptyC();
+ const o=calcOrder(),cp=state.cpn,row=(a,b)=>`<div class="cf"><span>${a}</span><b>${b}</b></div>`,pay=state.pay=='instapay'?t('paymentInstapay'):t('paymentCash');
+ return `<main>${back('checkoutSummary')}<h2 style="font-size:16px;margin-bottom:6px">${L('Confirm your order','تأكيد الطلب')}</h2>
+ <p style="color:var(--muted);font-size:12.5px;margin-bottom:12px">${L('Please review everything before placing your order','راجع كل البيانات قبل ما تأكد طلبك')}</p>
+ <div class="card"><b style="font-size:13px">${L('Items','المنتجات')}</b>${o.items.map(i=>row(esc(LI()?i.nameAr:i.name)+' ×'+i.qty,i.price!=null?egpFmt(i.price*i.qty):t('afterInspect'))).join('')}</div>
+ <div class="card" style="margin-top:12px"><b style="font-size:13px">${L('Delivery details','بيانات التوصيل')}</b>${row(L('Name','الاسم'),esc(state.cName))}${row(L('Phone','الموبايل'),`<span dir="ltr">${esc(state.cPhone)}</span>`)}${state.cAltPhone?row(t('cAltPhone'),`<span dir="ltr">${esc(state.cAltPhone)}</span>`):''}${state.gov?row(L('Governorate','المحافظة'),esc(state.gov)):''}${row(L('Address','العنوان'),esc(state.cAddr||''))}${row(t('payMethod'),esc(pay))}</div>
+ <div class="card" style="margin-top:12px"><b style="font-size:13px">${L('Discount code','كود الخصم')}</b>${cp?row(esc(cp.code),'-'+egpFmt(o.disc)):cpnBox()}</div>
+ <div class="card" style="margin-top:12px">${o.sub!=null?row(t('itemsTotal'),egpFmt(o.sub)):''}${o.disc?row(t('discountLbl'),'-'+egpFmt(o.disc)):''}${row(t('deliveryFee'),egpFmt(o.fee))}<div class="cart-total" style="margin:10px 0 0"><span>${t('grandTotal')}</span><span>${o.total!=null?egpFmt(o.total):t('afterInspect')}</span></div></div>
+ <button class="pill-btn" style="margin-top:16px" onclick="placeOrder()">${t('placeOrderBtn')}</button></main>`};
+success=(f=>()=>{const h=f(),m=/#([A-Z0-9]{6})/.exec(state.lastWa||'');if(!m||!/^🛒/.test(state.lastWa))return h;
+ const r=(a,b)=>`<div class="cf" style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0"><span>${a}</span><b>${b}</b></div>`,g=govs().find(a=>a[0]==state.gov);
+ return h.replace('</p>',()=>'</p>'+`<div style="max-width:340px;margin:18px auto 0">${r(L('Order number','رقم الطلب'),'#'+m[1])}${r(L('Next step','الخطوة الجاية'),L('We will call you to confirm your order','هنتصل بيك لتأكيد الطلب'))}${g&&g[2]?r(L('Delivery time','مدة التوصيل'),esc(g[2])):''}</div>`)})(success);
+
+/* add to cart: stay on the page and show a message */
+window.cartToast=()=>{let e=$('cartToast');if(!e){e=document.createElement('div');e.id='cartToast';e.style.cssText='position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);z-index:9999;display:flex;align-items:center;gap:14px;background:var(--card);color:var(--text);border:1px solid var(--cyan);border-radius:14px;padding:11px 16px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.25s;max-width:88%';document.body.appendChild(e)}
+ e.innerHTML=`<span>${L('The product was added to your cart','تمت إضافة المنتج إلى السلة')}</span><a onclick="go('cart')" style="color:var(--cyan);cursor:pointer;white-space:nowrap">${L('View cart','عرض السلة')}</a>`;
+ e.style.opacity=1;e.style.pointerEvents='auto';e.style.transform='translate(-50%,0)';clearTimeout(e._t);e._t=setTimeout(()=>{e.style.opacity=0;e.style.pointerEvents='none';e.style.transform='translate(-50%,20px)'},2800);
+ const b=document.querySelector('.icon-btn[onclick="go(\'cart\')"]');if(b){let s=b.querySelector('.badge');if(!s){s=document.createElement('span');s.className='badge';b.appendChild(s)}s.textContent=cart.length}};
+addToCart=(f=>i=>{const n=cart.length;f(i);if(cart.length>n)cartToast()})(addToCart);
+
+/* courier page: ?ship=<orderId>&t=<token> (no login) */
+if(/[?&]ship=/.test(location.search)){const P=new URLSearchParams(location.search),oid=P.get('ship'),tk=P.get('t'),el=document.createElement('div');
+ el.style.cssText='position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--text);overflow:auto;padding:20px;direction:rtl';document.body.appendChild(el);
+ const bad=m=>el.innerHTML=`<p style="text-align:center;margin-top:60px">${m}</p>`;
+ const draw=o=>{const done=o.status=='done',out=o.status=='out',nx=out?'done':'out',cash=o.pay!='instapay';
+  el.innerHTML=`<div style="max-width:460px;margin:0 auto"><h2 style="margin:0 0 4px">IFTKASA GARAGE</h2><p style="color:var(--muted);margin:0 0 14px">أوردر #${oid.slice(-6).toUpperCase()}</p>
+  <div class="card"><div class="cf"><span>العميل</span><b>${esc(o.name)}</b></div><div class="cf"><span>الموبايل</span><b dir="ltr"><a href="tel:${esc(o.phone)}" style="color:var(--cyan)">${esc(o.phone)}</a></b></div><div class="cf"><span>المحافظة</span><b>${esc(o.gov||'—')}</b></div><div class="cf"><span>العنوان</span><b>${esc(o.address||'—')}</b></div>
+  <div class="cf"><span>المنتجات</span><b>${(o.items||[]).map(i=>esc(i.nameAr||i.name)+' ×'+i.qty).join('<br>')}</b></div><div class="cf"><span>المطلوب تحصيله</span><b>${cash?(o.total!=null?o.total+' ج.م':'—'):'مدفوع (إنستاباي)'}</b></div></div>
+  ${o.status=='cancelled'?'<p style="text-align:center;margin-top:20px">الأوردر ملغي</p>':done?'<p style="text-align:center;margin-top:20px;font-weight:800">تم تسليم الأوردر</p>':`<button class="pill-btn" style="width:100%;margin-top:18px" id="shBtn">${out?'تم التسليم':'خرج للتوصيل'}</button>`}</div>`;
+  const b=el.querySelector('#shBtn');if(b)b.onclick=()=>{b.disabled=true;db.collection('orders').doc(oid).update({status:nx,shipEvents:firebase.firestore.FieldValue.arrayUnion({status:nx,at:Date.now()})}).then(()=>{o.status=nx;draw(o)}).catch(()=>{b.disabled=false;alert('تعذر التحديث')})}};
+ db.collection('orders').doc(oid).get().then(s=>{const o=s.data();if(!s.exists||!o.shipToken||o.shipToken!==tk)return bad('الرابط غير صحيح أو منتهي');draw(o)}).catch(()=>bad('تعذر تحميل الأوردر'))}
+
 /* ================= ADMIN ================= */
-const NAV=['Overview',['dash','📊','Dashboard'],['analytics','📈','Analytics & finance'],'Catalog',['products','📦','Products'],['mods','🎨','Maintenance & mods'],['fiber','🛡️','Fairing problems'],['inventory','📋','Inventory'],['offers','🔥','Offers'],['gallery','🖼️','Before & After gallery'],'Sales',['orders','🛒','Orders'],['requests','🧰','Fairing & quote requests'],['bookings','📅','Bookings'],['coupons','🎟️','Coupons'],['expenses','💸','Expenses'],'Customers',['customers','👥','Customers'],['reviews','⭐','Reviews'],'System',['content','⚙️','Store content & settings'],['admins','🔑','Admins'],['log','🕓','Activity log'],['backup','💾','Backup']];
-const ROLES={full:['Full admin',null],sales:['Sales',['dash','analytics','orders','requests','coupons','customers','inventory','reviews','bookings','offers','expenses']],tech:['Technician',['dash','requests','bookings']]};
+const NAV=['Overview',['dash','📊','Dashboard'],['analytics','📈','Analytics & finance'],'Catalog',['products','📦','Products'],['mods','🎨','Maintenance & mods'],['fiber','🛡️','Fairing problems'],['inventory','📋','Inventory'],['offers','🔥','Offers'],['gallery','🖼️','Before & After gallery'],'Sales',['orders','🛒','Orders'],['requests','🧰','Fairing & quote requests'],['bookings','📅','Bookings'],['coupons','🎟️','Coupons'],['shipping','🚚','Shipping & governorates'],['returns','↩️','Returns & refunds'],['invoices','🧾','Invoices'],['expenses','💸','Expenses'],'Customers',['customers','👥','Customers'],['reviews','⭐','Reviews'],'System',['content','⚙️','Store content & settings'],['admins','🔑','Admins'],['log','🕓','Activity log'],['backup','💾','Backup']];
+const ROLES={full:['Full admin',null],sales:['Sales',['dash','analytics','orders','requests','coupons','customers','inventory','reviews','bookings','offers','expenses','shipping','returns','invoices']],tech:['Technician',['dash','requests','bookings']]};
 const can=k=>{const a=(ROLES[(A.u||{}).role||'full']||ROLES.full)[1];return !a||a.includes(k)};
 const UPK=['img','imgs','before','after'];
 const put=async f=>toData(f,1100,.75);
 const lst=v=>String(v||'').split(/\||\n|,(?=\s*(?:https?:|data:))/).map(s=>s.trim()).filter(Boolean);
 const upW=(k,v,m)=>`<div class="up"><input type="hidden" id="f_${k}" value="${esc(v)}" data-m="${m?1:0}"><label class="dz" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="event.preventDefault();this.classList.remove('ov');ADM.ups('${k}',event.dataTransfer.files)"><input type="file" accept="image/*" ${m?'multiple':''} hidden onchange="ADM.ups('${k}',this.files);this.value=''"><span class="dzi">📤</span><b>Click to choose ${m?'photos':'a photo'}</b><small>or drag &amp; drop here · resized automatically</small></label><div class="pv" id="pv_${k}"></div></div>`;
 const WT={ok:['Confirm order','أهلًا {name}، تم تأكيد طلبك #{id} من IFTKASA GARAGE ✅'],prog:['In progress','أهلًا {name}، طلبك #{id} جاري تنفيذه 🔧'],ready:['Ready for pickup','أهلًا {name}، طلبك #{id} جاهز للاستلام ✅'],quote:['Send quote','أهلًا {name}، تسعيرة طلبك #{id}: {quote} ج.م. تحب نبدأ؟'],follow:['Follow-up','أهلًا {name}، بنتابع معاك بخصوص طلبك #{id}.']};
-const ST={new:'New',contacted:'Contacted',progress:'In progress',done:'Done',cancelled:'Cancelled'};
+const ST={out:'Out for delivery',new:'New',contacted:'Contacted',progress:'In progress',done:'Done',cancelled:'Cancelled'};
 const CFG={
  products:{t:'Products',f:[['nEn','Name (EN)'],['nAr','Name (Arabic)'],['sEn','Short description (EN)'],['sAr','Short description (Arabic)'],['price','Price in EGP (empty = set after inspection)','number'],['stock','Stock (empty = unlimited)','number'],['cat','Category & subcategory',['']],['fits','Compatible scooters (comma-separated, empty = universal) e.g. PCX,NMAX'],['imgs','Extra images (comma-separated URLs)'],['ic','Icon (emoji)'],['img','Image URL (optional)'],['tEn','Badge e.g. Best Seller (EN)'],['tAr','Badge (Arabic)'],['order','Sort order','number']]},
  mods:{t:'Maintenance & mods',f:[['nEn','Name (EN)'],['nAr','Name (Arabic)'],['sEn','Short description (EN)'],['sAr','Short description (Arabic)'],['ic','Icon (emoji)'],['img','Image URL (optional)'],['order','Sort order','number']]},
@@ -1059,9 +1206,10 @@ const CFG={
  coupons:{t:'Coupons',f:[['code','Coupon code'],['type','Type (percent = %, fixed = amount)',['percent','fixed']],['value','Discount value','number'],['min','Minimum order value','number'],['max','Max uses','number']]},
  offers:{t:'Offers',f:[['titleAr','Offer title (Arabic)'],['titleEn','Title (EN)'],['percent','Discount %','number'],['cat','Category (empty = all products)',['']],['start','Offer start','datetime-local'],['end','Offer end','datetime-local']]},
  gallery:{t:'Before & After gallery',f:[['titleAr','Address (Arabic)'],['titleEn','Title (EN)'],['before','Before image'],['after','After image'],['order','Sort order','number']]},
+ returns:{t:'Returns & refunds',f:[['orderId','Order #'],['name','Customer name'],['phone','Phone'],['reason','Reason'],['amount','Refund amount (EGP)','number'],['date','Date','date'],['status','Status',['Requested','Approved','Refunded','Rejected']]]},
  expenses:{t:'Expenses',f:[['titleAr','Item'],['amount','Amount','number'],['date','Date','date']]}};
 const setCats=()=>{const tree=parseCats((A.d.settings||{}).cats||DC);SET.cats=tree;const o=[''].concat(tree.map(c=>c[0]));CFG.products.f.find(f=>f[0]=='cat')[2]=o;CFG.offers.f.find(f=>f[0]=='cat')[2]=o};
-const A={init:{},sec:'dash',d:{orders:[],requests:[],products:[],mods:[],fiber:[],settings:null,adminUsers:[],coupons:[],log:[],bookings:[],reviews:[],notify:[],expenses:[],offers:[],gallery:[],custMeta:[],costs:{}},un:[],f:'',seeding:0};
+const A={init:{},sec:'dash',d:{orders:[],requests:[],products:[],mods:[],fiber:[],settings:null,adminUsers:[],coupons:[],log:[],bookings:[],reviews:[],notify:[],expenses:[],returns:[],offers:[],gallery:[],custMeta:[],costs:{}},un:[],f:'',seeding:0};
 const dt=o=>o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}):'…';
 const wa=p=>{p=String(p).replace(/\D/g,'');return 'https://wa.me/'+(p[0]=='0'?'2'+p:p)};
 const egp=n=>n!=null?Number(n).toLocaleString('en-US')+' EGP':'After inspection';
@@ -1085,7 +1233,7 @@ const V={
  dash(){const O=A.d.orders,R=A.d.requests,rev=O.filter(o=>o.status=='done'&&o.total!=null).reduce((s,o)=>s+o.total,0),late=[...O.map(o=>({...o,k:'Order'})),...R.map(o=>({...o,k:'Fairing/quote'}))].filter(o=>o.status=='new'&&o.createdAt&&o.createdAt.toDate&&Date.now()-o.createdAt.toDate()>864e5);
   return hd('Dashboard')+`<div class="ad-cards"><div class="ad-c"><span>New orders</span><b>${nw('orders')}</b></div><div class="ad-c"><span>Total orders</span><b>${O.length}</b></div><div class="ad-c"><span>New fairing/quote requests</span><b>${nw('requests')}</b></div><div class="ad-c"><span>Completed orders revenue</span><b>${egp(rev)}</b></div><div class="ad-c"><span>Products</span><b>${A.d.products.length}</b></div><div class="ad-c"><span>Maintenance services</span><b>${A.d.mods.length}</b></div><div class="ad-c"><span>Low-stock products</span><b>${A.d.products.filter(p=>p.stock!==''&&p.stock!=null&&Number(p.stock)<=((A.d.settings||{}).lowStock||3)).length}</b></div></div>
   <h3>⏰ Awaiting reply for over 24 hours (${late.length})</h3>`+tbl(['Type','Customer','Phone','Since'],late.slice(0,8).map(o=>`<tr><td>${o.k}</td><td>${esc(o.name)}</td><td dir="ltr"><a href="${wa(o.phone)}" target="_blank" rel="noopener" style="color:#20d7f0">${esc(o.phone)}</a></td><td>${dt(o)}</td></tr>`))+`<h3 style="margin-top:20px">Latest orders</h3>`+tbl(['Customer','Total','Status','Date'],O.slice(0,5).map(o=>`<tr><td>${esc(o.name)}</td><td>${egp(o.total)}</td><td>${ST[o.status]||''}</td><td>${dt(o)}</td></tr>`))+`<h3 style="margin-top:20px">Latest fairing & quote requests</h3>`+tbl(['Customer','Order','Status','Date'],R.slice(0,5).map(o=>`<tr><td>${esc(o.name)}</td><td>${esc(o.titleAr||o.titleEn)}</td><td>${ST[o.status]||''}</td><td>${dt(o)}</td></tr>`))},
- orders(){return hd('Orders ('+A.d.orders.length+')',flt()+`<button class="ad-btn s" onclick="ADM.csv('orders')">⬇ Excel</button>`)+tbl(['#','Customer','Order','Total','Payment','Status','Date',''],A.d.orders.filter(o=>!A.f||o.status==A.f).map(o=>`<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${esc(o.name)}<br><small dir="ltr">${esc(o.phone)}</small></td><td>${(o.items||[]).map(i=>esc(i.nameAr||i.name)+' ×'+esc(i.qty)).join('<br>')}</td><td>${egp(o.total)}</td><td>${o.pay=='instapay'?(o.paySS?'💳 InstaPay ✅':'💳 InstaPay ⚠️'):'💵 Cash'}</td><td>${stSel('orders',o)}</td><td>${dt(o)}</td><td><button onclick="ADM.open('orders','${o.id}')">👁</button> <button onclick="ADM.del('orders','${o.id}')">🗑</button></td></tr>`))},
+ orders(){return hd('Orders ('+A.d.orders.length+')',flt()+`<button class="ad-btn s" onclick="ADM.csv('orders')">⬇ Excel</button>`)+tbl(['#','Customer','Order','Total','Payment','Status','Date',''],A.d.orders.filter(o=>!A.f||o.status==A.f).map(o=>`<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${esc(o.name)}<br><small dir="ltr">${esc(o.phone)}</small></td><td>${(o.items||[]).map(i=>esc(i.nameAr||i.name)+' ×'+esc(i.qty)).join('<br>')}</td><td>${egp(o.total)}</td><td>${o.pay=='instapay'?(o.paySS?'💳 InstaPay ✅':'💳 InstaPay ⚠️'):'💵 Cash'}</td><td>${stSel('orders',o)}</td><td>${dt(o)}</td><td><button title="Courier link" onclick="ADM.shipLink('${o.id}')">🚚</button> <button onclick="ADM.open('orders','${o.id}')">👁</button> <button onclick="ADM.del('orders','${o.id}')">🗑</button></td></tr>`))},
  requests(){return hd('Fairing & quote requests ('+A.d.requests.length+')',flt()+`<button class="ad-btn s" onclick="ADM.csv('requests')">⬇ Excel</button>`)+tbl(['Type','Order','Customer','Scooter','Technician','Status','Date',''],A.d.requests.filter(o=>!A.f||o.status==A.f).map(o=>`<tr><td>${o.type=='fairing'?'Fairing repair':'Modification/maintenance'}</td><td>${esc(o.titleAr||o.titleEn)}${(o.photos||[]).length?' 📷':''}</td><td>${esc(o.name)}<br><small dir="ltr">${esc(o.phone)}</small></td><td>${esc(o.machine)} ${esc(o.model)}</td><td>${esc(o.tech||'—')}</td><td>${stSel('requests',o)}</td><td>${dt(o)}</td><td><button onclick="ADM.open('requests','${o.id}')">👁</button> <button onclick="ADM.del('requests','${o.id}')">🗑</button></td></tr>`))},
  analytics(){const CS=A.d.costs||{},exp=A.d.expenses.reduce((s,e)=>s+(Number(e.amount)||0),0),net=A.d.orders.filter(o=>o.status=='done').reduce((s,o)=>s+(o.total||0)-(o.items||[]).reduce((q,i)=>q+(CS[i.id]||0)*(i.qty||0),0),0)-exp,tk={};A.d.requests.forEach(r=>{if(r.tech)tk[r.tech]=(tk[r.tech]||0)+1});const O=A.d.orders,ok=O.filter(o=>o.status!='cancelled'),sum=L=>L.reduce((s,o)=>s+(o.total||0),0),T=o=>o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null,now=Date.now(),ago=d=>ok.filter(o=>T(o)&&now-T(o)<d*864e5);
   const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-13+i);return{d,n:O.filter(o=>T(o)&&T(o).toDateString()==d.toDateString()).length}}),mx=Math.max(1,...days.map(x=>x.n)),top={},st={};
@@ -1106,6 +1254,10 @@ const V={
  content(){const s=A.d.settings||{};return hd('Store content & settings')+`<div class="ad-c" style="max-width:600px">${SFL.map(([k,l,d,u])=>`<label>${l}</label><div style="display:flex;gap:6px"><input id="s_${k}" value="${esc(s[k]||'')}" ${d?'dir="ltr"':''}>${u?`<button type="button" class="ad-btn s" style="margin-bottom:10px" onclick="ADM.up('s_${k}')">📤</button>`:''}</div>`).join('')+TAL.map(([k,l])=>`<label>${l}</label><textarea id="s_${k}">${esc(s[k]||'')}</textarea>`).join('')}<label class="ck"><input type="checkbox" id="s_storeOpen" ${s.storeOpen!==false?'checked':''}> Store is open for orders</label><br><button class="ad-btn" onclick="ADM.saveSet()">Save changes</button></div>`}
 };
 ['products','mods','fiber','coupons','offers','gallery','expenses'].forEach(c=>V[c]=()=>hd(CFG[c].t+' ('+A.d[c].length+')',`<button class="ad-btn" onclick="ADM.edit('${c}')">+ Add</button>`)+tbl(['','Name',c=='products'?'Price':c=='coupons'?'Discount':c=='offers'?'Discount':c=='expenses'?'Amount':'','Visible',''],A.d[c].map(o=>`<tr><td><div class="ad-th">${(o.img||o.before)?`<img src="${esc(o.img||o.before)}" alt="">`:esc(o.ic||(o.code?'🎟️':o.percent?'🔥':o.amount?'💸':'•'))}</div></td><td>${esc(o.nAr||o.nEn||o.ar||o.en||o.code||o.titleAr||o.titleEn)}<br><small>${esc(o.nEn||o.en||'')}</small></td><td>${c=='products'?egp(o.price===''?null:o.price):c=='coupons'?(o.type=='percent'?o.value+'%':egp(o.value))+' · '+(o.uses||0)+' uses':c=='offers'?o.percent+'% · until '+esc(o.end||'—'):c=='expenses'?egp(o.amount)+' · '+esc(o.date||''):''}</td><td>${o.active!==false?'✅':'🚫'}</td><td><button onclick="ADM.edit('${c}','${o.id}')">✏️</button> <button onclick="ADM.del('${c}','${o.id}')">🗑</button></td></tr>`)));
+const GOV=['القاهرة','الجيزة','الإسكندرية','القليوبية','الشرقية','الدقهلية','الغربية','المنوفية','البحيرة','كفر الشيخ','دمياط','بورسعيد','الإسماعيلية','السويس','الفيوم','بني سويف','المنيا','أسيوط','سوهاج','قنا','الأقصر','أسوان','البحر الأحمر','الوادي الجديد','مطروح','شمال سيناء','جنوب سيناء'],RS=['Requested','Approved','Refunded','Rejected'];
+V.shipping=()=>{const S=ADM.shipList();return hd('Shipping & governorates ('+S.length+')',`<button class="ad-btn s" onclick="ADM.shipAll()">Add all governorates</button>`)+`<div class="ad-c" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><input id="sh_n" list="sh_l" placeholder="Governorate" style="flex:1;min-width:140px;margin:0"><datalist id="sh_l">${GOV.map(g=>`<option>${g}</option>`).join('')}</datalist><input id="sh_p" type="number" placeholder="Price (EGP)" style="width:120px;margin:0"><input id="sh_d" placeholder="Delivery time e.g. 2-3 days" style="width:190px;margin:0"><button class="ad-btn" onclick="ADM.shipAdd()">+ Add</button></div>`+tbl(['Governorate','Shipping price (EGP)','Delivery time',''],S.map((a,i)=>`<tr><td>${esc(a[0])}</td><td><input type="number" style="width:100px;margin:0" value="${esc(a[1])}" onchange="ADM.shipEd(${i},1,this.value)"></td><td><input style="width:170px;margin:0" value="${esc(a[2])}" onchange="ADM.shipEd(${i},2,this.value)"></td><td><button onclick="ADM.shipDel(${i})">🗑</button></td></tr>`))};
+V.returns=()=>hd('Returns & refunds ('+A.d.returns.length+')',`<button class="ad-btn" onclick="ADM.edit('returns')">+ Add</button>`)+tbl(['Order #','Customer','Reason','Refund','Status','Date',''],A.d.returns.map(o=>`<tr><td>${esc(o.orderId||'')}</td><td>${esc(o.name||'')}<br><small dir="ltr">${esc(o.phone||'')}</small></td><td>${esc(o.reason||'')}</td><td>${o.amount===''||o.amount==null?'—':Number(o.amount).toLocaleString('en-US')+' EGP'}</td><td><select class="st" onchange="ADM.st('returns','${o.id}',this.value)">${RS.map(s=>`<option ${o.status==s?'selected':''}>${s}</option>`).join('')}</select></td><td>${esc(o.date||'')}</td><td><button onclick="ADM.edit('returns','${o.id}')">✏️</button> <button onclick="ADM.del('returns','${o.id}')">🗑</button></td></tr>`));
+V.invoices=()=>hd('Invoices')+tbl(['Invoice #','Customer','Total','Payment','Date',''],A.d.orders.filter(o=>o.status!='cancelled').map(o=>`<tr><td>INV-${o.id.slice(-6).toUpperCase()}</td><td>${esc(o.name)}</td><td>${egp(o.total)}</td><td>${o.pay=='instapay'?'InstaPay':'Cash'}</td><td>${dt(o)}</td><td><button onclick="ADM.inv('${o.id}')">🖨 Print</button></td></tr>`));
 function draw(){const a=document.activeElement;if((A.sec=='content'||A.sec=='customers')&&a&&/INPUT|TEXTAREA/.test(a.tagName)&&a.closest('#adMain'))return;
  $('adSide').innerHTML=`<div class="ad-logo">IFTKASA<small>ADMIN PANEL</small></div><input placeholder="Global search" style="min-width:130px" onkeydown="if(event.key=='Enter')ADM.gs(this.value)">`+NAV.map(e=>{if(typeof e=='string')return `<div class="ad-g">${e}</div>`;const[k,i,l]=e;if(!can(k))return '';const n=k=='orders'?nw('orders'):k=='requests'?nw('requests'):0;return `<button class="ad-nav ${A.sec==k?'on':''}" onclick="ADM.go('${k}')"><span>${i}</span>${l}${n?`<b>${n}</b>`:''}</button>`}).join('')+`<button class="ad-nav" onclick="ADM.close()">↩ Back to store</button><button class="ad-nav" onclick="ADM.out()">⎋ Sign out</button>`;
  $('adMain').innerHTML=V[A.sec]()}
@@ -1116,7 +1268,7 @@ async function seed(){A.seeding=1;const b=db.batch(),c=n=>db.collection(n).doc()
  b.set(db.doc('store/settings'),{h1En:D.hero1[0],h1Ar:D.hero1[1],h2En:D.hero2[0],h2Ar:D.hero2[1],wa:SET.wa,phone:SET.phone,addrEn:D.addressVal[0],addrAr:D.addressVal[1],brands:SET.brands.join(','),cats:DC});
  try{await b.commit();toast('Imported the current store data ✅')}catch(e){err();A.seeding=0}}
 function listen(){A.un.forEach(f=>f());
- A.un=['orders','requests','products','mods','fiber','coupons','bookings','reviews','notify','expenses','offers','gallery','custMeta'].map(c=>db.collection(c).onSnapshot(s=>{A.d[c]=s.docs.map(x=>({id:x.id,...x.data()}));
+ A.un=['orders','requests','products','mods','fiber','coupons','bookings','reviews','notify','expenses','offers','gallery','custMeta','returns'].map(c=>db.collection(c).onSnapshot(s=>{A.d[c]=s.docs.map(x=>({id:x.id,...x.data()}));
   if(c=='orders'||c=='requests')A.d[c].sort((a,b)=>((b.createdAt||{}).seconds||9e9)-((a.createdAt||{}).seconds||9e9));else A.d[c].sort((a,b)=>(a.order||0)-(b.order||0));if(A.init[c]&&['orders','requests','bookings'].includes(c))s.docChanges().forEach(ch=>ch.type=='added'&&ping(c));A.init[c]=1;draw()},err));
  A.un.push(db.doc('store/costs').onSnapshot(s=>{A.d.costs=s.exists?s.data():{};draw()},err));
  A.un.push(db.collection('activityLog').orderBy('at','desc').limit(100).onSnapshot(s=>{A.d.log=s.docs.map(x=>({id:x.id,...x.data()}));draw()},err));
@@ -1192,13 +1344,23 @@ window.ADM={
  csv(k){const U=A.d.orders,rows={orders:[['ID','Name','Phone','Total','Status','Date','Order','Payment','Governorate']].concat(U.map(o=>[o.id.slice(-6),o.name,o.phone,o.total==null?'':o.total,ST[o.status],dt(o),(o.items||[]).map(i=>(i.nameAr||i.name)+'×'+i.qty).join(' | '),o.pay||'',o.gov||''])),requests:[['ID','Type','Order','Name','Phone','Scooter','Quote','Status','Technician','Date']].concat(A.d.requests.map(o=>[o.id.slice(-6),o.type,o.titleAr||o.titleEn,o.name,o.phone,(o.machine||'')+' '+(o.model||''),o.quote==null?'':o.quote,ST[o.status],o.tech||'',dt(o)])),customers:[['Name','Phone','Orders','Fairing/quote','Purchases']].concat(custs().map(c=>[c.name,c.ph,c.o,c.r,c.spent]))}[k],s=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/^([=+\-@])/,"'$1").replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+s],{type:'text/csv'}));a.download=k+'.csv';a.click()},
  rep(d){const O=A.d.orders.filter(o=>o.createdAt&&o.createdAt.toDate&&Date.now()-o.createdAt.toDate()<d*864e5),tot=O.filter(o=>o.status!='cancelled').reduce((s,o)=>s+(o.total||0),0),w=window.open('','_blank');if(!w)return toast('Allow pop-ups');
   w.document.write(`<html dir="ltr"><head><meta charset="utf-8"><title>Report</title><style>body{font-family:Tahoma,sans-serif;padding:30px}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #ddd;padding:6px;text-align:right;font-size:13px}</style></head><body><h2>IFTKASA GARAGE — Report — last ${d} days</h2><p>Number of orders: ${O.length} — Revenue: ${egp(tot)}</p><table><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr>${O.map(o=>`<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${esc(o.name)}</td><td>${egp(o.total)}</td><td>${ST[o.status]||''}</td><td>${esc(dt(o))}</td></tr>`).join('')}</table><script>onload=()=>print()<\/script></body></html>`);w.document.close()},
- async bk(){toast('Preparing…');try{const out={};for(const c of ['products','mods','fiber','coupons','offers','gallery','expenses','orders','requests','bookings','reviews','notify','custMeta'])out[c]=(await db.collection(c).get()).docs.map(d=>({id:d.id,data:d.data()}));out.store=[];for(const k of ['settings','adminUsers','costs']){const d=await db.doc('store/'+k).get();if(d.exists)out.store.push({id:k,data:d.data()})}
+ async bk(){toast('Preparing…');try{const out={};for(const c of ['products','mods','fiber','coupons','offers','gallery','expenses','orders','requests','bookings','reviews','notify','custMeta','returns'])out[c]=(await db.collection(c).get()).docs.map(d=>({id:d.id,data:d.data()}));out.store=[];for(const k of ['settings','adminUsers','costs']){const d=await db.doc('store/'+k).get();if(d.exists)out.store.push({id:k,data:d.data()})}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));a.download='iftkasa-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()}catch(e){err()}},
  async restore(f){if(!f||!confirm('This will overwrite current data. Are you sure?'))return;try{const j=JSON.parse(await f.text()),ops=[];for(const[c,Ls]of Object.entries(j))Ls.forEach(d=>ops.push([db.collection(c).doc(d.id),fx(d.data)]));for(let i=0;i<ops.length;i+=400){const bt=db.batch();ops.slice(i,i+400).forEach(([r,d])=>bt.set(r,d));await bt.commit()}toast('Restore complete ✅ ('+ops.length+')')}catch(e){err()}}
 };
 const LOGT={save:'Save',saveSet:'Edited store content & settings',del:'Delete',st:'Changed status',note:'Saved note',saveAdm:'Saved admin',delAdm:'Deleted admin',stock:'Edited stock',appr:'Reviewed a review',cost:'Edited cost',meta:'Edited customer data',restore:'Restored a backup'};
 const logA=m=>db.collection('activityLog').add({msg:m,by:(A.u||{}).name||'',at:TS()}).catch(()=>{});
 Object.keys(LOGT).forEach(k=>{const f=ADM[k];ADM[k]=function(){logA(LOGT[k]+' '+Array.prototype.join.call(arguments,' ').slice(0,90));return f.apply(this,arguments)}});
+Object.assign(ADM,{
+ shipList(){return String((A.d.settings||{}).ship||'').split('\n').map(l=>l.split(':')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),a[1]||'0',(a[2]||'').trim()])},
+ shipPut(S){db.doc('store/settings').set({ship:S.map(a=>a.join(':')).join('\n')},{merge:true}).then(()=>toast('Saved ✅')).catch(err)},
+ shipAdd(){const n=$('sh_n').value.trim().replace(/[:\n]/g,'');if(!n)return;const S=ADM.shipList().filter(a=>a[0]!=n);S.push([n,$('sh_p').value||'0',$('sh_d').value.trim().replace(/[:\n]/g,'')]);ADM.shipPut(S)},
+ shipEd(i,k,v){const S=ADM.shipList();S[i][k]=String(v).replace(/[:\n]/g,'');ADM.shipPut(S)},
+ shipDel(i){const S=ADM.shipList();S.splice(i,1);ADM.shipPut(S)},
+ shipAll(){const S=ADM.shipList();GOV.forEach(g=>{if(!S.some(a=>a[0]==g))S.push([g,'0',''])});ADM.shipPut(S)},
+ async shipLink(id){const o=A.d.orders.find(x=>x.id==id);if(!o)return;let tk=o.shipToken;if(!tk){tk=Math.random().toString(36).slice(2)+Date.now().toString(36);try{await db.collection('orders').doc(id).update({shipToken:tk})}catch(e){return err()}}
+  const u=location.origin+location.pathname+'?ship='+encodeURIComponent(id)+'&t='+tk;try{await navigator.clipboard.writeText(u);toast('Courier link copied ✅')}catch(e){prompt('Courier link',u)}}
+});
 window.$=$;
 function openAdmin(){$('adm').classList.add('on')}
 let tp=0,tt;document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.brand2')){tp++;clearTimeout(tt);tt=setTimeout(()=>tp=0,2000);if(tp>=5){tp=0;openAdmin()}}});
