@@ -2384,16 +2384,24 @@ addToCart=function(i){const p=P[i];if(p&&p.num==null){askPrice(i);return}return 
 (function(){
  const K=()=>state.view+'|'+state.product+'|'+state.mod+'|'+state.fiberProblem;
  const snap=()=>({v:state.view,p:state.product,m:state.mod,f:state.fiberProblem});
- let last=null,pop=false,boot=true,prev=state.view;
- try{history.replaceState(snap(),'');last=K()}catch(e){}
+ let last=null,pop=false,armed=false,lastG=0;
+ /* bottom "guard" entry: the phone's Back on the first page asks once before leaving the store */
+ function arm(){if(armed)return;armed=true;try{history.replaceState({g:1},'');history.pushState(snap(),'');last=K()}catch(e){}}
+ function toast(){let d=document.getElementById('ift-exit');if(!d){d=document.createElement('div');d.id='ift-exit';
+  d.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:99999;transition:opacity .3s;pointer-events:none;max-width:85%;text-align:center';document.body.appendChild(d)}
+  d.textContent=state.lang==='ar'?'اضغط رجوع مرة تانية للخروج':'Press back again to exit';d.style.opacity='1';clearTimeout(d._t);d._t=setTimeout(()=>{d.style.opacity='0'},2000)}
+ if(state.view!=='lang')arm();else{try{history.replaceState(snap(),'');last=K()}catch(e){}}
  const _r=render;
  render=function(){const r=_r.apply(this,arguments);try{sync()}catch(e){}return r};
  function sync(){
   if(pop)return;const k=K();if(k===last)return;
-  if(boot&&prev==='lang'){history.replaceState(snap(),'');boot=false}
-  else history.pushState(snap(),'');
-  last=k;prev=state.view}
- addEventListener('popstate',e=>{const s=e.state;if(!s||!s.v)return;pop=true;
+  if(!armed&&state.view!=='lang'){arm();return}
+  if(!armed){history.replaceState(snap(),'');last=k;return}
+  history.pushState(snap(),'');last=k}
+ addEventListener('popstate',e=>{const s=e.state;
+  if(s&&s.g){const n=Date.now();if(n-lastG<2000){history.back();return}
+   lastG=n;toast();try{history.pushState(snap(),'')}catch(_){}return}
+  if(!s||!s.v)return;pop=true;
   try{state.view=s.v;state.product=s.p;state.mod=s.m;state.fiberProblem=s.f;
    const CK=['checkoutInfo','checkoutSummary','checkoutConfirm'];
    if(CK.includes(state.view)&&!cart.length&&!state.buyNow)state.view='home';
@@ -2401,7 +2409,7 @@ addToCart=function(i){const p=P[i];if(p&&p.num==null){askPrice(i);return}return 
    if(state.view==='fiberForm'&&state.fiberProblem==null)state.view='fiber';
    if((state.view==='modForm'||state.view==='modDetail')&&state.mod==null)state.view='mods';
    if(state.view==='detail'&&state.product==null)state.view='list';
-   render();last=K();prev=state.view;try{toTop()}catch(_){}
+   render();last=K();try{toTop()}catch(_){}
   }finally{pop=false}});
 })();
 </script>
