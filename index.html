@@ -2380,5 +2380,30 @@ const _atc=addToCart;
 addToCart=function(i){const p=P[i];if(p&&p.num==null){askPrice(i);return}return _atc.apply(this,arguments)};
 })();
 </script>
+<script id="ift-history">
+(function(){
+ const K=()=>state.view+'|'+state.product+'|'+state.mod+'|'+state.fiberProblem;
+ const snap=()=>({v:state.view,p:state.product,m:state.mod,f:state.fiberProblem});
+ let last=null,pop=false,boot=true,prev=state.view;
+ try{history.replaceState(snap(),'');last=K()}catch(e){}
+ const _r=render;
+ render=function(){const r=_r.apply(this,arguments);try{sync()}catch(e){}return r};
+ function sync(){
+  if(pop)return;const k=K();if(k===last)return;
+  if(boot&&prev==='lang'){history.replaceState(snap(),'');boot=false}
+  else history.pushState(snap(),'');
+  last=k;prev=state.view}
+ addEventListener('popstate',e=>{const s=e.state;if(!s||!s.v)return;pop=true;
+  try{state.view=s.v;state.product=s.p;state.mod=s.m;state.fiberProblem=s.f;
+   const CK=['checkoutInfo','checkoutSummary','checkoutConfirm'];
+   if(CK.includes(state.view)&&!cart.length&&!state.buyNow)state.view='home';
+   if(state.view==='success')state.view='home';
+   if(state.view==='fiberForm'&&state.fiberProblem==null)state.view='fiber';
+   if((state.view==='modForm'||state.view==='modDetail')&&state.mod==null)state.view='mods';
+   if(state.view==='detail'&&state.product==null)state.view='list';
+   render();last=K();prev=state.view;try{toTop()}catch(_){}
+  }finally{pop=false}});
+})();
+</script>
 </body>
 </html>
