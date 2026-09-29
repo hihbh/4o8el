@@ -1268,7 +1268,7 @@ if(/[?&]ship=/.test(location.search)){const P=new URLSearchParams(location.searc
  db.collection('orders').doc(oid).get().then(s=>{const o=s.data();if(!s.exists||!o.shipToken||o.shipToken!==tk)return bad('الرابط غير صحيح أو منتهي');draw(o)}).catch(()=>bad('تعذر تحميل الأوردر'))}
 
 /* ================= ADMIN ================= */
-const NAV=['Overview',['dash','📊','Dashboard'],['analytics','📈','Analytics & finance'],'Catalog',['products','📦','Products'],['mods','🎨','Maintenance & mods'],['fiber','🛡️','Fairing problems'],['inventory','📋','Inventory'],['offers','🔥','Offers'],['gallery','🖼️','Before & After gallery'],'Sales',['orders','🛒','Orders'],['requests','🧰','Fairing & quote requests'],['bookings','📅','Bookings'],['coupons','🎟️','Coupons'],['shipping','🚚','Shipping & governorates'],['returns','↩️','Returns & refunds'],['invoices','🧾','Invoices'],['expenses','💸','Expenses'],'Customers',['customers','👥','Customers'],['reviews','⭐','Reviews'],'System',['content','⚙️','Store content & settings'],['admins','🔑','Admins'],['log','🕓','Activity log'],['backup','💾','Backup'],['storage','🗜️','Storage & images']];
+const NAV=['Overview',['dash','📊','Dashboard'],['analytics','📈','Analytics & finance'],'Catalog',['products','📦','Products'],['mods','🎨','Maintenance & mods'],['fiber','🛡️','Fairing problems'],['inventory','📋','Inventory'],['offers','🔥','Offers'],['gallery','🖼️','Before & After gallery'],'Sales',['orders','🛒','Orders'],['requests','🧰','Fairing & quote requests'],['bookings','📅','Bookings'],['coupons','🎟️','Coupons'],['shipping','🚚','Shipping & governorates'],['returns','↩️','Returns & refunds'],['invoices','🧾','Invoices'],['expenses','💸','Expenses'],'Customers',['customers','👥','Customers'],['reviews','⭐','Reviews'],'System',['content','⚙️','Store content & settings'],['admins','🔑','Admins'],['wipe','🗑️','Delete data'],['log','🕓','Activity log'],['backup','💾','Backup'],['storage','🗜️','Storage & images']];
 const ROLES={full:['Full admin',null],sales:['Sales',['dash','analytics','orders','requests','coupons','customers','inventory','reviews','bookings','offers','expenses','shipping','returns','invoices']],tech:['Technician',['dash','requests','bookings']]};
 const can=k=>{const a=(ROLES[(A.u||{}).role||'full']||ROLES.full)[1];return !a||a.includes(k)};
 const UPK=['img','imgs','before','after'];
@@ -1466,11 +1466,49 @@ V.analytics=()=>{const CS=A.d.costs||{},O=A.d.orders,ok=O.filter(o=>o.status!='c
  ${pnl('📍 Top governorates',hbars(Object.entries(gv).sort((a,b)=>b[1].n-a[1].n).slice(0,8).map(([k,v])=>({k,v:v.n,r:v})),r=>r.v+' orders · '+egp(r.r.v)))}
  ${pnl('🔧 Requests by technician',hbars(Object.entries(tk).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({k,v}))))}</div>`};
 
+/* ===== ADMIN: select & bulk delete, delete-all-data page ===== */
+A.sel={};A.selSec='';
+const DELSEC=['orders','requests','bookings','reviews','returns','expenses','products','mods','fiber','coupons','offers','gallery','carts'];
+const chunkDel=async(c,onEach)=>{let n=0;for(;;){const q=await db.collection(c).limit(400).get();if(q.empty)break;const b=db.batch();q.docs.forEach(d=>{if(onEach)onEach(d.data());b.delete(d.ref)});await b.commit();n+=q.size;if(q.size<400)break}return n};
+const imgsOf=o=>{const u=[o.img,o.thumb,o.before,o.after].concat(lst(o.imgs)).concat((o.gal||[]).flatMap(x=>[x&&x.u,x&&x.t]));return[...new Set(u)].filter(x=>x&&typeof x=='string')};
+const askDel=(n,what)=>{if(!n)return false;if(!confirm('Delete '+n+' '+what+'?\nThis cannot be undone.'))return false;if(n>=10||what=='everything'){const t=prompt('Type DELETE to confirm removing '+n+' '+what);return String(t||'').trim().toUpperCase()=='DELETE'}return true};
+const logDel=msg=>{try{db.collection('activityLog').add({by:(A.u||{}).name||'admin',msg,at:firebase.firestore.FieldValue.serverTimestamp(),device:navigator.userAgent.slice(0,60)})}catch(e){}};
+Object.assign(window.ADX,{
+ sel(c,id,on){const S=A.sel[c]=A.sel[c]||new Set();on?S.add(id):S.delete(id);ADX.bar()},
+ all(on,tb){const t=tb.closest('table');t.querySelectorAll('input.rsel').forEach(x=>{x.checked=on;const S=A.sel[x.dataset.c]=A.sel[x.dataset.c]||new Set();on?S.add(x.dataset.id):S.delete(x.dataset.id)});ADX.bar()},
+ bar(){document.querySelectorAll('#adMain .bulk').forEach(b=>{const c=b.dataset.c,S=A.sel[c]||new Set(),sh=ADX.shown(c),n=sh.filter(x=>S.has(x)).length;const el=b.querySelector('.bn');if(el)el.textContent=n;const bt=b.querySelector('.bsel');if(bt)bt.disabled=!n})},
+ shown(c){return[...document.querySelectorAll('#adMain input.rsel[data-c="'+c+'"]')].map(x=>x.dataset.id)},
+ async delMany(c,ids,what){if(!ids.length)return;if(!askDel(ids.length,what||'items'))return;toast('Deleting…');
+  try{for(let i=0;i<ids.length;i+=400){const b=db.batch();ids.slice(i,i+400).forEach(id=>{const o=(A.d[c]||[]).find(x=>x.id==id);if(o&&['products','mods','gallery'].includes(c))imgsOf(o).forEach(delUrl);b.delete(db.collection(c).doc(id))});await b.commit()}
+   (A.sel[c]||new Set()).clear();logDel('Deleted '+ids.length+' from '+c);toast('Deleted '+ids.length+' ✅');draw(true)}catch(e){console.error(e);err()}},
+ delSel(c){const sh=ADX.shown(c),S=A.sel[c]||new Set();ADX.delMany(c,sh.filter(id=>S.has(id)),'selected items')},
+ delShown(c){ADX.delMany(c,ADX.shown(c),'items shown in this list')},
+ decorate(){const m=$('adMain');if(!m||!DELSEC.includes(A.sec)||!can('wipe'))return;if(A.selSec!=A.sec){A.sel={};A.selSec=A.sec}
+  m.querySelectorAll('.ad-tw table').forEach(t=>{if(t.dataset.dec)return;let c='';const rows=[...t.querySelectorAll('tr')].slice(1),ids=[];
+   rows.forEach(r=>{const b=r.querySelector('button[onclick*="ADM.del("]');const mm=b&&/ADM\.del\('(\w+)','([^']+)'\)/.exec(b.getAttribute('onclick'));if(!mm)return;c=mm[1];const td=document.createElement('td');td.className='rs';td.innerHTML='<input type="checkbox" class="rsel" data-c="'+c+'" data-id="'+mm[2]+'" '+((A.sel[c]||new Set()).has(mm[2])?'checked':'')+' onchange="ADX.sel(\''+c+'\',\''+mm[2]+'\',this.checked)">';r.insertBefore(td,r.firstChild);ids.push(mm[2])});
+   if(!ids.length)return;t.dataset.dec=1;const h=t.querySelector('tr'),th=document.createElement('th');th.className='rs';th.innerHTML='<input type="checkbox" title="Select all" onchange="ADX.all(this.checked,this)">';h.insertBefore(th,h.firstChild);
+   const S=A.sel[c]||new Set(),k=ids.filter(x=>S.has(x)).length,bar=document.createElement('div');bar.className='bulk';bar.dataset.c=c;bar.innerHTML='<span>Selected: <b class="bn">'+k+'</b></span><button class="ad-btn s bsel" onclick="ADX.delSel(\''+c+'\')" '+(k?'':'disabled')+'>🗑 Delete selected</button><button class="ad-btn s bdanger" onclick="ADX.delShown(\''+c+'\')">🗑 Delete all shown ('+ids.length+')</button>';
+   const w=t.closest('.ad-tw');w.parentNode.insertBefore(bar,w)})},
+ wipeAll(on){document.querySelectorAll('#adMain input.wp').forEach(x=>x.checked=on)},
+ async wipe(){const cs=[...document.querySelectorAll('#adMain input.wp:checked')].map(x=>x.value);if(!cs.length)return toast('Choose what to delete first');
+  if(!askDel(cs.length,'everything'))return;const bt=$('wpBtn');if(bt)bt.disabled=true;let tot=0;
+  try{for(const c of cs){toast('Deleting '+c+'…');if(c.startsWith('store/')){const r=db.doc(c);if((await r.get()).exists){await r.delete();tot++}}else tot+=await chunkDel(c,['products','mods','gallery'].includes(c)?(d=>imgsOf(d).forEach(delUrl)):null)}
+   logDel('Deleted data: '+cs.join(', '));toast('Done ✅ ('+tot+' records)')}catch(e){console.error(e);err()}finally{if(bt)bt.disabled=false;draw(true)}}
+});
+const WIPE=[['Sales & customers',[['orders','Orders'],['requests','Fairing / quote requests'],['bookings','Bookings'],['returns','Returns & refunds'],['expenses','Expenses'],['reviews','Reviews'],['notify','Back-in-stock requests'],['custMeta','Customer tags & notes']]],
+ ['Catalog',[['products','Products (and their photos)'],['mods','Maintenance & mods'],['fiber','Fairing problems'],['coupons','Coupons'],['offers','Offers'],['gallery','Before & After gallery']]],
+ ['Statistics & logs',[['visits','Visits'],['events','Events (views / add-to-cart / shares)'],['searches','Searches'],['carts','Abandoned carts'],['activityLog','Activity log']]],
+ ['Settings',[['store/settings','Store content & settings'],['store/costs','Product costs']]]];
+V.wipe=()=>hd('Delete data')+`<div class="ad-c wipe"><p style="margin-top:0">Choose what to <b>permanently delete</b>. Admin accounts are never deleted. To delete only some items, or only a date range, open that list (Orders, Products…), pick the dates at the top, then tick rows or press <b>Delete all shown</b>.</p>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="ad-btn s" onclick="ADM.bk()">⬇ Download a backup first</button><button class="ad-btn s" onclick="ADX.wipeAll(true)">Select all</button><button class="ad-btn s" onclick="ADX.wipeAll(false)">Select none</button></div>
+ ${WIPE.map(([g,L])=>`<h4>${g}</h4><div class="wp-g">${L.map(([k,l])=>{const n=Array.isArray(A.d[k])?' <small>('+A.d[k].length+')</small>':'';return `<label class="ck"><input type="checkbox" class="wp" value="${k}"> ${l}${n}</label>`}).join('')}</div>`).join('')}
+ <button id="wpBtn" class="ad-btn wp-go" onclick="ADX.wipe()">🗑 Delete selected data</button></div>`;
+
 let _dT=0;function draw(imm){clearTimeout(_dT);if(imm===true)return drawNow();_dT=setTimeout(drawNow,60)}
 function drawNow(){const a=document.activeElement;if(a&&a.id=='adPQ')return;if((A.sec=='content'||A.sec=='customers'||A.sec=='growth'||A.sec=='qr')&&a&&/INPUT|TEXTAREA/.test(a.tagName)&&a.closest('#adMain'))return;
  const _sd=`<div class="ad-logo">IFTKASA<small>ADMIN PANEL</small></div><input placeholder="Global search" style="min-width:130px" onkeydown="if(event.key=='Enter')ADM.gs(this.value)">`+NAV.map(e=>{if(typeof e=='string')return `<div class="ad-g">${e}</div>`;const[k,i,l]=e;if(!can(k))return '';const n=k=='orders'?nw('orders'):k=='requests'?nw('requests'):0;return `<button class="ad-nav ${A.sec==k?'on':''}" onclick="ADM.go('${k}')"><span>${i}</span>${l}${n?`<b>${n}</b>`:''}</button>`}).join('')+`<button class="ad-nav" onclick="ADM.close()">↩ Back to store</button><button class="ad-nav" onclick="ADM.out()">⎋ Sign out</button>`;
  if(_sd!==A._sd){$('adSide').innerHTML=_sd;A._sd=_sd}
-  $('adMain').innerHTML=rangeBar()+withRange(()=>V[A.sec]())}
+  $('adMain').innerHTML=rangeBar()+withRange(()=>V[A.sec]());try{ADX.decorate()}catch(e){console.error(e)}}
 async function seed(){A.seeding=1;const b=db.batch(),c=n=>db.collection(n).doc();
  DEF.P.forEach((p,i)=>b.set(c('products'),{nEn:p.n[0],nAr:p.n[1],sEn:p.s[0],sAr:p.s[1],price:parseFloat(p.price[0].replace(/,/g,''))||'',ic:p.ic,img:'',stock:'',cat:['Helmets','Mirrors','Accessories','Accessories','Lighting','Spare Parts','Spare Parts','Accessories','Accessories'][i]||'Accessories',tEn:p.tag?p.tag[0]:'',tAr:p.tag?p.tag[1]:'',order:i,active:true}));
  DEF.M.forEach((m,i)=>b.set(c('mods'),{nEn:m.n[0],nAr:m.n[1],sEn:m.s[0],sAr:m.s[1],ic:m.ic,img:'',order:i,active:true}));
@@ -2253,6 +2291,12 @@ div[style*="scroll-snap-type"] img{flex:0 0 100%!important;width:100%!important;
 .dn{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.dn-l{display:grid;gap:6px;font-size:12.5px}.dn-l i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:6px}.dn-l small{color:#7c8bb3}.dn-n{margin-top:10px;font-size:12px;color:#8da0cc}
 .hb{display:grid;gap:10px}.hb-t{display:flex;justify-content:space-between;gap:10px;font-size:12.5px}.hb-t b{color:#20d7f0;white-space:nowrap}.hb-b{height:8px;background:#141f38;border-radius:6px;margin-top:5px;overflow:hidden}.hb-b i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#20d7f0,#ff2fd6)}
 .ad-empty{color:#7c8bb3;text-align:center;padding:22px 8px;font-size:12.5px}
+/* bulk delete */
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px;font-size:12.5px;color:#c7d2ee}.bulk .bn{color:#20d7f0}
+.bulk .bdanger,.wp-go{border-color:#ff5c72!important;color:#ff5c72!important}.bulk button:disabled{opacity:.4;cursor:not-allowed}
+td.rs,th.rs{width:34px;text-align:center}td.rs input,th.rs input{width:17px;height:17px;margin:0;accent-color:#ff2fd6;cursor:pointer}
+.wipe{max-width:720px}.wipe h4{margin:16px 0 8px;color:#20d7f0;font-size:13px}.wp-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 14px}.wp-g .ck{margin:0}
+.wp-go{background:transparent!important;margin-top:20px;font-weight:800}
 </style>
 <script id="ift-quote">
 (function(){
