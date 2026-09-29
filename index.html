@@ -104,11 +104,27 @@ textarea{resize:none;min-height:70px;}
 .qty button{background:none;border:none;color:var(--text);font-size:15px;cursor:pointer;}
 .cart-total{display:flex;justify-content:space-between;align-items:center;margin:18px 0;font-size:14px;font-weight:800;}
 .success{text-align:center;padding:40px 10px;}
-.check{width:70px;height:70px;border-radius:50%;border:3px solid transparent;background:var(--grad) border-box;
-  -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;}
-.check::before{content:'✓';font-size:30px;color:var(--cyan);background:var(--bg);width:60px;height:60px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;}
+.check{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:3px solid transparent;
+  background:
+    linear-gradient(var(--bg),var(--bg)) padding-box,
+    var(--grad) border-box;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 20px;
+  position:relative;
+}
+
+.check::before{
+  content:'✓';
+  font-size:30px;
+  color:var(--cyan);
+}
 .foot-brand{margin-top:36px;text-align:center;color:var(--muted);font-size:12px;}
 .foot-brand .fl{width:44px;height:44px;border-radius:12px;background:var(--grad);display:flex;align-items:center;
   justify-content:center;font-size:20px;margin:0 auto 8px;}
@@ -2066,9 +2082,13 @@ window.iftPaySS=()=>{const p=ok8();
  else body=`<div class="pay-up ${p.busy?'':'ok'}"><img src="${esc(p.url||'')}" alt=""><div class="pu-t">${p.busy?`<span class="spin"></span>${L('Uploading the screenshot…','بنرفع الصورة…')}`:`✅ ${L('Screenshot uploaded','الصورة اترفعت')}`}<div style="color:var(--muted);font-size:11px;word-break:break-all">${esc(p.name||'')}</div></div><button type="button" class="pay-x" onclick="removePaySS()">×</button></div>`;
  return `<div class="field" style="margin-top:12px"><label>${t('uploadScreenshot')} <span style="color:#ff5c72">*</span></label>${body}${inp}</div>`};
 
-const shrink=(f,mx,q)=>new Promise(res=>{const u=URL.createObjectURL(f),i=new Image;
- i.onload=()=>{try{URL.revokeObjectURL(u);const s=Math.min(1,mx/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(i.width*s));c.height=Math.max(1,Math.round(i.height*s));const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))}catch(e){res(null)}};
- i.onerror=()=>{try{URL.revokeObjectURL(u)}catch(e){}res(null)};i.src=u});
+const shrink=async(f,mx,q)=>{try{let w,h,src;
+ if(window.createImageBitmap){try{src=await createImageBitmap(f);w=src.width;h=src.height}catch(e){src=null}}
+ if(!src){src=await new Promise((res,rej)=>{const u=URL.createObjectURL(f),i=new Image;i.onload=()=>{URL.revokeObjectURL(u);res(i)};i.onerror=()=>{URL.revokeObjectURL(u);rej()};i.src=u});w=src.naturalWidth||src.width;h=src.naturalHeight||src.height}
+ const sc=Math.min(1,mx/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*sc));c.height=Math.max(1,Math.round(h*sc));
+ const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(src,0,0,c.width,c.height);try{src.close&&src.close()}catch(e){}
+ return await new Promise(res=>c.toBlob(bl=>res(bl),'image/jpeg',q))}catch(e){return null}};
+const blobToData=bl=>new Promise(res=>{const r=new FileReader;r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(bl)});
 const rawRead=f=>new Promise(res=>{const r=new FileReader;r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(f)});
 const rr=()=>{if(['checkoutSummary','checkoutConfirm'].includes(state.view))render()};
 
@@ -2078,16 +2098,18 @@ window.addPaySS=async function(inp){
  let prev='';try{prev=URL.createObjectURL(f)}catch(e){}
  const p={url:prev,name:f.name,busy:1};state.paySS=[p];render();
  const fail=m=>{if(state.paySS[0]!==p)return;state.paySS=[{err:m}];rr()};
- let d=await shrink(f,1100,.72);
- if(!d&&f.size<=700*1024)d=await rawRead(f);
- if(!d){fail(L('Could not read this image. Try a screenshot (JPG/PNG).','مقدرناش نقرا الصورة دي. جرب لقطة شاشة (JPG/PNG).'));return}
- let url=d;
+ let bl=await shrink(f,900,.6);
+ if(!bl&&f.size<=700*1024)bl=f;
+ if(!bl){fail(L('Could not read this image. Try a screenshot (JPG/PNG).','مقدرناش نقرا الصورة دي. جرب لقطة شاشة (JPG/PNG).'));return}
+ const inline=async()=>{const d=await blobToData(bl);if(!d||d.length>800000)throw new Error('big');return d};
+ let url;
  try{
   if(!firebase.storage)throw new Error('no storage');
-  const b=await(await fetch(d)).blob(),ref=firebase.storage().ref('uploads/orders/'+Date.now().toString(36)+Math.random().toString(36).slice(2,9)+'.jpg');
-  await ref.put(b,{contentType:'image/jpeg'});url=await ref.getDownloadURL();
- }catch(e){console.warn('Storage upload failed - keeping the compact inline copy:',e);
-  if(d.length>800000){fail(L('The image is too large. Try a smaller screenshot.','الصورة كبيرة. جرب لقطة شاشة أصغر.'));return}}
+  const ref=firebase.storage().ref('uploads/orders/'+Date.now().toString(36)+Math.random().toString(36).slice(2,9)+'.jpg');
+  /* upload to Storage but never make the customer wait more than 5s: fall back to the small inline copy */
+  url=await Promise.race([ref.put(bl,{contentType:'image/jpeg'}).then(()=>ref.getDownloadURL()),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))]);
+ }catch(e){console.warn('Storage upload slow/failed - using the compact inline copy:',e);
+  try{url=await inline()}catch(e2){fail(L('The image is too large. Try a smaller screenshot.','الصورة كبيرة. جرب لقطة شاشة أصغر.'));return}}
  if(state.paySS[0]!==p)return;
  p.data=url;p.busy=0;rr()};
 window.removePaySS=()=>{state.paySS=[];render()};
@@ -2112,6 +2134,19 @@ const _po=window.placeOrder;window.placeOrder=function(){if(!guard())return;retu
 .pq-prod{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:14px}
 .pq-img{width:56px;height:56px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;background:linear-gradient(160deg,#122043,#0a1226)}
 .pq-price{font-size:11.5px;color:var(--cyan);font-weight:700;margin-top:2px;display:block}
+
+/* store-section cards: full-width image, text never breaks mid-word */
+.row2{position:relative!important;height:132px!important;min-height:0!important;align-items:center!important;isolation:isolate}
+.row2 img{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;z-index:0;-webkit-mask-image:none!important;mask-image:none!important}
+.row2::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to right,rgba(7,11,22,.9) 0%,rgba(7,11,22,.6) 50%,rgba(7,11,22,.1) 100%)}
+html[dir=rtl] .row2::after{background:linear-gradient(to left,rgba(7,11,22,.9) 0%,rgba(7,11,22,.6) 50%,rgba(7,11,22,.1) 100%)}
+.row2 .meta,.row2 .arrow{position:relative;z-index:2}
+.row2 .meta{padding:0 14px!important;min-width:0;gap:4px!important}
+.row2 .meta b,.row2 .meta span{font-size:17px!important;line-height:1.35!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none!important;white-space:normal;text-shadow:0 1px 8px rgba(0,0,0,.7);color:#fff!important}
+.row2 .meta span{color:var(--cyan)!important;font-weight:700!important}
+.row2 .arrow{padding:0 14px!important;flex:none}
+/* share button: always top-right corner of the product image */
+.share-fab{position:absolute!important;top:12px!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:6!important}
 </style>
 <script id="ift-quote">
 (function(){
