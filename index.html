@@ -1613,6 +1613,33 @@ window.ADM={
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));a.download='iftkasa-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()}catch(e){err()}},
  async restore(f){if(!f||!confirm('This will overwrite current data. Are you sure?'))return;try{const j=JSON.parse(await f.text()),ops=[];for(const[c,Ls]of Object.entries(j))Ls.forEach(d=>ops.push([db.collection(c).doc(d.id),fx(d.data)]));for(let i=0;i<ops.length;i+=400){const bt=db.batch();ops.slice(i,i+400).forEach(([r,d])=>bt.set(r,d));await bt.commit()}toast('Restore complete ✅ ('+ops.length+')')}catch(e){err()}}
 };
+/* ---- square crop tool: drag to move, slider to zoom; result = exactly what shows on the store ---- */
+const cropImg=(file,idx,total)=>new Promise(async res=>{
+ let img;try{img=await decodeImg(file)}catch(e){res(file);return}
+ const iw=img.width||img.naturalWidth,ih=img.height||img.naturalHeight,S=640,OUT=1200;
+ const m=document.createElement('div');m.id='cropM';
+ m.innerHTML=`<div class="cb"><h4>✂️ Crop product photo <span class="cnt">${idx+1}/${total}</span></h4><small>Drag to move · slider to zoom · this square is exactly how it appears on the store</small><div class="fr"><canvas width="${S}" height="${S}"></canvas></div><input class="rg" type="range" min="0" max="300" value="0"><div class="row"><button type="button" data-a="fit">Fit whole photo</button><button type="button" data-a="skip">Cancel</button><button type="button" class="ok" data-a="ok">Done ✓</button></div></div>`;
+ document.body.appendChild(m);
+ const fr=m.querySelector('.fr'),cv=m.querySelector('canvas'),g=cv.getContext('2d'),rg=m.querySelector('.rg');
+ let fit=false,ox=0,oy=0;
+ const base=()=>fit?Math.min(S/iw,S/ih):Math.max(S/iw,S/ih);
+ const sc=()=>base()*(1+rg.value/100);
+ const clamp=()=>{const w=iw*sc(),h=ih*sc(),mx=Math.max(0,(w-S)/2),my=Math.max(0,(h-S)/2);ox=Math.max(-mx,Math.min(mx,ox));oy=Math.max(-my,Math.min(my,oy))};
+ const draw=(c,size)=>{const k=size/S,x=c.getContext('2d');x.clearRect(0,0,size,size);if(size==S){x.fillStyle='#0a1228';x.fillRect(0,0,size,size)}const w=iw*sc()*k,h=ih*sc()*k;x.imageSmoothingQuality='high';x.drawImage(img,size/2-w/2+ox*k,size/2-h/2+oy*k,w,h)};
+ const paint=()=>{clamp();draw(cv,S)};
+ let d=null;
+ fr.addEventListener('pointerdown',e=>{d={x:e.clientX,y:e.clientY,ox,oy};fr.setPointerCapture(e.pointerId)});
+ fr.addEventListener('pointermove',e=>{if(!d)return;const k=S/fr.clientWidth;ox=d.ox+(e.clientX-d.x)*k;oy=d.oy+(e.clientY-d.y)*k;paint()});
+ fr.addEventListener('pointerup',()=>d=null);fr.addEventListener('pointercancel',()=>d=null);
+ fr.addEventListener('wheel',e=>{e.preventDefault();rg.value=Math.max(0,Math.min(300,+rg.value-e.deltaY/4));paint()},{passive:false});
+ rg.addEventListener('input',paint);
+ const done=v=>{m.remove();res(v)};
+ m.querySelector('.row').addEventListener('click',async e=>{const a=e.target.dataset.a;if(!a)return;
+  if(a=='fit'){fit=!fit;ox=oy=0;rg.value=0;e.target.textContent=fit?'Fill frame':'Fit whole photo';paint();return}
+  if(a=='skip')return done(null);
+  const o=document.createElement('canvas');o.width=o.height=OUT;draw(o,OUT);
+  const b=await new Promise(r=>o.toBlob(r,'image/png'));done(b||file)});
+ paint()});
 Object.assign(ADM,{
  galBox(o){const src=(Array.isArray(o.gal)&&o.gal.length)?o.gal:[o.img].concat(lst(o.imgs)).filter(Boolean).map((u,i)=>({u,t:i==0?(o.thumb||''):''}));
   A.gal=src.slice(0,3).map(x=>({u:x.u,t:x.t||''}));A.galOrig=A.gal.flatMap(x=>[x.u,x.t]).filter(Boolean);A.galBusy=0;
@@ -1621,8 +1648,9 @@ Object.assign(ADM,{
  galRm(i){A.gal.splice(i,1);ADM.galPv()},
  galMain(i){const x=A.gal.splice(i,1)[0];A.gal.unshift(x);ADM.galPv()},
  async galAdd(fs){fs=Array.from(fs||[]).filter(f=>/^image\//.test(f.type));if(!fs.length)return;const room=3-A.gal.length;if(room<=0){toast('Max 3 images per product');return}if(fs.length>room)toast('Only '+room+' more image(s) fit — max 3');fs=fs.slice(0,room);
-  A.galBusy=(A.galBusy||0)+1;toast('Uploading '+fs.length+'…');
-  try{const r=await Promise.all(fs.map(f=>putImg(f,'products')));A.gal.push(...r);ADM.galPv();toast('Uploaded ✅')}catch(x){toast('❌ Could not read the image')}finally{A.galBusy--}},
+  const cs=[];for(let k=0;k<fs.length;k++){const c=await cropImg(fs[k],k,fs.length);if(c)cs.push(c)}if(!cs.length)return;
+  A.galBusy=(A.galBusy||0)+1;toast('Uploading '+cs.length+'…');
+  try{const r=await Promise.all(cs.map(f=>putImg(f,'products')));A.gal.push(...r);ADM.galPv();toast('Uploaded ✅')}catch(x){toast('❌ Could not read the image')}finally{A.galBusy--}},
  dropStale(G){const keep=new Set(G.flatMap(x=>[x.u,x.t]).filter(Boolean));(A.galOrig||[]).filter(u=>!keep.has(u)).forEach(delUrl)},
  dropProd(id){const o=A.d.products.find(x=>x.id==id);if(!o)return;const us=[o.img,o.thumb].concat(lst(o.imgs)).concat((o.gal||[]).flatMap(x=>[x.u,x.t]));[...new Set(us)].filter(Boolean).forEach(delUrl)},
  pq(v){A.pq=v;A.pp=0;const e=$('adPT');if(e)e.innerHTML=prodTbl()},
@@ -2303,6 +2331,22 @@ div[style*="scroll-snap-type"] img{flex:0 0 100%!important;width:100%!important;
 td.rs,th.rs{width:34px;text-align:center}td.rs input,th.rs input{width:17px;height:17px;margin:0;accent-color:#ff2fd6;cursor:pointer}
 .wipe{max-width:720px}.wipe h4{margin:16px 0 8px;color:#20d7f0;font-size:13px}.wp-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 14px}.wp-g .ck{margin:0}
 .wp-go{background:transparent!important;margin-top:20px;font-weight:800}
+
+/* product cards: same square frame as the crop tool, so the image shows exactly as cropped */
+.product .img{aspect-ratio:1/1!important;height:auto!important}
+.product .img img{object-fit:cover!important;object-position:center!important}
+/* crop modal (admin) */
+#cropM{position:fixed;inset:0;z-index:99999;background:rgba(3,8,20,.92);display:flex;align-items:center;justify-content:center;padding:14px}
+#cropM .cb{width:100%;max-width:420px;background:#0d1730;border:1px solid #1b2a4d;border-radius:18px;padding:14px;color:#e8f0ff;font-family:inherit}
+#cropM h4{margin:0 0 4px;font-size:15px}#cropM small{color:#8fa3c7;display:block;margin-bottom:10px;font-size:12px}
+#cropM .fr{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#000;touch-action:none;cursor:grab;border:2px solid #20d7f0}
+#cropM .fr:active{cursor:grabbing}
+#cropM canvas{width:100%;height:100%;display:block}
+#cropM .rg{width:100%;margin:12px 0 4px}
+#cropM .row{display:flex;gap:8px;margin-top:10px}
+#cropM .row button{flex:1;padding:12px;border-radius:12px;border:1px solid #1b2a4d;background:#12203f;color:#e8f0ff;font-weight:700;font-size:14px;cursor:pointer}
+#cropM .row button.ok{background:#20d7f0;color:#06121f;border-color:#20d7f0}
+#cropM .cnt{float:inline-end;color:#8fa3c7;font-size:12px}
 </style>
 <script id="ift-quote">
 (function(){
