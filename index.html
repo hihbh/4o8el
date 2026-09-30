@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IFTKASA GARAGE</title>
+<link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
@@ -1022,7 +1024,7 @@ const DEF={P:clone(P),M:clone(MODS),F:clone(FIBER)};
 const DC='Spare Parts|قطع غيار\nAccessories|إكسسوارات\nHelmets|خوذات\nLighting|إضاءة\nMirrors|مرايات';
 function parseCats(str){const out=[];let cur=null;String(str||'').split('\n').forEach(raw=>{const l=raw.replace(/\r$/,'');if(!l.trim())return;const sub=/^\s*-/.test(l),parts=l.replace(/^\s*-\s*/,'').split('|').map(s=>s.trim()),en=parts[0],ar=parts[1]||parts[0];if(!en)return;if(sub&&cur)cur[2].push([en,ar]);else{cur=[en,ar,[]];out.push(cur)}});return out}
 window.SET={cats:parseCats(DC),s:{},wa:'010 1234 5678',phone:'010 1234 5678',brands:['Honda','Yamaha','Suzuki','Vespa'],an:['',''],open:true,closed:['','']};
-window.pic=o=>(o.img||o.thumb)?`<img src="${esc(window._pf?(o.img||o.thumb):(o.thumb||o.img))}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="">`:o.ic;
+window.pic=o=>(o.img||o.thumb)?`<img src="${esc(window._pf?(o.img||o.thumb):(o.thumb||o.img))}" ${window._pf?'fetchpriority="high"':'loading="lazy"'} decoding="async" style="${window._pf&&o.thumb&&o.img&&o.thumb!==o.img?'background:url('+esc(o.thumb)+') center/cover;':''}width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="">`:o.ic;
 
 /* ================= STORE SIDE: live data + orders/requests ================= */
 Object.assign(D,{cName:['Your name','اسمك'],cPhone:['Phone / WhatsApp','رقم الموبايل / واتساب'],cNote:['Notes (optional)','ملاحظات (اختياري)'],cNeed:['Please enter your name and phone number','من فضلك اكتب اسمك ورقم موبايلك'],cErr:['Could not send, please try again','تعذر الإرسال، حاول مرة أخرى'],cCode:['Coupon code','كود الخصم'],cApply:['Apply','تطبيق'],cBad:['Invalid or expired coupon','الكوبون غير صالح أو منتهي'],cMin:['Minimum order not reached','لم تصل للحد الأدنى للطلب'],cOut:['Sorry, this item is out of stock','عذرًا، المنتج غير متوفر حاليًا'],cClosed:['The store is closed right now','المتجر مغلق حاليًا'],
@@ -1137,7 +1139,7 @@ const recBlock=p=>{const o=P.map((q,i)=>[q,i]).filter(([q])=>q!==p&&(!p.cat||q.c
 detail=(f=>()=>{window._pf=1;let h;try{h=f()}finally{window._pf=0}const p=P[state.product];if(!p)return h;
  const R=(raw.reviews||[]).filter(r=>r.pid==pk(p)),rn=R.length,ravg=rn?(R.reduce((s,r)=>s+r.stars,0)/rn).toFixed(1):null;
  if(ravg)h=h.replace(/(<h2[^>]*>[\s\S]*?<\/h2>)/,(m)=>m+`<div class="detail-rating">★ ${ravg} <span class="cnt">(${rn} ${L(rn==1?'review':'reviews','تقييم')})</span></div>`);
- if(p.imgs&&p.imgs.length)h=h.replace(/<div class="detail-img">[\s\S]*?<\/div>/,()=>`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;scroll-snap-type:x mandatory">${[p.img].concat(p.imgs).filter(Boolean).map(u=>`<img src="${esc(u)}" alt="" style="height:380px;border-radius:16px;flex:0 0 85%;object-fit:cover;scroll-snap-align:start;border:1px solid var(--line)">`).join('')}</div>`);
+ if(p.imgs&&p.imgs.length)h=h.replace(/<div class="detail-img">[\s\S]*?<\/div>/,()=>`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;scroll-snap-type:x mandatory">${[p.img].concat(p.imgs).filter(Boolean).map((u,i)=>`<img src="${esc(u)}" alt="" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" style="${i==0&&p.thumb&&p.thumb!==u?'background:url('+esc(p.thumb)+') center/cover;':''}height:380px;border-radius:16px;flex:0 0 85%;object-fit:cover;scroll-snap-align:start;border:1px solid var(--line)">`).join('')}</div>`);
  const out=p.stock!=null&&p.stock<=0;
  h=h.replace('<button class="pill-btn" onclick="addToCart(',()=>`${out?`<div style="display:flex;gap:8px;margin-bottom:12px"><button class="outline-btn" style="flex:1" onclick="notifyMe()">🔔 ${L('Notify me','أخبرني لما يتوفر')}</button></div>`:''}<button class="pill-btn" onclick="addToCart(`);
 h=h.replace(/(<div class="detail-img">[\s\S]*?<\/div>|<div style="display:flex;gap:8px;overflow-x:auto[^"]*"[\s\S]*?<\/div>)/,m=>`<div style="position:relative">${m}<button class="share-fab" onclick="shareP()" aria-label="${esc(L('Share','مشاركة'))}">📤</button></div>`);
@@ -1273,11 +1275,15 @@ const ROLES={full:['Full admin',null],sales:['Sales',['dash','analytics','orders
 const can=k=>{const a=(ROLES[(A.u||{}).role||'full']||ROLES.full)[1];return !a||a.includes(k)};
 const UPK=['img','imgs','before','after'];
 const ST_=(()=>{try{return firebase.storage()}catch(e){return null}})(),EXT={'image/webp':'webp','image/jpeg':'jpg'},rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const toBlob=(src,mx,q)=>new Promise((res,rej)=>{const u=URL.createObjectURL(src),i=new Image;
- i.onload=()=>{URL.revokeObjectURL(u);const s=Math.min(1,mx/Math.max(i.width,i.height)),w=Math.max(1,Math.round(i.width*s)),h=Math.max(1,Math.round(i.height*s)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);
-  c.toBlob(b=>{if(b&&b.type=='image/webp')return res(b);const c2=document.createElement('canvas');c2.width=w;c2.height=h;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(i,0,0,w,h);c2.toBlob(j=>j?res(j):rej(new Error('encode')),'image/jpeg',q)},'image/webp',q)};
- i.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('read'))};i.src=u});
-const stPut=async(b,path)=>{const r=ST_.ref(path);await r.put(b,{contentType:b.type,cacheControl:'public,max-age=31536000,immutable'});return r.getDownloadURL()};
+const _dec=new WeakMap();
+const decodeImg=src=>{if(_dec.has(src))return _dec.get(src);const p=(async()=>{if(window.createImageBitmap){try{return await createImageBitmap(src)}catch(e){}}return await new Promise((res,rej)=>{const u=URL.createObjectURL(src),i=new Image;i.onload=()=>{URL.revokeObjectURL(u);res(i)};i.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('read'))};i.src=u})})();_dec.set(src,p);return p};
+const toBlob=async(src,mx,q)=>{const i=await decodeImg(src),iw=i.width||i.naturalWidth,ih=i.height||i.naturalHeight,s=Math.min(1,mx/Math.max(iw,ih)),w=Math.max(1,Math.round(iw*s)),h=Math.max(1,Math.round(ih*s)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.imageSmoothingQuality='medium';g.drawImage(i,0,0,w,h);
+ const b=await new Promise(r=>c.toBlob(r,'image/webp',q));if(b&&b.type=='image/webp')return b;
+ const c2=document.createElement('canvas');c2.width=w;c2.height=h;const g2=c2.getContext('2d');g2.fillStyle='#fff';g2.fillRect(0,0,w,h);g2.drawImage(i,0,0,w,h);
+ const j=await new Promise(r=>c2.toBlob(r,'image/jpeg',q));if(!j)throw new Error('encode');return j};
+const _to=(p,ms)=>{let t;return Promise.race([p,new Promise((_,rj)=>{t=setTimeout(()=>rj(new Error('upload timeout')),ms)})]).finally(()=>clearTimeout(t))};
+try{ST_&&(ST_.setMaxUploadRetryTime(20000),ST_.setMaxOperationRetryTime(15000))}catch(e){}
+const stPut=async(b,path)=>{const r=ST_.ref(path),tk=r.put(b,{contentType:b.type,cacheControl:'public,max-age=31536000,immutable'});try{await _to(tk,30000)}catch(e){try{tk.cancel()}catch(x){}throw e}return _to(r.getDownloadURL(),10000)};
 let stWarned=0;const stFail=e=>{console.error('Firebase Storage upload failed:',e);if(!stWarned){stWarned=1;toast('⚠️ Storage rules not published yet — saved a small inline copy instead')}};
 async function putImg(src,folder,strict){const p='catalog/'+folder+'/'+rid();
  try{if(!ST_)throw new Error('Storage SDK missing');const [fb,tb]=await Promise.all([toBlob(src,1000,.8),toBlob(src,360,.72)]);const [u,t]=await Promise.all([stPut(fb,p+'.'+EXT[fb.type]),stPut(tb,p+'_t.'+EXT[tb.type])]);return{u,t}}
@@ -1397,11 +1403,11 @@ async function migOne(it){const upd=(c,id,d)=>db.collection(c).doc(id).update(d)
 
 /* ===== ADMIN: global date range, polished dashboard & analytics ===== */
 A.rg={from:'',to:''};
-const ymd=d=>d.toLocaleDateString('en-CA');
-const tms=o=>{const c=o&&o.createdAt;if(c&&c.toDate)return c.toDate().getTime();if(c&&c.seconds)return c.seconds*1000;return null};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const tms=o=>{const c=o&&o.createdAt;if(c&&c.toDate)return c.toDate().getTime();if(c&&c.seconds)return c.seconds*1000;if(typeof c=='number')return c;if(typeof c=='string'){const t=Date.parse(c);return isNaN(t)?null:t}return null};
 const dms=v=>{if(!v)return null;const t=new Date(String(v).length<=10?v+'T12:00:00':v).getTime();return isNaN(t)?null:t};
 const RK={orders:tms,requests:tms,reviews:tms,carts:o=>o.updatedAt&&o.updatedAt.toDate?o.updatedAt.toDate().getTime():null,bookings:o=>dms(o.date),expenses:o=>dms(o.date),returns:o=>dms(o.date),log:o=>o.at&&o.at.toDate?o.at.toDate().getTime():null};
-const inR=t=>{const r=A.rg;if(!r.from&&!r.to)return true;if(t==null)return true;if(r.from&&t<new Date(r.from+'T00:00:00').getTime())return false;if(r.to&&t>new Date(r.to+'T23:59:59.999').getTime())return false;return true};
+const inR=t=>{const r=A.rg;if(!r.from&&!r.to)return true;if(t==null)return false;if(r.from&&t<new Date(r.from+'T00:00:00').getTime())return false;if(r.to&&t>new Date(r.to+'T23:59:59.999').getTime())return false;return true};
 const withRange=fn=>{const full=A.d,f=Object.assign({},full);for(const k in RK)if(Array.isArray(full[k]))f[k]=full[k].filter(o=>inR(RK[k](o)));A.all=full;A.d=f;try{return fn()}finally{A.d=full}};
 const rgRange=k=>{const n=new Date(),t=ymd(n),d=x=>{const y=new Date();y.setDate(y.getDate()-x);return ymd(y)};
  if(k=='today')return[t,t];if(k=='yest')return[d(1),d(1)];if(k=='7')return[d(6),t];if(k=='30')return[d(29),t];
@@ -1508,7 +1514,7 @@ let _dT=0;function draw(imm){clearTimeout(_dT);if(imm===true)return drawNow();_d
 function drawNow(){const a=document.activeElement;if(a&&a.id=='adPQ')return;if((A.sec=='content'||A.sec=='customers'||A.sec=='growth'||A.sec=='qr')&&a&&/INPUT|TEXTAREA/.test(a.tagName)&&a.closest('#adMain'))return;
  const _sd=`<div class="ad-logo">IFTKASA<small>ADMIN PANEL</small></div><input placeholder="Global search" style="min-width:130px" onkeydown="if(event.key=='Enter')ADM.gs(this.value)">`+NAV.map(e=>{if(typeof e=='string')return `<div class="ad-g">${e}</div>`;const[k,i,l]=e;if(!can(k))return '';const n=k=='orders'?nw('orders'):k=='requests'?nw('requests'):0;return `<button class="ad-nav ${A.sec==k?'on':''}" onclick="ADM.go('${k}')"><span>${i}</span>${l}${n?`<b>${n}</b>`:''}</button>`}).join('')+`<button class="ad-nav" onclick="ADM.close()">↩ Back to store</button><button class="ad-nav" onclick="ADM.out()">⎋ Sign out</button>`;
  if(_sd!==A._sd){$('adSide').innerHTML=_sd;A._sd=_sd}
-  $('adMain').innerHTML=rangeBar()+withRange(()=>V[A.sec]());try{ADX.decorate()}catch(e){console.error(e)}}
+  $('adMain').innerHTML=rangeBar()+(RSEC.includes(A.sec)?withRange(()=>V[A.sec]()):V[A.sec]());try{ADX.decorate()}catch(e){console.error(e)}}
 async function seed(){A.seeding=1;const b=db.batch(),c=n=>db.collection(n).doc();
  DEF.P.forEach((p,i)=>b.set(c('products'),{nEn:p.n[0],nAr:p.n[1],sEn:p.s[0],sAr:p.s[1],price:parseFloat(p.price[0].replace(/,/g,''))||'',ic:p.ic,img:'',stock:'',cat:['Helmets','Mirrors','Accessories','Accessories','Lighting','Spare Parts','Spare Parts','Accessories','Accessories'][i]||'Accessories',tEn:p.tag?p.tag[0]:'',tAr:p.tag?p.tag[1]:'',order:i,active:true}));
  DEF.M.forEach((m,i)=>b.set(c('mods'),{nEn:m.n[0],nAr:m.n[1],sEn:m.s[0],sAr:m.s[1],ic:m.ic,img:'',order:i,active:true}));
@@ -1546,7 +1552,7 @@ window.ADM={
   else{e.style.display='none';e.innerHTML=''}},
  pv(k){const e=$('f_'+k);$('pv_'+k).innerHTML=lst(e.value).map((u,i)=>`<div class="pt"><img src="${esc(u)}" alt=""><button type="button" onclick="ADM.rmi('${k}',${i})">×</button></div>`).join('')},
  rmi(k,i){const e=$('f_'+k),l=lst(e.value);l.splice(i,1);e.value=l.join('|');ADM.pv(k)},
- async ups(k,fs){const e=$('f_'+k),m=e.dataset.m=='1';fs=Array.from(fs||[]).filter(f=>/^image\//.test(f.type));if(!fs.length)return;if(!m)fs=fs.slice(0,1);toast('Uploading…');try{const us=[];for(const f of fs)us.push(await put(f));e.value=m?lst(e.value).concat(us).join('|'):us[0];ADM.pv(k);toast('Uploaded ✅')}catch(x){toast('❌ Could not read the image')}},
+ async ups(k,fs){const e=$('f_'+k),m=e.dataset.m=='1';fs=Array.from(fs||[]).filter(f=>/^image\//.test(f.type));if(!fs.length)return;if(!m)fs=fs.slice(0,1);toast('Uploading…');try{const us=[];us.push(...await Promise.all(fs.map(f=>put(f))));e.value=m?lst(e.value).concat(us).join('|'):us[0];ADM.pv(k);toast('Uploaded ✅')}catch(x){toast('❌ Could not read the image')}},
  async login(){const e=$('adErr');e.textContent='';const un=$('adE').value.trim().toLowerCase(),pw=$('adP').value;if(!un){e.textContent='Enter your username';return}
   if(Date.now()<+(localStorage.getItem('ift_lk')||0)){e.textContent='Too many attempts — try again in a minute';return}
   let list=[],ex=false;try{const s=await db.doc('store/adminUsers').get();ex=s.exists;list=ex?(s.data().list||[]):[]}catch(x){e.textContent='Could not reach Firebase — check the Rules';return}
@@ -1644,7 +1650,7 @@ Object.assign(ADM,{
 Object.assign(A.d,{visits:[],events:[],carts:[],searches:[]});
 ROLES.sales[1].push('funnel','carts','winback','vip','referrals','growth','insights','qr');
 NAV.splice(NAV.indexOf('System'),0,'Growth',['funnel','🎯','Funnel & traffic'],['carts','🛒','Abandoned carts'],['winback','⏰','Win-back list'],['vip','💎','VIP customers'],['referrals','🔗','Referrals'],['insights','🔍','Insights & audience'],['qr','📱','QR & campaign links'],['growth','🎟️','Marketing settings']);
-const day=(n=0)=>new Date(Date.now()-n*864e5).toLocaleDateString('en-CA'),S_=()=>A.d.settings||{},pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+const day=(n=0)=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},S_=()=>A.d.settings||{},pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
 const MSG={cart:'أهلًا {name} 👋 لاحظنا إنك سبت في سلتك: {items}. لسه محتاج مساعدة؟ كمّل طلبك دلوقتي 🏍️',wb:'أهلًا {name}، وحشتنا في IFTKASA GARAGE 🏍️ عندنا عرض خاص ليك — استخدم كود {code} على طلبك الجاي.',vip:'أهلًا {name}، إنت من أهم عملائنا في IFTKASA GARAGE 💎 عندنا خصم ولاء مخصوص ليك — كلمنا نفعّله.'};
 const fill=(t,c)=>String(t).replace(/\{name\}/g,c.name||'').replace(/\{items\}/g,c.items||'').replace(/\{code\}/g,S_().welcome||'');
 const wl=(ph,m,x)=>`<a href="${wa(ph)}?text=${encodeURIComponent(m)}" target="_blank" rel="noopener" style="color:#20d7f0" ${x||''}>💬 WhatsApp</a>`;
@@ -1794,7 +1800,7 @@ fix(document.body);go();
 const db=firebase.firestore(),TS=()=>firebase.firestore.FieldValue.serverTimestamp();
 const ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},ss=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}},sset=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}};
 window.iftRC=p=>{p=String(p).replace(/\D/g,'').slice(-10);let h=5381;for(const c of p)h=(h*33+c.charCodeAt(0))>>>0;return 'F'+h.toString(36).toUpperCase().slice(0,5)};
-const skip=()=>/[?&]ship=/.test(location.search)||location.hash=='#admin'||ss('iftkasa_admin'),day=()=>new Date().toLocaleDateString('en-CA');
+const skip=()=>/[?&]ship=/.test(location.search)||location.hash=='#admin'||ss('iftkasa_admin'),day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const nz=s=>{s=String(s||'').toLowerCase();return /facebook|^fb/.test(s)?'facebook':/instagram|^ig$/.test(s)?'instagram':/tiktok/.test(s)?'tiktok':/whatsapp|wa\.me/.test(s)?'whatsapp':/google/.test(s)?'google':s||'direct'};
 const q=new URLSearchParams(location.search);
 let sid=ls('ift_sid');if(!sid){sid=Math.random().toString(36).slice(2)+Date.now().toString(36);lset('ift_sid',sid)}
