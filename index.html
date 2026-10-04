@@ -1026,14 +1026,14 @@ const DEF={P:clone(P),M:clone(MODS),F:clone(FIBER)};
 const DC='Spare Parts|قطع غيار\nAccessories|إكسسوارات\nHelmets|خوذات\nLighting|إضاءة\nMirrors|مرايات';
 function parseCats(str){const out=[];let cur=null;String(str||'').split('\n').forEach(raw=>{const l=raw.replace(/\r$/,'');if(!l.trim())return;const sub=/^\s*-/.test(l),parts=l.replace(/^\s*-\s*/,'').split('|').map(s=>s.trim()),en=parts[0],ar=parts[1]||parts[0];if(!en)return;if(sub&&cur)cur[2].push([en,ar]);else{cur=[en,ar,[]];out.push(cur)}});return out}
 window.SET={cats:parseCats(DC),s:{},wa:'010 1234 5678',phone:'010 1234 5678',brands:['Honda','Yamaha','Suzuki','Vespa'],an:['',''],open:true,closed:['','']};
-window.pic=o=>(o.img||o.thumb)?`<img src="${esc(window._pf?(o.img||o.thumb):(o.thumb||o.img))}" ${window._pf?'fetchpriority="high"':'loading="lazy"'} decoding="async" style="${window._pf&&o.thumb&&o.img&&o.thumb!==o.img?'background:url('+esc(o.thumb)+') center/cover;':''}width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="">`:o.ic;
+window.pic=o=>(o.img||o.thumb)?`<img src="${esc(window._pf?(o.img||o.thumb):((o.tv===2||o.tv===undefined&&o.n===undefined)?(o.thumb||o.img):(o.img||o.thumb)))}" ${window._pf?'fetchpriority="high"':'loading="lazy"'} decoding="async" style="${window._pf&&o.thumb&&o.img&&o.thumb!==o.img?'background:url('+esc(o.thumb)+') center/cover;':''}width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="">`:o.ic;
 
 /* ================= STORE SIDE: live data + orders/requests ================= */
 Object.assign(D,{cName:['Your name','اسمك'],cPhone:['Phone / WhatsApp','رقم الموبايل / واتساب'],cNote:['Notes (optional)','ملاحظات (اختياري)'],cNeed:['Please enter your name and phone number','من فضلك اكتب اسمك ورقم موبايلك'],cErr:['Could not send, please try again','تعذر الإرسال، حاول مرة أخرى'],cCode:['Coupon code','كود الخصم'],cApply:['Apply','تطبيق'],cBad:['Invalid or expired coupon','الكوبون غير صالح أو منتهي'],cMin:['Minimum order not reached','لم تصل للحد الأدنى للطلب'],cOut:['Sorry, this item is out of stock','عذرًا، المنتج غير متوفر حاليًا'],cClosed:['The store is closed right now','المتجر مغلق حاليًا'],
 cAltPhone:['Alternate phone (optional)','رقم بديل (اختياري)'],cSaveAddr:['Save this address for next time','احفظ العنوان ده للمرة الجاية'],cMyAddrs:['My saved addresses','عناويني المحفوظة'],cNoAddrs:['No saved addresses yet','لسه مفيش عناوين محفوظة'],cUseAddr:['Use this address','استخدم العنوان ده'],cAddNew:['+ Add new address','+ عنوان جديد'],cDelAddr:['Delete','حذف'],cAddrSaved:['Address saved ✅','اتحفظ العنوان ✅'],cChoose:['Choose from saved addresses','اختار من العناوين المحفوظة']});
 const raw={},CK='iftkasa_cache_v1';let ready=false;
 window.num=p=>p.num!=null?p.num:(parseFloat(String(p.price[0]).replace(/,/g,''))||null);
-const mapP=d=>{const ok=d.price!==''&&d.price!=null&&!isNaN(d.price),n=Number(d.price).toLocaleString('en-US');return{id:d.id,n:[d.nEn||d.nAr,d.nAr||d.nEn],s:[d.sEn||'',d.sAr||d.sEn||''],price:ok?[n+' EGP',n+' ج.م']:['Set after inspection','يُحدد بعد المعاينة'],num:ok?Number(d.price):null,cat:d.cat||'',fits:d.fits||'',bd:{on:d.badges!=='Hide',b:[[d.b1En,d.b1Ar],[d.b2En,d.b2Ar],[d.b3En,d.b3Ar]]},imgs:String(d.imgs||'').split(/\||\n|,(?=\s*(?:https?:|data:))/).map(a=>a.trim()).filter(Boolean),stock:d.stock===''||d.stock==null?null:Number(d.stock),ic:d.ic||'📦',img:d.img||'',thumb:d.thumb||'',tag:(d.stock!==''&&d.stock!=null&&Number(d.stock)<=0)?['Sold out','نفدت الكمية']:d.tEn||d.tAr?[d.tEn||d.tAr,d.tAr||d.tEn]:undefined}};
+const mapP=d=>{const ok=d.price!==''&&d.price!=null&&!isNaN(d.price),n=Number(d.price).toLocaleString('en-US');return{id:d.id,n:[d.nEn||d.nAr,d.nAr||d.nEn],s:[d.sEn||'',d.sAr||d.sEn||''],price:ok?[n+' EGP',n+' ج.م']:['Set after inspection','يُحدد بعد المعاينة'],num:ok?Number(d.price):null,cat:d.cat||'',fits:d.fits||'',bd:{on:d.badges!=='Hide',b:[[d.b1En,d.b1Ar],[d.b2En,d.b2Ar],[d.b3En,d.b3Ar]]},imgs:String(d.imgs||'').split(/\||\n|,(?=\s*(?:https?:|data:))/).map(a=>a.trim()).filter(Boolean),stock:d.stock===''||d.stock==null?null:Number(d.stock),ic:d.ic||'📦',img:d.img||'',thumb:d.thumb||'',tv:d.tv||0,tag:(d.stock!==''&&d.stock!=null&&Number(d.stock)<=0)?['Sold out','نفدت الكمية']:d.tEn||d.tAr?[d.tEn||d.tAr,d.tAr||d.tEn]:undefined}};
 const mapM=d=>({id:d.id,n:[d.nEn||d.nAr,d.nAr||d.nEn],s:[d.sEn||'',d.sAr||d.sEn||''],ic:d.ic||'🔧',img:d.img||''});
 let _apT=0;function apply(imm){if(imm===true)return applyNow();clearTimeout(_apT);_apT=setTimeout(applyNow,70)}
 function applyNow(){
@@ -1104,7 +1104,7 @@ window.placeOrder=async()=>{if(!okC())return;if(govs().length&&!state.gov){alert
 window.L=(e,a)=>LI()?a:e;const ls=k=>{try{return localStorage.getItem(k)||''}catch(e){return''}},pk=p=>String(p.id||p.n[0]).replace(/['"\\]/g,'');
 const favs=()=>{try{return JSON.parse(ls('ift_fav')||'[]')}catch(e){return[]}};
 window.toggleFav=k=>{let f=favs();f=f.includes(k)?f.filter(a=>a!=k):f.concat(k);try{localStorage.setItem('ift_fav',JSON.stringify(f))}catch(e){}render()};
-const card=(p,i)=>{const fv=favs().includes(pk(p));const R=(raw.reviews||[]).filter(r=>r.pid==pk(p)),rn=R.length,ravg=rn?(R.reduce((s,r)=>s+r.stars,0)/rn).toFixed(1):null;return `<div class="product" onclick="openProduct(${i})">${p.tag?`<div class="tag">${x(p.tag)}</div>`:''}<div class="img">${pic(p)}${p.imgs&&p.imgs.length?`<span class=\"mi\">🖼 ${p.imgs.length+1}</span>`:''}<span class="fav" style="${fv?'color:#ff2fd6':''}" onclick="event.stopPropagation();toggleFav('${pk(p)}')">${fv?'♥':'♡'}</span></div><b>${x(p.n)}</b>${ravg?`<span class="rating">★ ${ravg} <span class="cnt">(${rn})</span></span>`:''}<span class="price">${p.old?`<s style="color:var(--muted);font-weight:400;font-size:11px">${p.old}</s> `:''}${x(p.price)}</span>${p.num==null?`<button class="addcart" onclick="event.stopPropagation();askPrice(${i})">${t('reqQuote')}</button>`:`<button class="addcart" onclick="event.stopPropagation();addToCart(${i})">${t('addCart')}</button>`}</div>`};
+const card=(p,i)=>{const fv=favs().includes(pk(p));const R=(raw.reviews||[]).filter(r=>r.pid==pk(p)),rn=R.length,ravg=rn?(R.reduce((s,r)=>s+r.stars,0)/rn).toFixed(1):null;return `<div class="product" onclick="openProduct(${i})">${p.tag?`<div class="tag">${x(p.tag)}</div>`:''}<div class="img">${pic(p)}<span class="fav" style="${fv?'color:#ff2fd6':''}" onclick="event.stopPropagation();toggleFav('${pk(p)}')">${fv?'♥':'♡'}</span></div><b>${x(p.n)}</b>${ravg?`<span class="rating">★ ${ravg} <span class="cnt">(${rn})</span></span>`:''}<span class="price">${p.old?`<s style="color:var(--muted);font-weight:400;font-size:11px">${p.old}</s> `:''}${x(p.price)}</span>${p.num==null?`<button class="addcart" onclick="event.stopPropagation();askPrice(${i})">${t('reqQuote')}</button>`:`<button class="addcart" onclick="event.stopPropagation();addToCart(${i})">${t('addCart')}</button>`}</div>`};
 const PG={total:0};const pgrid=(from)=>{const q=(state.q||'').toLowerCase(),c=state.cat||'';
  const r=P.map((p,i)=>[p,i]).filter(([p])=>(!c||p.cat==c||(p.cat||'').indexOf(c+' > ')==0)&&(!q||(p.n.join(' ')+' '+p.s.join(' ')).toLowerCase().includes(q)));
  PG.total=r.length;return r.length?r.slice(from||0,state.lim||24).map(([p,i])=>card(p,i)).join(''):`<p style="color:var(--muted);grid-column:1/-1;text-align:center;margin-top:30px">${L('No matching products','مفيش منتجات مطابقة')}</p>`};
@@ -1291,7 +1291,7 @@ window.stReady.then(()=>{try{ST_.setMaxUploadRetryTime(20000);ST_.setMaxOperatio
 const stPut=async(b,path)=>{const r=ST_.ref(path),tk=r.put(b,{contentType:b.type,cacheControl:'public,max-age=31536000,immutable'});try{await _to(tk,30000)}catch(e){try{tk.cancel()}catch(x){}throw e}return _to(r.getDownloadURL(),10000)};
 let stWarned=0;const stFail=e=>{console.error('Firebase Storage upload failed:',e);if(!stWarned){stWarned=1;toast('⚠️ Storage rules not published yet — saved a small inline copy instead')}};
 async function putImg(src,folder,strict){const p='catalog/'+folder+'/'+rid();
- try{await window.stReady;if(!firebase.storage)throw new Error('Storage SDK missing');const [fb,tb]=await Promise.all([toBlob(src,1400,.82),toBlob(src,640,.8)]);const [u,t]=await Promise.all([stPut(fb,p+'.'+EXT[fb.type]),stPut(tb,p+'_t.'+EXT[tb.type])]);return{u,t,v:2}}
+ try{await window.stReady;if(!firebase.storage)throw new Error('Storage SDK missing');const [fb,tb]=await Promise.all([toBlob(src,1600,.86),toBlob(src,900,.84)]);const [u,t]=await Promise.all([stPut(fb,p+'.'+EXT[fb.type]),stPut(tb,p+'_t.'+EXT[tb.type])]);return{u,t,v:2}}
  catch(e){if(strict)throw e;stFail(e);const [u,t]=await Promise.all([toData(src,640,.55),toData(src,240,.5)]);if(!u)throw new Error('read');return{u,t:t||u}}}
 async function putBlob(src,folder,mx,strict){
  try{await window.stReady;if(!firebase.storage)throw new Error('Storage SDK missing');const b=await toBlob(src,mx,.8);return await stPut(b,folder+'/'+rid()+'.'+EXT[b.type])}
@@ -1623,10 +1623,10 @@ const cropImg=(file,idx,total)=>new Promise(async res=>{
  let img;try{img=await decodeImg(file)}catch(e){res(file);return}
  const iw=img.width||img.naturalWidth,ih=img.height||img.naturalHeight,S=640,OUT=1600;
  const m=document.createElement('div');m.id='cropM';
- m.innerHTML=`<div class="cb"><h4>✂️ Crop product photo <span class="cnt">${idx+1}/${total}</span></h4><small>Drag to move · slider to zoom · this square is exactly how it appears on the store</small><div class="fr"><canvas width="${S}" height="${S}"></canvas></div><input class="rg" type="range" min="0" max="300" value="0"><div class="row"><button type="button" data-a="fit">Fill frame</button><button type="button" data-a="skip">Cancel</button><button type="button" class="ok" data-a="ok">Done ✓</button></div></div>`;
+ m.innerHTML=`<div class="cb"><h4>✂️ Crop product photo <span class="cnt">${idx+1}/${total}</span></h4><small>Drag to move · slider to zoom · this square is exactly how it appears on the store</small><div class="fr"><canvas width="${S}" height="${S}"></canvas></div><input class="rg" type="range" min="0" max="300" value="0"><div class="row"><button type="button" data-a="fit">Fit whole photo</button><button type="button" data-a="skip">Cancel</button><button type="button" class="ok" data-a="ok">Done ✓</button></div></div>`;
  document.body.appendChild(m);
  const fr=m.querySelector('.fr'),cv=m.querySelector('canvas'),g=cv.getContext('2d'),rg=m.querySelector('.rg');
- let fit=true,ox=0,oy=0;
+ let fit=false,ox=0,oy=0;
  const base=()=>fit?Math.min(S/iw,S/ih):Math.max(S/iw,S/ih);
  const sc=()=>base()*(1+rg.value/100);
  const clamp=()=>{const w=iw*sc(),h=ih*sc(),mx=Math.max(0,(w-S)/2),my=Math.max(0,(h-S)/2);ox=Math.max(-mx,Math.min(mx,ox));oy=Math.max(-my,Math.min(my,oy))};
@@ -1646,18 +1646,15 @@ const cropImg=(file,idx,total)=>new Promise(async res=>{
   const o=document.createElement('canvas');o.width=o.height=OUT;draw(o,OUT);
   const b=await new Promise(r=>o.toBlob(r,'image/webp',.95));done(b||file)});
  paint()});
-const autoCrop=async f=>{const img=await decodeImg(f),iw=img.width||img.naturalWidth,ih=img.height||img.naturalHeight,OUT=1600,o=document.createElement('canvas');o.width=o.height=OUT;const x=o.getContext('2d');x.imageSmoothingQuality='high';x.fillStyle='#0a1228';x.fillRect(0,0,OUT,OUT);
- const s=Math.min(OUT/iw,OUT/ih),w=Math.round(iw*s),h=Math.round(ih*s),sd=stepDown(img,iw,ih,w,h);x.drawImage(sd,(OUT-w)/2,(OUT-h)/2,w,h);
- return await new Promise(res=>o.toBlob(res,'image/webp',.95))};
 Object.assign(ADM,{
  galBox(o){const src=(Array.isArray(o.gal)&&o.gal.length)?o.gal:[o.img].concat(lst(o.imgs)).filter(Boolean).map((u,i)=>({u,t:i==0?(o.thumb||''):''}));
   A.gal=src.slice(0,3).map(x=>({u:x.u,t:x.t||'',v:x.v||0}));A.galOrig=A.gal.flatMap(x=>[x.u,x.t]).filter(Boolean);A.galBusy=0;
-  return `<div class="pm-s"><h4>Product images (up to 3) — the first one is the main photo</h4><div class="up"><label class="dz" id="galDz" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="event.preventDefault();this.classList.remove('ov');ADM.galAdd(event.dataTransfer.files)"><input type="file" accept="image/*" multiple hidden onchange="ADM.galAdd(this.files);this.value=''"><span class="dzi">📤</span><b>Click to choose photos</b><small>max 3 · fitted on navy (no cropping), resized &amp; compressed automatically</small></label><label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;cursor:pointer"><input type="checkbox" id="manCrop" style="width:auto;margin:0"> Adjust crop manually</label><div class="pv" id="pv_gal"></div></div></div>`},
+  return `<div class="pm-s"><h4>Product images (up to 3) — the first one is the main photo</h4><div class="up"><label class="dz" id="galDz" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="event.preventDefault();this.classList.remove('ov');ADM.galAdd(event.dataTransfer.files)"><input type="file" accept="image/*" multiple hidden onchange="ADM.galAdd(this.files);this.value=''"><span class="dzi">📤</span><b>Click to choose photos</b><small>max 3 · you choose the crop · resized &amp; compressed automatically</small></label><div class="pv" id="pv_gal"></div></div></div>`},
  galPv(){const e=$('pv_gal');if(!e)return;e.innerHTML=A.gal.map((x,i)=>`<div class="pt"><img src="${esc(x.t||x.u)}" alt="">${i==0?'<span style="position:absolute;left:4px;bottom:4px;background:#20d7f0;color:#06121f;font-size:10px;font-weight:800;border-radius:6px;padding:1px 6px">Main</span>':`<button type="button" style="left:4px;right:auto;width:auto;border-radius:6px;padding:0 6px;font-size:11px" onclick="ADM.galMain(${i})">★ Main</button>`}<button type="button" onclick="ADM.galRm(${i})">×</button></div>`).join('');const dz=$('galDz');if(dz)dz.style.display=A.gal.length>=3?'none':''},
  galRm(i){A.gal.splice(i,1);ADM.galPv()},
  galMain(i){const x=A.gal.splice(i,1)[0];A.gal.unshift(x);ADM.galPv()},
  async galAdd(fs){fs=Array.from(fs||[]).filter(f=>/^image\//.test(f.type));if(!fs.length)return;const room=3-A.gal.length;if(room<=0){toast('Max 3 images per product');return}if(fs.length>room)toast('Only '+room+' more image(s) fit — max 3');fs=fs.slice(0,room);
-  const man=$('manCrop')&&$('manCrop').checked,cs=[];for(let k=0;k<fs.length;k++){const c=man?await cropImg(fs[k],k,fs.length):await autoCrop(fs[k]).catch(()=>fs[k]);if(c)cs.push(c)}if(!cs.length)return;
+  const cs=[];for(let k=0;k<fs.length;k++){const c=await cropImg(fs[k],k,fs.length);if(c)cs.push(c)}if(!cs.length)return;
   A.galBusy=(A.galBusy||0)+1;toast('Uploading '+cs.length+'…');
   try{const r=await Promise.all(cs.map(f=>putImg(f,'products')));A.gal.push(...r);ADM.galPv();toast('Uploaded ✅')}catch(x){toast('❌ Could not read the image')}finally{A.galBusy--}},
  dropStale(G){const keep=new Set(G.flatMap(x=>[x.u,x.t]).filter(Boolean));(A.galOrig||[]).filter(u=>!keep.has(u)).forEach(delUrl)},
@@ -1671,7 +1668,7 @@ Object.assign(ADM,{
   A.mig.run=0;toast(A.mig.fail?'Finished with '+A.mig.fail+' error(s)':'All images moved to Storage ✅');draw(true)}
 });
 async function upThumb(p){let b;try{b=await(await fetch(p.img,{mode:'cors'})).blob()}catch(e){const x=new Error('cors');x.cors=1;throw x}
- const tb=await toBlob(b,640,.8),t=await stPut(tb,'catalog/products/'+rid()+'_t.'+EXT[tb.type]),old=p.thumb,G=(p.gal&&p.gal.length?p.gal:[{u:p.img,t:old||''}]).map(x=>({u:x.u,t:x.t||'',v:x.v||0}));
+ const tb=await toBlob(b,900,.84),t=await stPut(tb,'catalog/products/'+rid()+'_t.'+EXT[tb.type]),old=p.thumb,G=(p.gal&&p.gal.length?p.gal:[{u:p.img,t:old||''}]).map(x=>({u:x.u,t:x.t||'',v:x.v||0}));
  G[0].t=t;G[0].v=2;await db.collection('products').doc(p.id).update({thumb:t,tv:2,gal:G});if(old&&old!==t&&old!==p.img&&!isD(old))delUrl(old)}
 async function autoMaint(){if(A.am||!A.u||(A.mig&&A.mig.run))return;A.am=1;
  try{await window.stReady;if(!window.firebase||!firebase.storage)return;
@@ -2358,10 +2355,10 @@ td.rs,th.rs{width:34px;text-align:center}td.rs input,th.rs input{width:17px;heig
 /* product cards: same square frame as the crop tool, so the image shows exactly as cropped */
 .product .img{aspect-ratio:1/1!important;height:auto!important}
 .product .img img{object-fit:cover!important;object-position:center!important}
-/* photos are never cropped: shown whole on the store's navy frame */
+/* photos fill the square frame exactly (navy behind any transparent area) */
 .product .img,.detail-img{background:#0a1228!important}
-.product .img img,.detail-img img{object-fit:contain!important;background:#0a1228}
-div[style*="scroll-snap-type"] img{background-color:#0a1228!important;object-fit:contain!important}
+.product .img img,.detail-img img{object-fit:cover!important;background:#0a1228}
+div[style*="scroll-snap-type"] img{background-color:#0a1228!important;object-fit:cover!important}
 /* many products: skip rendering off-screen cards */
 .product{content-visibility:auto;contain-intrinsic-size:auto 280px}
 /* gallery indicators */
@@ -2370,7 +2367,6 @@ div[style*="scroll-snap-type"] img{background-color:#0a1228!important;object-fit
 .gdots{position:absolute;bottom:26px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3;pointer-events:none}
 .gdots b{width:8px;height:8px;border-radius:4px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.7);pointer-events:auto;cursor:pointer;transition:width .2s,background .2s}
 .gdots b.on{width:22px;background:var(--cyan);border-color:var(--cyan)}
-.product .mi{position:absolute;bottom:6px;right:6px;z-index:2;background:rgba(7,11,22,.75);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px}
 /* crop modal (admin) */
 #cropM{position:fixed;inset:0;z-index:99999;background:rgba(3,8,20,.92);display:flex;align-items:center;justify-content:center;padding:14px}
 #cropM .cb{width:100%;max-width:420px;background:#0d1730;border:1px solid #1b2a4d;border-radius:18px;padding:14px;color:#e8f0ff;font-family:inherit}
